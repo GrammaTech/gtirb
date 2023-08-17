@@ -14,7 +14,6 @@ class TestSymbolicExpressions {
     @Test
     void testUnknownAttributes() throws Exception {
         // Build minimal IR.
-        ArrayList<ByteInterval> byteIntervals = new ArrayList<ByteInterval>();
 
         IR ir = new IR();
         Module module =
@@ -23,16 +22,16 @@ class TestSymbolicExpressions {
             new Section("foo", new ArrayList<Section.SectionFlag>(),
                         new ArrayList<ByteInterval>());
         Symbol symbol = new Symbol("bar", 0);
-        ByteInterval byteInterval = new ByteInterval(section);
+        ByteInterval byteInterval = new ByteInterval();
         SymbolicExpression expr =
             new SymAddrConst(0, symbol.getUuid(),
                              new ArrayList<SymbolicExpression.AttributeFlag>());
-        expr.getAttributeFlags().add(SymbolicExpression.AttributeFlag.GOT);
-        expr.getUnknownAttributeFlags().add(0xBEEF);
+        expr.addAttributeFlag(SymbolicExpression.AttributeFlag.GOT);
+        expr.addUnknownFlag(0xBEEF);
         byteInterval.insertSymbolicExpression(0, expr);
 
-        byteIntervals.add(byteInterval);
-        section.setByteIntervals(byteIntervals);
+        // byteIntervals.add(byteInterval);
+        section.addByteInterval(byteInterval);
         module.addSection(section);
         ir.addModule(module);
 

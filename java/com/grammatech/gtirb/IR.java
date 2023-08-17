@@ -172,10 +172,15 @@ public class IR extends AuxDataContainer {
      * Remove a module from this {@link IR}.
      *
      * @param module  {@link Module} to remove.
+     * @return boolean true if the IR contained the module and it was removed.
      */
-    public void removeModule(Module module) {
-        this.modules.remove(module);
-        module.setIr(Optional.empty());
+    public boolean removeModule(Module module) {
+        if (module.getIr().isPresent() && module.getIr().get() == this &&
+            this.modules.remove(module)) {
+            module.setIr(Optional.empty());
+            return true;
+        }
+        return false;
     }
 
     /**

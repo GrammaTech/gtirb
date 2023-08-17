@@ -18,8 +18,10 @@ import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * The Symbolic Expression class is a base class for expressions such as
@@ -120,8 +122,8 @@ public class SymbolicExpression {
         }
     }
 
-    private List<AttributeFlag> attributeFlags;
-    private List<Integer> unknownAttributeFlags;
+    private Set<AttributeFlag> attributeFlags;
+    private Set<Integer> unknownAttributeFlags;
 
     /**
      * Class constructor for a SymbolicExpression from a protobuf symbolic
@@ -131,8 +133,9 @@ public class SymbolicExpression {
      */
     protected SymbolicExpression(SymbolicExpressionOuterClass.SymbolicExpression
                                      protoSymbolicExpression) {
-        this.attributeFlags = new ArrayList<AttributeFlag>();
-        this.unknownAttributeFlags = new ArrayList<Integer>();
+        this.attributeFlags = new HashSet<AttributeFlag>();
+        this.unknownAttributeFlags = new HashSet<Integer>();
+
         for (Integer value :
              protoSymbolicExpression.getAttributeFlagsValueList()) {
             AttributeFlag attributeFlag = AttributeFlag.fromInteger(value);
@@ -150,46 +153,76 @@ public class SymbolicExpression {
      *                        symbolic expression.
      */
     protected SymbolicExpression(List<AttributeFlag> attributeFlags) {
-        this.setAttributeFlags(attributeFlags);
-        this.setUnknownAttributeFlags(new ArrayList<Integer>());
+        this.attributeFlags = new HashSet<AttributeFlag>();
+        for (AttributeFlag attributeFlag : attributeFlags)
+            this.addAttributeFlag(attributeFlag);
+        this.unknownAttributeFlags = new HashSet<Integer>();
     }
 
     /**
      * Get the flags applying to this SymbolicExpression.
      *
-     * @return  A set of flags applying to this symbolic expression.
+     * @return  An unmodifiable {@link AttributeFlag} list of all the
+     * attribute flags in this {@link SymbolicExpresion}.
      */
     public List<AttributeFlag> getAttributeFlags() {
-        return this.attributeFlags;
+        return Collections.unmodifiableList(
+            new ArrayList<AttributeFlag>(this.attributeFlags));
     }
 
     /**
-     * Set the attribute flags of this SymbolicExpression.
+     * Add an attribute flags to this SymbolicExpression.
      *
-     * @param attributeFlags    A set of flags that will be applied to this
-     * symbolic expression.
+     * @param attributeFlag An {@link AttributeFlag} that will be applied
+     * to this symbolic expression.
      */
-    public void setAttributeFlags(List<AttributeFlag> attributeFlags) {
-        this.attributeFlags = attributeFlags;
+    public void addAttributeFlag(AttributeFlag attributeFlag) {
+        this.attributeFlags.add(attributeFlag);
+    }
+
+    /**
+     * Remove an attribute flags from this SymbolicExpression.
+     *
+     * @param attributeFlag An {@link AttributeFlag} that will be removed
+     * from this symbolic expression.
+     * @return boolean true if this symbolic expression contained the attribute
+     * flag, and it was removed.
+     */
+    public boolean removeAttributeFlag(AttributeFlag attributeFlag) {
+        return (this.attributeFlags.remove(attributeFlag));
     }
 
     /**
      * Get unknown attribute flags applying to this SymbolicExpression.
      *
-     * @return  A set of flags applying to this symbolic expression.
+     * @return  An unmodifiable list of all the unknown attribute
+     * flags in this {@link SymbolicExpresion}, as integers.
      */
     public List<Integer> getUnknownAttributeFlags() {
-        return this.unknownAttributeFlags;
+        return Collections.unmodifiableList(
+            new ArrayList<Integer>(this.unknownAttributeFlags));
     }
 
     /**
-     * Set the unknown attribute flags of this SymbolicExpression.
+     * Add an unknown attribute flag to this SymbolicExpression.
      *
-     * @param attributeFlags    A set of flags that will be applied to this
-     * symbolic expression, but are not in the recognized set of flags.
+     * @param Integer An unknown attribute flag that will be applied
+     * to this symbolic expression and stored as an integer.
      */
-    public void setUnknownAttributeFlags(List<Integer> attributeFlags) {
-        this.unknownAttributeFlags = attributeFlags;
+    public void addUnknownFlag(Integer unknownFlag) {
+        this.unknownAttributeFlags.add(unknownFlag);
+    }
+
+    /**
+     * Remove an unknown attribute flag from this SymbolicExpression.
+     *
+     * @param Integer An unknown attribute flag that will be removed
+     * to this symbolic expression.
+     * @return boolean true if this symbolic expression contained the attribute
+     * flag, and it was removed.
+     */
+    public boolean removeUnknownFlag(Integer unknownFlag) {
+        return (this.unknownAttributeFlags.remove(unknownFlag));
     }
 
     /**

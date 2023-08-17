@@ -17,11 +17,14 @@ package com.grammatech.gtirb;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.SectionOuterClass;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalLong;
+import java.util.Set;
 import java.util.TreeMap;
 
 /**
@@ -47,7 +50,7 @@ public class Section extends Node implements TreeListItem {
     private Optional<Module> module;
     private String name;
     private final TreeMap<Long, List<ByteInterval>> byteIntervalTree;
-    private List<SectionFlag> sectionFlags;
+    private Set<SectionFlag> sectionFlags;
 
     /**
      * Class constructor for a Section from a protobuf section.
@@ -65,14 +68,14 @@ public class Section extends Node implements TreeListItem {
         for (ByteIntervalOuterClass.ByteInterval protoByteInterval :
              protoByteIntervalList) {
             ByteInterval byteInterval =
-                ByteInterval.fromProtobuf(protoByteInterval, this);
-            TreeListUtils.insertItem(byteInterval, byteIntervalTree);
+                ByteInterval.fromProtobuf(protoByteInterval);
+            this.addByteInterval(byteInterval);
         }
 
-        this.sectionFlags = new ArrayList<SectionFlag>();
+        this.sectionFlags = new HashSet<SectionFlag>();
         for (Integer value : protoSection.getSectionFlagsValueList()) {
             SectionFlag newSectionFlag = SectionFlag.values()[value];
-            this.sectionFlags.add(newSectionFlag);
+            this.addSectionFlag(newSectionFlag);
         }
     }
 
@@ -88,10 +91,14 @@ public class Section extends Node implements TreeListItem {
         super();
         this.module = Optional.empty();
         this.setName(name);
-        this.setSectionFlags(flags);
-        byteIntervalTree = new TreeMap<Long, List<ByteInterval>>();
+
+        this.sectionFlags = new HashSet<SectionFlag>();
+        for (SectionFlag flag : flags)
+            this.addSectionFlag(flag);
+
+        this.byteIntervalTree = new TreeMap<Long, List<ByteInterval>>();
         for (ByteInterval byteInterval : byteIntervals)
-            TreeListUtils.insertItem(byteInterval, byteIntervalTree);
+            this.addByteInterval(byteInterval);
     }
 
     /**
@@ -130,7 +137,7 @@ public class Section extends Node implements TreeListItem {
      * @return  An iterator for iterating through all the ByteIntervals in this
      * Section.
      */
-    public Iterator<ByteInterval> getByteIntervalIterator() {
+    private Iterator<ByteInterval> getByteIntervalIterator() {
         TreeListUtils<ByteInterval> byteIntervalTreeIterator =
             new TreeListUtils<ByteInterval>(this.byteIntervalTree);
         return byteIntervalTreeIterator.iterator();
@@ -139,46 +146,75 @@ public class Section extends Node implements TreeListItem {
     /**
      * Get the ByteIntervals belonging to this Section.
      *
-     * @return  A list of ByteIntervals belonging to this Section.
+     * @return  An unmodifiable {@link ByteInterval} list of all the
+     * byte intervals in this {@link Section}.
      */
     public List<ByteInterval> getByteIntervals() {
         List<ByteInterval> resultList = new ArrayList<ByteInterval>();
         Iterator<ByteInterval> byteIntervals = this.getByteIntervalIterator();
         while (byteIntervals.hasNext())
             resultList.add(byteIntervals.next());
-        return resultList;
+        return Collections.unmodifiableList(resultList);
     }
 
     /**
-     * Set the Sections's ByteInterval list.
+     * Add a ByteInterval.
      *
-     * @param byteIntervals    A list of ByteIntervals that will belong to this
-     * Section.
+     * @param byteInterval A {@link ByteInterval} to add to this Section.
      */
-    public void setByteIntervals(List<ByteInterval> byteIntervals) {
-        // Make sure to start with an empty tree
-        this.byteIntervalTree.clear();
-        // Add all the new byte intervals
-        for (ByteInterval byteInterval : byteIntervals) {
-            TreeListUtils.insertItem(byteInterval, byteIntervalTree);
-        }
+    public void addByteInterval(ByteInterval byteInterval) {
+        TreeListUtils.insertItem(byteInterval, byteIntervalTree);
+        byteInterval.setSection(Optional.of(this));
+    }
+
+    /**
+     * Remove a ByteInterval.
+     *
+     * @param byteInterval A {@link ByteInterval} to remove from this Section.
+     * @return boolean true if this section contained the byte interval, and it
+     * was removed.
+     */
+    public boolean removeByteInterval(ByteInterval byteInterval) {
+        if (byteInterval.getSection().isPresent() &&
+            byteInterval.getSection().get() == this) {
+            TreeListUtils.removeItem(byteInterval, byteIntervalTree);
+            byteInterval.setSection(Optional.empty());
+            return true;
+        } else
+            return false;
     }
 
     /**
      * Get the flags applying to this Section.
      *
-     * @return  A list of flags applying to this Section.
+     * @return  An unmodifiable {@link SectionFlag} list of all the
+     * section flags of this {@link Section}.
      */
-    public List<SectionFlag> getSectionFlags() { return sectionFlags; }
+    public List<SectionFlag> getSectionFlags() {
+        return Collections.unmodifiableList(
+            new ArrayList<SectionFlag>(sectionFlags));
+    }
 
     /**
-     * Set the Sections's flag list.
+     * Add a Section flag.
      *
-     * @param sectionFlags    A list of flags that will be applied to this
+     * @param sectionFlag A {@link SectionFlag} that will be applied to this
      * Section.
      */
-    public void setSectionFlags(List<SectionFlag> sectionFlags) {
-        this.sectionFlags = sectionFlags;
+    public void addSectionFlag(SectionFlag sectionFlag) {
+        this.sectionFlags.add(sectionFlag);
+    }
+
+    /**
+     * Remove a Section flag.
+     *
+     * @param sectionFlag A {@link SectionFlag} to be removed from this
+     * Section.
+     * @return boolean true if this section contained the section flag, and it
+     * was removed.
+     */
+    public boolean removeSectionFlag(SectionFlag sectionFlag) {
+        return (this.sectionFlags.remove(sectionFlag));
     }
 
     /**

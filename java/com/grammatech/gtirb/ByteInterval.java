@@ -31,18 +31,17 @@ public final class ByteInterval extends Node implements TreeListItem {
     private OptionalLong address;
     private long size;
     private byte[] bytes;
-    private Section section;
+    private Optional<Section> section;
 
     /**
      * Class constructor for a ByteInterval from a protobuf byte interval.
      * @param  protoByteInterval  The byte interval as serialized into a
      * protocol buffer.
-     * @param  section            The Section that owns this ByteInterval.
      */
-    private ByteInterval(ByteIntervalOuterClass.ByteInterval protoByteInterval,
-                         Section section) {
+    private ByteInterval(
+        ByteIntervalOuterClass.ByteInterval protoByteInterval) {
         super(Util.byteStringToUuid(protoByteInterval.getUuid()));
-        this.section = section;
+        this.section = Optional.empty();
         if (protoByteInterval.getHasAddress()) {
             this.address = OptionalLong.of(protoByteInterval.getAddress());
         } else {
@@ -59,10 +58,10 @@ public final class ByteInterval extends Node implements TreeListItem {
             // compatibility with older protobuf versions.
             if (protoBlock.getValueCase() ==
                 ByteIntervalOuterClass.Block.ValueCase.DATA) {
-                newBlock = DataBlock.fromProtobuf(protoBlock, this);
+                newBlock = DataBlock.fromProtobuf(protoBlock);
             } else if (protoBlock.getValueCase() ==
                        ByteIntervalOuterClass.Block.ValueCase.CODE) {
-                newBlock = CodeBlock.fromProtobuf(protoBlock, this);
+                newBlock = CodeBlock.fromProtobuf(protoBlock);
             }
             if (newBlock == null) {
                 throw new IllegalArgumentException(
@@ -100,11 +99,10 @@ public final class ByteInterval extends Node implements TreeListItem {
      * Class Constructor.
      * @param  bytes      The array of bytes to be stored in the ByteInterval.
      * @param  address    The address of the ByteInterval.
-     * @param  section    The Section that owns this ByteInterval.
      */
-    public ByteInterval(byte[] bytes, long address, Section section) {
+    public ByteInterval(byte[] bytes, long address) {
         super();
-        this.section = section;
+        this.section = Optional.empty();
         this.address = OptionalLong.of(address);
         this.bytes = bytes;
         if (bytes != null) {
@@ -114,11 +112,10 @@ public final class ByteInterval extends Node implements TreeListItem {
 
     /**
      * Class Constructor.
-     * @param  section    The Section that owns this ByteInterval.
      */
-    public ByteInterval(Section section) {
+    public ByteInterval() {
         super();
-        this.section = section;
+        this.section = Optional.empty();
         this.address = OptionalLong.empty();
     }
 
@@ -154,14 +151,15 @@ public final class ByteInterval extends Node implements TreeListItem {
     /**
      * Get the blocks of this ByteInterval.
      *
-     * @return  The list of blocks belonging to this ByteInterval.
+     * @return  An unmodifiable {@link Block} list of all the
+     * blocks in this {@link ByteInterval}.
      */
     public List<ByteBlock> getBlockList() {
         List<ByteBlock> blockList = new ArrayList<ByteBlock>();
         for (List<ByteBlock> entry : this.blockTree.values()) {
             blockList.addAll(entry);
         }
-        return blockList;
+        return Collections.unmodifiableList(blockList);
     }
 
     /**
@@ -206,31 +204,21 @@ public final class ByteInterval extends Node implements TreeListItem {
         this.bytes = bytes;
     }
 
-    // DEPRECATED:
-    //  NOTE: getBytes() returns a byte array and should be used instead of
-    //  this.
-    //    /**
-    //     * Get the byte array from the protocol buffer.
-    //     *
-    //     * @return  If this byte interval was imported from protocol buffer,
-    //     this
-    //     * procedure returns the byte array in the protocol buffer byte
-    //     interval;
-    //     * otherwise returns null.
-    //     */
-    //    public byte[] getBytesDirect() {
-    //        if (this.protoByteInterval == null)
-    //            return null;
-    //        return this.protoByteInterval.getContents().toByteArray();
-    //    }
-
     /**
      * Get the section this ByteInterval belongs to.
      *
      * @return  The Section that this ByteInterval belongs to, or null if it
      * does not belong to any section.
      */
-    public Section getSection() { return this.section; }
+    public Optional<Section> getSection() { return this.section; }
+
+    /**
+     * Set the section this ByteInterval belongs to.
+     *
+     * @param  The Section that this ByteInterval belongs to, or null if it
+     * does not belong to any section.
+     */
+    void setSection(Optional<Section> section) { this.section = section; }
 
     /**
      * Get the index to manage this ByteInterval with.
@@ -375,6 +363,7 @@ public final class ByteInterval extends Node implements TreeListItem {
             blockList = new ArrayList<ByteBlock>();
         blockList.add(block);
         this.blockTree.put(offset, blockList);
+        block.setByteInterval(Optional.of(this));
         return blockList;
     }
 
@@ -382,18 +371,21 @@ public final class ByteInterval extends Node implements TreeListItem {
      * Remove a block from this ByteInterval.
      *
      * @param block    The ByteBlock to add to this ByteInterval.
-     * @return         An updated list of blocks at this offset, or null if
-     * the delete fails.
+     * @return boolean true if the byte interval contained the block,
+     * and it was removed.
      */
-    public List<ByteBlock> removeByteBlock(ByteBlock block) {
+    public boolean removeByteBlock(ByteBlock block) {
+        if (block.getByteInterval().isEmpty() ||
+            block.getByteInterval().get() != this)
+            return false;
         Long offset = block.getOffset();
         List<ByteBlock> blockList = this.blockTree.get(offset);
         if (blockList == null)
             // no blocks at this offset
-            return null;
+            return false;
         if (!blockList.remove(block))
             // didn't remove, maybe no matching block?
-            return null;
+            return false;
         // Did remove, update tree.
         // If the block list is now empty, remove the node from the tree.
         // Otherwise update the tree.
@@ -401,8 +393,12 @@ public final class ByteInterval extends Node implements TreeListItem {
             this.blockTree.remove(offset);
         else
             this.blockTree.put(offset, blockList);
-        // Return list, even if empty, because null means did not remove.
-        return blockList;
+        // List empty means did not remove
+        if (blockList != null) {
+            block.setByteInterval(Optional.empty());
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -653,13 +649,15 @@ public final class ByteInterval extends Node implements TreeListItem {
     }
 
     /**
-     * Remove a symbolicExpression from this ByteInterval.
+     * Remove a symbolic expression from this byte interval.
      *
-     * @param offset The offset within this ByteInterval of the Symbolic
-     *               Expression.
+     * @param offset The offset within this {@link ByteInterval} of the
+     * {@link SymbolicExpression}.
+     * @return boolean true if the byte interval contained the symbolic
+     * expression, and it was removed.
      */
-    public void removeSymbolicExpression(long offset) {
-        this.symbolicExpressionTree.remove(offset);
+    public boolean removeSymbolicExpression(long offset) {
+        return (this.symbolicExpressionTree.remove(offset) != null);
     }
 
     /**
@@ -668,7 +666,7 @@ public final class ByteInterval extends Node implements TreeListItem {
      * @return  An iterator for iterating through the symbolic expressions
      * in this ByteInterval. Each value returned by the iterator is a of type
      * Map.Entry<Long, SymbolicExpression>, where the key is the offset of
-     * the SYmbolicExpression in the ByteInterval.
+     * the SymbolicExpression in the ByteInterval.
      */
     public Iterator<Map.Entry<Long, SymbolicExpression>>
     symbolicExpressionIterator() {
@@ -725,9 +723,8 @@ public final class ByteInterval extends Node implements TreeListItem {
      * @return An initialized ByteInterval.
      */
     static ByteInterval
-    fromProtobuf(ByteIntervalOuterClass.ByteInterval protoByteInterval,
-                 Section section) {
-        return new ByteInterval(protoByteInterval, section);
+    fromProtobuf(ByteIntervalOuterClass.ByteInterval protoByteInterval) {
+        return new ByteInterval(protoByteInterval);
     }
 
     /**

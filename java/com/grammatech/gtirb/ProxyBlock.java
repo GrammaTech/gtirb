@@ -70,7 +70,7 @@ public class ProxyBlock extends Node {
     static ProxyBlock
     fromProtobuf(ProxyBlockOuterClass.ProxyBlock protoProxyBlock,
                  Module module) {
-        return new ProxyBlock(protoProxyBlock, module);
+        return new ProxyBlock(protoProxyBlock);
     }
 
     /**

@@ -4,10 +4,68 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.grammatech.gtirb.*;
 import com.grammatech.gtirb.Module;
+import com.grammatech.gtirb.Symbol;
+import java.io.File;
 import java.util.*;
 import org.junit.jupiter.api.Test;
 
 public class TestModules {
+
+    @Test
+    void testModuleSaveAndLoad() throws Exception {
+        // Just create a simple IR w/ 1 module
+        IR ir_orig = new IR();
+        Module mod =
+            new Module("c:/foo.exe", 0xCAFE, 0xBEEF, Module.FileFormat.ELF,
+                       Module.ISA.X64, "myModule");
+        mod.setByteOrder(Module.ByteOrder.LittleEndian);
+        ir_orig.addModule(mod);
+
+        Section section =
+            new Section("mySection", new ArrayList<Section.SectionFlag>(),
+                        new ArrayList<ByteInterval>());
+        mod.addSection(section);
+
+        Symbol symbol = new Symbol("mySymbol");
+        mod.addSymbol(symbol);
+
+        ProxyBlock proxyBlock = new ProxyBlock();
+        mod.addProxyBlock(proxyBlock);
+
+        File file;
+        file = File.createTempFile("temp", null);
+
+        String filename = file.getName();
+        try {
+            ir_orig.saveFile(filename);
+        } catch (Exception e) {
+            file.delete();
+            throw e;
+        }
+
+        IR ir_reloaded;
+        try {
+            ir_reloaded = IR.loadFile(filename);
+        } catch (Exception e) {
+            file.delete();
+            throw e;
+        }
+
+        file.delete();
+
+        assertNotNull(ir_reloaded);
+        Module mod_reloaded = ir_reloaded.getModules().get(0);
+        assertEquals("myModule", mod_reloaded.getName());
+        assertEquals(Module.FileFormat.ELF, mod_reloaded.getFileFormat());
+        assertEquals(Module.ISA.X64, mod_reloaded.getIsa());
+        assertEquals(Module.ByteOrder.LittleEndian,
+                     mod_reloaded.getByteOrder());
+        assertEquals(0xCAFE, mod_reloaded.getPreferredAddr());
+        assertEquals(0xBEEF, mod_reloaded.getRebaseDelta());
+        assertEquals("mySymbol", mod_reloaded.getSymbols().get(0).getName());
+        assertEquals("mySection", mod_reloaded.getSections().get(0).getName());
+        assertEquals(1, mod_reloaded.getProxyBlocks().size());
+    }
 
     @Test
     void testAddAndRemoveSections() throws Exception {
@@ -31,18 +89,19 @@ public class TestModules {
         List<Section> sections = module.getSections();
         assertEquals(sections.size(), 3);
 
-        assertEquals(section0.getModule(), module);
-        assertEquals(section1.getModule(), module);
-        assertEquals(section2.getModule(), module);
+        assertEquals(section0.getModule(), Optional.of(module));
+        assertEquals(section1.getModule(), Optional.of(module));
+        assertEquals(section2.getModule(), Optional.of(module));
         module.removeSection(section0);
         module.removeSection(section1);
         assertTrue(section0.getModule().isEmpty());
         assertTrue(section1.getModule().isEmpty());
-        assertEquals(section2.getModule(), module);
+        assertEquals(section2.getModule(), Optional.of(module));
 
         // Now the only section left should be "section2"
-        assertEquals("section2", module.getSections().get(0).getName());
+        sections = module.getSections();
         assertEquals(sections.size(), 1);
+        assertEquals("section2", sections.get(0).getName());
     }
 
     @Test
@@ -61,18 +120,19 @@ public class TestModules {
         List<Symbol> symbols = module.getSymbols();
         assertEquals(symbols.size(), 3);
 
-        assertEquals(symbol0.getModule(), module);
-        assertEquals(symbol1.getModule(), module);
-        assertEquals(symbol2.getModule(), module);
+        assertEquals(symbol0.getModule(), Optional.of(module));
+        assertEquals(symbol1.getModule(), Optional.of(module));
+        assertEquals(symbol2.getModule(), Optional.of(module));
         module.removeSymbol(symbol2);
         module.removeSymbol(symbol0);
-        assertEquals(symbol0.getModule().isEmpty());
-        assertEquals(symbol1.getModule(), module);
-        assertEquals(symbol2.getModule().isEmpty());
+        assertTrue(symbol0.getModule().isEmpty());
+        assertEquals(symbol1.getModule(), Optional.of(module));
+        assertTrue(symbol2.getModule().isEmpty());
 
         // Now the only symbol left should be "symbol1"
-        assertEquals("symbol1", module.getSymbols().get(0).getName());
-        assertEquals(symbols.size(), 3);
+        symbols = module.getSymbols();
+        assertEquals(symbols.size(), 1);
+        assertEquals("symbol1", symbols.get(0).getName());
     }
 
     @Test
@@ -91,17 +151,16 @@ public class TestModules {
         List<ProxyBlock> proxyBlocks = module.getProxyBlocks();
         assertEquals(proxyBlocks.size(), 3);
 
-        assertEquals(proxyBlock0.getModule(), module);
-        assertEquals(proxyBlock1.getModule(), module);
-        assertEquals(proxyBlock2.getModule(), module);
+        assertEquals(proxyBlock0.getModule(), Optional.of(module));
+        assertEquals(proxyBlock1.getModule(), Optional.of(module));
+        assertEquals(proxyBlock2.getModule(), Optional.of(module));
         module.removeProxyBlock(proxyBlock0);
         module.removeProxyBlock(proxyBlock2);
         module.removeProxyBlock(proxyBlock1);
-        assertEquals(proxyBlock0.getModule().isEmpty());
-        assertEquals(proxyBlock1.getModule().isEmpty());
-        assertEquals(proxyBlock2.getModule().isEmpty());
+        assertTrue(proxyBlock0.getModule().isEmpty());
+        assertTrue(proxyBlock1.getModule().isEmpty());
+        assertTrue(proxyBlock2.getModule().isEmpty());
 
-        proxyBlocks = module.getProxyBlocks();
-        assertEquals(proxyBlocks.size(), 0);
+        assertEquals(module.getProxyBlocks().size(), 0);
     }
 }

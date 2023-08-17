@@ -10,13 +10,13 @@ public class TestByteIntervals {
     // Run through all blocks with a ByteBlock iterator
     @Test
     public void testIterators() {
-        ByteInterval bi = new ByteInterval(null);
+        ByteInterval bi = new ByteInterval();
 
-        CodeBlock b1 = new CodeBlock(4, 1, CodeBlock.DecodeMode.Default, bi);
-        CodeBlock b2 = new CodeBlock(3, 3, CodeBlock.DecodeMode.Default, bi);
-        CodeBlock b3 = new CodeBlock(5, 5, CodeBlock.DecodeMode.Thumb, bi);
-        DataBlock b4 = new DataBlock(3, 2, bi);
-        DataBlock b5 = new DataBlock(3, 6, bi);
+        CodeBlock b1 = new CodeBlock(4, 1, CodeBlock.DecodeMode.Default);
+        CodeBlock b2 = new CodeBlock(3, 3, CodeBlock.DecodeMode.Default);
+        CodeBlock b3 = new CodeBlock(5, 5, CodeBlock.DecodeMode.Thumb);
+        DataBlock b4 = new DataBlock(3, 2);
+        DataBlock b5 = new DataBlock(3, 6);
 
         bi.insertByteBlock(b1);
         bi.insertByteBlock(b2);
@@ -47,21 +47,21 @@ public class TestByteIntervals {
     // Try a few ByteBlock retrieval methods
     @Test
     public void testBlockRetrieval() {
-        ByteInterval bi = new ByteInterval(null);
+        ByteInterval bi = new ByteInterval();
         bi.setAddress(0x200D90);
         bi.setSize(14);
 
-        CodeBlock c1 = new CodeBlock(2, 1, CodeBlock.DecodeMode.Default, bi);
-        CodeBlock c2 = new CodeBlock(2, 2, CodeBlock.DecodeMode.Default, bi);
-        CodeBlock c3 = new CodeBlock(6, 3, CodeBlock.DecodeMode.Thumb, bi);
-        CodeBlock c4 = new CodeBlock(1, 4, CodeBlock.DecodeMode.Default, bi);
-        CodeBlock c5 = new CodeBlock(3, 5, CodeBlock.DecodeMode.Default, bi);
+        CodeBlock c1 = new CodeBlock(2, 1, CodeBlock.DecodeMode.Default);
+        CodeBlock c2 = new CodeBlock(2, 2, CodeBlock.DecodeMode.Default);
+        CodeBlock c3 = new CodeBlock(6, 3, CodeBlock.DecodeMode.Thumb);
+        CodeBlock c4 = new CodeBlock(1, 4, CodeBlock.DecodeMode.Default);
+        CodeBlock c5 = new CodeBlock(3, 5, CodeBlock.DecodeMode.Default);
 
-        DataBlock d1 = new DataBlock(5, 0, bi);
-        DataBlock d2 = new DataBlock(4, 3, bi);
-        DataBlock d3 = new DataBlock(10, 4, bi);
-        DataBlock d4 = new DataBlock(1, 6, bi);
-        DataBlock d5 = new DataBlock(1, 7, bi);
+        DataBlock d1 = new DataBlock(5, 0);
+        DataBlock d2 = new DataBlock(4, 3);
+        DataBlock d3 = new DataBlock(10, 4);
+        DataBlock d4 = new DataBlock(1, 6);
+        DataBlock d5 = new DataBlock(1, 7);
 
         bi.insertByteBlock(c1);
         bi.insertByteBlock(c2);

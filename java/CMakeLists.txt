@@ -181,7 +181,7 @@ if(GTIRB_ENABLE_TESTS)
   )
 
   set(GTIRB_JAVA_TESTS TestAuxData TestByteIntervals TestIrSanity
-                       TestSymbolicExpressions TestModules
+                       TestSymbolicExpressions TestModules TestSections
   )
 
   foreach(GTIRB_JAVA_TEST ${GTIRB_JAVA_TESTS})

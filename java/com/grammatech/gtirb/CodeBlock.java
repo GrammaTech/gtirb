@@ -37,9 +37,8 @@ public class CodeBlock extends ByteBlock {
      * @param  protoBlock  The CodeBlock as serialized into a protocol buffer.
      */
     private CodeBlock(ByteString protoUuid,
-                      ByteIntervalOuterClass.Block protoBlock, long size,
-                      ByteInterval byteInterval) {
-        super(protoUuid, protoBlock, size, byteInterval);
+                      ByteIntervalOuterClass.Block protoBlock, long size) {
+        super(protoUuid, protoBlock, size);
         assert (protoBlock.getValueCase() ==
                 ByteIntervalOuterClass.Block.ValueCase.CODE);
         CodeBlockOuterClass.CodeBlock protoCodeBlock = protoBlock.getCode();
@@ -50,9 +49,8 @@ public class CodeBlock extends ByteBlock {
     /**
      * Class constructor for a {@link CodeBlock}.
      */
-    public CodeBlock(long size, long offset, DecodeMode decodeMode,
-                     ByteInterval byteInterval) {
-        super(size, offset, byteInterval);
+    public CodeBlock(long size, long offset, DecodeMode decodeMode) {
+        super(size, offset);
         this.decodeMode = decodeMode;
     }
 
@@ -77,8 +75,7 @@ public class CodeBlock extends ByteBlock {
      *
      * @return An initialized CodeBlock.
      */
-    static CodeBlock fromProtobuf(ByteIntervalOuterClass.Block protoBlock,
-                                  ByteInterval byteInterval) {
+    static CodeBlock fromProtobuf(ByteIntervalOuterClass.Block protoBlock) {
         // Avoid using protoBlock.hasCode() for compatibility with older
         // protobuf
         if (protoBlock.getValueCase() !=
@@ -87,7 +84,7 @@ public class CodeBlock extends ByteBlock {
         }
         CodeBlockOuterClass.CodeBlock protoCodeBlock = protoBlock.getCode();
         return new CodeBlock(protoCodeBlock.getUuid(), protoBlock,
-                             protoCodeBlock.getSize(), byteInterval);
+                             protoCodeBlock.getSize());
     }
 
     /**

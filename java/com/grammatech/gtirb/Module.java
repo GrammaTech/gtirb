@@ -305,8 +305,10 @@ public class Module extends AuxDataContainer {
         } else {
             sectionTree.clear();
         }
-        for (Section section : sectionList)
+        for (Section section : sectionList) {
             TreeListUtils.insertItem(section, sectionTree);
+            section.setModule(Optional.of(this));
+        }
     }
 
     /**
@@ -323,10 +325,17 @@ public class Module extends AuxDataContainer {
      * Remove a section from this Module.
      *
      * @param section  The {@link Section} to remove.
+     * @return boolean true if the Module contained the section, and it was
+     * removed.
      */
-    public void removeSection(Section section) {
-        TreeListUtils.removeItem(section, this.sectionTree);
-        section.setModule(Optional.empty());
+    public boolean removeSection(Section section) {
+        if (section.getModule().isPresent() &&
+            section.getModule().get() == this) {
+            TreeListUtils.removeItem(section, this.sectionTree);
+            section.setModule(Optional.empty());
+            return true;
+        } else
+            return false;
     }
 
     /**
@@ -353,10 +362,17 @@ public class Module extends AuxDataContainer {
      * Remove a symbol from this Module.
      *
      * @param symbol  The {@link Symbol} to remove from this {@link Module}.
+     * @return boolean true if the Module contained the symbol, and it was
+     * removed.
      */
-    public void removeSymbol(Symbol symbol) {
-        this.symbolList.remove(symbol);
-        symbol.setModule(Optional.empty());
+    public boolean removeSymbol(Symbol symbol) {
+        if (symbol.getModule().isPresent() &&
+            symbol.getModule().get() == this &&
+            this.symbolList.remove(symbol)) {
+            symbol.setModule(Optional.empty());
+            return true;
+        } else
+            return false;
     }
 
     /**
@@ -373,7 +389,7 @@ public class Module extends AuxDataContainer {
     }
 
     /**
-     * Get the proxy block list of this Module.
+     * Get a list of proxy blocks in this Module.
      *
      * @return  An unmodifiable {@link ProxyBlock} list of all the
      * proxy blocks in this {@link Module}.
@@ -398,10 +414,17 @@ public class Module extends AuxDataContainer {
      *
      * @param proxyBlock    The {@link ProxyBlock} to remove from this {@link
      * Module}.
+     * @return boolean true if the Module contained the proxy block, and it was
+     * removed.
      */
-    public void removeProxyBlock(ProxyBlock proxyBlock) {
-        this.proxyBlockList.remove(proxyBlock);
-        proxyBlock.setModule(Optional.empty());
+    public boolean removeProxyBlock(ProxyBlock proxyBlock) {
+        if (proxyBlock.getModule().isPresent() &&
+            proxyBlock.getModule().get() == this &&
+            this.proxyBlockList.remove(proxyBlock)) {
+            proxyBlock.setModule(Optional.empty());
+            return true;
+        } else
+            return false;
     }
 
     /**
@@ -463,7 +486,7 @@ public class Module extends AuxDataContainer {
         this.sectionTree = new TreeMap<>();
         // For each section, add to sectionList in this class
         for (SectionOuterClass.Section protoSection : protoSectionList) {
-            Section newSection = Section.fromProtobuf(protoSection, this);
+            Section newSection = Section.fromProtobuf(protoSection);
             this.addSection(newSection);
         }
     }
@@ -481,7 +504,7 @@ public class Module extends AuxDataContainer {
         this.symbolList = new ArrayList<Symbol>();
         // For each symbol, add to symbolList in this class
         for (SymbolOuterClass.Symbol protoSymbol : protoSymbolList) {
-            Symbol newSymbol = Symbol.fromProtobuf(protoSymbol, this);
+            Symbol newSymbol = Symbol.fromProtobuf(protoSymbol);
             this.addSymbol(newSymbol);
         }
     }

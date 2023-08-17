@@ -28,25 +28,21 @@ public class DataBlock extends ByteBlock {
      * @param  protoBlock  The DataBlock as serialized into a protocol buffer.
      */
     private DataBlock(ByteString protoUuid,
-                      ByteIntervalOuterClass.Block protoBlock, long size,
-                      ByteInterval byteInterval) {
-        super(protoUuid, protoBlock, size, byteInterval);
+                      ByteIntervalOuterClass.Block protoBlock, long size) {
+        super(protoUuid, protoBlock, size);
     }
 
     /**
      * Class constructor for a {@link DataBlock}.
      */
-    public DataBlock(long size, long offset, ByteInterval byteInterval) {
-        super(size, offset, byteInterval);
-    }
+    public DataBlock(long size, long offset) { super(size, offset); }
 
     /**
      * De-serialize a {@link DataBlock} from a protobuf Block.
      *
      * @return An initialized DataBlock.
      */
-    static DataBlock fromProtobuf(ByteIntervalOuterClass.Block protoBlock,
-                                  ByteInterval byteInterval) {
+    static DataBlock fromProtobuf(ByteIntervalOuterClass.Block protoBlock) {
         // Avoid using protoBlock.hasData() for compatibility with older
         // protobuf
         if (protoBlock.getValueCase() !=
@@ -55,7 +51,7 @@ public class DataBlock extends ByteBlock {
         }
         DataBlockOuterClass.DataBlock protoDataBlock = protoBlock.getData();
         return new DataBlock(protoDataBlock.getUuid(), protoBlock,
-                             protoDataBlock.getSize(), byteInterval);
+                             protoDataBlock.getSize());
     }
 
     /**

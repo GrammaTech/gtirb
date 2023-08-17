@@ -15,8 +15,8 @@
 package com.grammatech.gtirb;
 
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Option;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
+import java.util.Optional;
 import java.util.OptionalLong;
 
 /**
@@ -26,34 +26,32 @@ public abstract class ByteBlock extends Node implements TreeListItem {
 
     private long size;
     private long offset;
-    private ByteInterval byteInterval;
+    private Optional<ByteInterval> byteInterval;
 
     /**
      * Class constructor for a ByteBlock from a protobuf byte block.
      * @param  protoBlock     The byte block as serialized into a protocol
      * buffer.
      * @param  size           The size of this ByteBlock in bytes.
-     * @param  byteInterval   The ByteInterval that owns this ByteBlock.
      */
     ByteBlock(ByteString protoUuid, ByteIntervalOuterClass.Block protoBlock,
-              long size, ByteInterval byteInterval) {
+              long size) {
         super(Util.byteStringToUuid(protoUuid));
         this.size = size;
         this.offset = protoBlock.getOffset();
-        this.byteInterval = byteInterval;
+        this.byteInterval = Optional.empty();
     }
 
     /**
      * Class Constructor.
      * @param  size           The number of bytes in this ByteBlock.
      * @param  offset         The offset of this Block in the ByteInterval.
-     * @param  byteInterval   The ByteInterval that owns this ByteBlock.
      */
-    public ByteBlock(long size, long offset, ByteInterval byteInterval) {
+    public ByteBlock(long size, long offset) {
         super();
         this.size = size;
         this.offset = offset;
-        this.byteInterval = byteInterval;
+        this.byteInterval = Optional.empty();
     }
 
     /**
@@ -99,9 +97,9 @@ public abstract class ByteBlock extends Node implements TreeListItem {
      * otherwise null.
      */
     public OptionalLong getAddress() {
-        if (byteInterval == null)
+        if (this.byteInterval.isEmpty())
             return OptionalLong.empty();
-        OptionalLong biAddress = byteInterval.getAddress();
+        OptionalLong biAddress = byteInterval.get().getAddress();
         if (!biAddress.isPresent())
             return OptionalLong.empty();
         return OptionalLong.of(biAddress.getAsLong() + offset);
@@ -113,7 +111,18 @@ public abstract class ByteBlock extends Node implements TreeListItem {
      * @return  The ByteInterval this ByteBlock belongs to. If it does not
      * belong to a ByteInterval, returns null.
      */
-    public ByteInterval getByteInterval() { return this.byteInterval; }
+    public Optional<ByteInterval> getByteInterval() {
+        return this.byteInterval;
+    }
+
+    /**
+     * Set the ByteInterval that owns this ByteBlock.
+     *
+     * @param  The ByteInterval this ByteBlock will belong to.
+     */
+    void setByteInterval(Optional<ByteInterval> byteInterval) {
+        this.byteInterval = byteInterval;
+    }
 
     /**
      * Serialize this ByteBlock into a protobuf.
