@@ -3,8 +3,11 @@ package tests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.grammatech.gtirb.*;
+import com.grammatech.gtirb.CodeBlock.DecodeMode;
 import com.grammatech.gtirb.Module;
-import com.grammatech.gtirb.Symbol;
+import com.grammatech.gtirb.Module.FileFormat;
+import com.grammatech.gtirb.Module.ISA;
+
 import java.io.File;
 import java.util.*;
 import org.junit.jupiter.api.Test;
@@ -65,6 +68,47 @@ public class TestModules {
         assertEquals("mySymbol", mod_reloaded.getSymbols().get(0).getName());
         assertEquals("mySection", mod_reloaded.getSections().get(0).getName());
         assertEquals(1, mod_reloaded.getProxyBlocks().size());
+    }
+
+    @Test
+    void testModuleSetAndGet() throws Exception {
+
+        CodeBlock entryPoint =
+            new CodeBlock(0, 0, CodeBlock.DecodeMode.Default);
+        String binaryPath = "/home/away/from/home.bin";
+        String name = "myModule";
+        long preferredAddr = 0xABCD;
+        long rebaseDelta = 0x1234;
+        FileFormat fileFormat = FileFormat.PE;
+        ISA isa = ISA.IA32;
+
+        Module module =
+            new Module("/my/module", 0x0000, 0x0FFF, FileFormat.ELF, ISA.X64,
+                       "module", new ArrayList<Section>(),
+                       new ArrayList<Symbol>(), new ArrayList<ProxyBlock>(),
+                       new CodeBlock(0, 0, DecodeMode.Default));
+        assertNotNull(module);
+
+        module.setBinaryPath(binaryPath);
+        assertEquals(module.getBinaryPath(), binaryPath);
+
+        module.setPreferredAddr(preferredAddr);
+        assertEquals(module.getPreferredAddr(), preferredAddr);
+
+        module.setRebaseDelta(rebaseDelta);
+        assertEquals(module.getRebaseDelta(), rebaseDelta);
+
+        module.setFileFormat(fileFormat);
+        assertEquals(module.getFileFormat(), fileFormat);
+
+        module.setIsa(isa);
+        assertEquals(module.getIsa(), isa);
+
+        module.setName(name);
+        assertEquals(module.getName(), name);
+
+        module.setEntryPoint(entryPoint);
+        assertEquals(module.getEntryPoint(), entryPoint);
     }
 
     @Test
