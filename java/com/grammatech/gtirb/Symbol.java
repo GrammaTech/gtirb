@@ -15,7 +15,9 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.SymbolOuterClass;
+
 import java.util.Optional;
+import java.util.OptionalLong;
 import java.util.UUID;
 
 /**
@@ -154,10 +156,14 @@ public class Symbol extends Node {
     /**
      * Get the UUID of this Symbol's referent.
      *
-     * @return  The UUID of this symbol's referent, or NIL UUID if there is no
-     * referent.
+     * @return  An Optional that has the UUID of this symbol's referent, if it
+     * has one.
      */
-    public UUID getReferentUuid() { return this.referentUuid; }
+    public Optional<UUID> getReferentUuid() {
+        if (this.payloadType == PayloadType.REFERENT)
+            return Optional.of(this.referentUuid);
+        return Optional.empty();
+    }
 
     /**
      * Set the UUID of this Symbol's referent.
@@ -174,9 +180,13 @@ public class Symbol extends Node {
     /**
      * Get the value of this Symbol.
      *
-     * @return  The symbol name.
+     * @return  An OptionalLong that has the symbol value, if it has one.
      */
-    public long getValue() { return this.value; }
+    public OptionalLong getValue() {
+        if (this.payloadType == PayloadType.VALUE)
+            return OptionalLong.of(this.value);
+        return OptionalLong.empty();
+    }
 
     /**
      * Set the value of this Symbol.

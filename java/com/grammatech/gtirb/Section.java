@@ -187,12 +187,11 @@ public class Section extends Node implements TreeListItem {
     /**
      * Get the flags applying to this Section.
      *
-     * @return  An unmodifiable {@link SectionFlag} list of all the
+     * @return  An unmodifiable {@link SectionFlag} set of all the
      * section flags of this {@link Section}.
      */
-    public List<SectionFlag> getSectionFlags() {
-        return Collections.unmodifiableList(
-            new ArrayList<SectionFlag>(sectionFlags));
+    public Set<SectionFlag> getSectionFlags() {
+        return Collections.unmodifiableSet(this.sectionFlags);
     }
 
     /**

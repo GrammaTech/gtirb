@@ -57,11 +57,11 @@ public class TestSections {
         assertNotNull(ir_reloaded);
         Module mod_reloaded = ir_reloaded.getModules().get(0);
         Section section_reloaded = mod_reloaded.getSections().get(0);
-        List<Section.SectionFlag> flagList = section_reloaded.getSectionFlags();
+        Set<Section.SectionFlag> flagSet = section_reloaded.getSectionFlags();
 
-        assertTrue(flagList.contains(Section.SectionFlag.Readable));
-        assertTrue(flagList.contains(Section.SectionFlag.Writable));
-        assertFalse(flagList.contains(Section.SectionFlag.Executable));
+        assertTrue(flagSet.contains(Section.SectionFlag.Readable));
+        assertTrue(flagSet.contains(Section.SectionFlag.Writable));
+        assertFalse(flagSet.contains(Section.SectionFlag.Executable));
         assertEquals(section_reloaded.getByteIntervals().size(), 1);
     }
 

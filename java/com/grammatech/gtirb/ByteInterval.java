@@ -17,7 +17,16 @@ package com.grammatech.gtirb;
 import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.ByteIntervalOuterClass;
 import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * The ByteInterval class has an array of bytes and it stores references to them
@@ -165,7 +174,7 @@ public final class ByteInterval extends Node implements TreeListItem {
     /**
      * Get the size of this ByteBlock.
      *
-     * @return  The number of bytes in this ByteInterval.
+     * @return  The number of bytes assigned to this ByteInterval.
      */
     public long getSize() { return this.size; }
 
@@ -198,10 +207,21 @@ public final class ByteInterval extends Node implements TreeListItem {
      * @param bytes    The new byte array to give to this ByteInterval.
      */
     public void setBytes(byte[] bytes) {
-        if (bytes != null) {
+        if (bytes != null && bytes.length > this.size) {
             this.size = bytes.length;
         }
         this.bytes = bytes;
+    }
+
+    /**
+     * Get the size of this ByteBlock.
+     *
+     * @return  The number of bytes actually stored in this ByteInterval.
+     */
+    public long getInitializedSize() {
+        if (this.bytes != null)
+            return this.bytes.length;
+        return 0L;
     }
 
     /**

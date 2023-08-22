@@ -15,7 +15,6 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -162,12 +161,11 @@ public class SymbolicExpression {
     /**
      * Get the flags applying to this SymbolicExpression.
      *
-     * @return  An unmodifiable {@link AttributeFlag} list of all the
+     * @return  An unmodifiable {@link AttributeFlag} set of all the
      * attribute flags in this {@link SymbolicExpresion}.
      */
-    public List<AttributeFlag> getAttributeFlags() {
-        return Collections.unmodifiableList(
-            new ArrayList<AttributeFlag>(this.attributeFlags));
+    public Set<AttributeFlag> getAttributeFlags() {
+        return Collections.unmodifiableSet(this.attributeFlags);
     }
 
     /**
@@ -198,9 +196,8 @@ public class SymbolicExpression {
      * @return  An unmodifiable list of all the unknown attribute
      * flags in this {@link SymbolicExpresion}, as integers.
      */
-    public List<Integer> getUnknownAttributeFlags() {
-        return Collections.unmodifiableList(
-            new ArrayList<Integer>(this.unknownAttributeFlags));
+    public Set<Integer> getUnknownAttributeFlags() {
+        return Collections.unmodifiableSet(this.unknownAttributeFlags);
     }
 
     /**
