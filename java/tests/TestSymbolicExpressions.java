@@ -18,14 +18,13 @@ class TestSymbolicExpressions {
         IR ir = new IR();
         Module module =
             new Module("", 0, 0, Module.FileFormat.ELF, Module.ISA.X64, "test");
-        Section section =
-            new Section("foo", new ArrayList<Section.SectionFlag>(),
-                        new ArrayList<ByteInterval>());
+        Section section = new Section("foo", new HashSet<Section.SectionFlag>(),
+                                      new ArrayList<ByteInterval>());
         Symbol symbol = new Symbol("bar", 0);
         ByteInterval byteInterval = new ByteInterval();
         SymbolicExpression expr =
             new SymAddrConst(0, symbol.getUuid(),
-                             new ArrayList<SymbolicExpression.AttributeFlag>());
+                             new HashSet<SymbolicExpression.AttributeFlag>());
         expr.addAttributeFlag(SymbolicExpression.AttributeFlag.GOT);
         expr.addUnknownFlag(0xBEEF);
         byteInterval.insertSymbolicExpression(0, expr);

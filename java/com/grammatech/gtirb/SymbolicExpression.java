@@ -18,7 +18,6 @@ import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -151,7 +150,7 @@ public class SymbolicExpression {
      * @param  attributeFlags A set of flags that are applicable to this
      *                        symbolic expression.
      */
-    protected SymbolicExpression(List<AttributeFlag> attributeFlags) {
+    protected SymbolicExpression(Set<AttributeFlag> attributeFlags) {
         this.attributeFlags = new HashSet<AttributeFlag>();
         for (AttributeFlag attributeFlag : attributeFlags)
             this.addAttributeFlag(attributeFlag);

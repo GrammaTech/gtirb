@@ -15,7 +15,7 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -59,7 +59,7 @@ public class SymAddrAddr extends SymbolicExpression {
      * @param  attributeFlags   A list of applicable attributes. May be empty.
      */
     public SymAddrAddr(long offset, long scale, UUID symbol1_uuid,
-                       UUID symbol2_uuid, List<AttributeFlag> attributeFlags) {
+                       UUID symbol2_uuid, Set<AttributeFlag> attributeFlags) {
         super(attributeFlags);
         this.setScale(scale);
         this.setOffset(offset);

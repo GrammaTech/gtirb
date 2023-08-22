@@ -20,7 +20,7 @@ public class TestSections {
         ir_orig.addModule(mod);
 
         Section section =
-            new Section("mySection", new ArrayList<Section.SectionFlag>(),
+            new Section("mySection", new HashSet<Section.SectionFlag>(),
                         new ArrayList<ByteInterval>());
         mod.addSection(section);
 
@@ -68,7 +68,7 @@ public class TestSections {
     @Test
     void testAddAndRemoveFlags() throws Exception {
         Section section =
-            new Section("section", new ArrayList<Section.SectionFlag>(),
+            new Section("section", new HashSet<Section.SectionFlag>(),
                         new ArrayList<ByteInterval>());
 
         section.addSectionFlag(Section.SectionFlag.ThreadLocal);
@@ -90,7 +90,7 @@ public class TestSections {
     @Test
     void testAddAndRemoveByteIntervals() throws Exception {
         Section section =
-            new Section("section", new ArrayList<Section.SectionFlag>(),
+            new Section("section", new HashSet<Section.SectionFlag>(),
                         new ArrayList<ByteInterval>());
 
         ByteInterval bi = new ByteInterval();

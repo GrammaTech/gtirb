@@ -82,11 +82,11 @@ public class Section extends Node implements TreeListItem {
     /**
      * Class Constructor.
      * @param  name            The name of this Section.
-     * @param  flags           A list of flags to apply to this Section.
+     * @param  flags           A set of flags to apply to this Section.
      * @param  byteIntervals   A list of ByteIntervals belonging to this
      * Section.
      */
-    public Section(String name, List<SectionFlag> flags,
+    public Section(String name, Set<SectionFlag> flags,
                    List<ByteInterval> byteIntervals) {
         super();
         this.module = Optional.empty();

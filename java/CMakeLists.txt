@@ -180,8 +180,14 @@ if(GTIRB_ENABLE_TESTS)
        DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/tests
   )
 
-  set(GTIRB_JAVA_TESTS TestAuxData TestByteIntervals TestIrSanity
-                       TestSymbolicExpressions TestModules TestSections
+  set(GTIRB_JAVA_TESTS
+      TestAuxData
+      TestByteIntervals
+      TestIrSanity
+      TestSymbolicExpressions
+      TestModules
+      TestSections
+      TestSymbols
   )
 
   foreach(GTIRB_JAVA_TEST ${GTIRB_JAVA_TESTS})

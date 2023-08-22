@@ -22,7 +22,7 @@ public class TestModules {
         ir_orig.addModule(mod);
 
         Section section =
-            new Section("mySection", new ArrayList<Section.SectionFlag>(),
+            new Section("mySection", new HashSet<Section.SectionFlag>(),
                         new ArrayList<ByteInterval>());
         mod.addSection(section);
 
@@ -73,13 +73,13 @@ public class TestModules {
             new Module("/my/module", 0x0000, 0x0FFF, Module.FileFormat.ELF,
                        Module.ISA.X64, "module");
         Section section0 =
-            new Section("section0", new ArrayList<Section.SectionFlag>(),
+            new Section("section0", new HashSet<Section.SectionFlag>(),
                         new ArrayList<ByteInterval>());
         Section section1 =
-            new Section("section1", new ArrayList<Section.SectionFlag>(),
+            new Section("section1", new HashSet<Section.SectionFlag>(),
                         new ArrayList<ByteInterval>());
         Section section2 =
-            new Section("section2", new ArrayList<Section.SectionFlag>(),
+            new Section("section2", new HashSet<Section.SectionFlag>(),
                         new ArrayList<ByteInterval>());
 
         module.addSection(section0);

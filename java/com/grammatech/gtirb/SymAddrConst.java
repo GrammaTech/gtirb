@@ -15,7 +15,7 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.SymbolicExpressionOuterClass;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -49,7 +49,7 @@ public class SymAddrConst extends SymbolicExpression {
      * @param  symbol_uuid     The UUID of the symbolic operand.
      */
     public SymAddrConst(long offset, UUID symbol_uuid,
-                        List<AttributeFlag> attributeFlags) {
+                        Set<AttributeFlag> attributeFlags) {
         super(attributeFlags);
         this.setSymbolUuid(symbol_uuid);
         this.offset = offset;
