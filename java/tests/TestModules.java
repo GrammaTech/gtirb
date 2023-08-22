@@ -7,7 +7,6 @@ import com.grammatech.gtirb.CodeBlock.DecodeMode;
 import com.grammatech.gtirb.Module;
 import com.grammatech.gtirb.Module.FileFormat;
 import com.grammatech.gtirb.Module.ISA;
-
 import java.io.File;
 import java.util.*;
 import org.junit.jupiter.api.Test;
