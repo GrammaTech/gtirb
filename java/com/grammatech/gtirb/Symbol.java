@@ -15,7 +15,6 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.SymbolOuterClass;
-
 import java.util.Optional;
 import java.util.OptionalLong;
 import java.util.UUID;
