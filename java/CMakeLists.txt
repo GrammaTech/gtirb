@@ -87,10 +87,17 @@ set(GTIRB_API_JAVAS
     auxdatacodec/UnknownCodecException
     auxdatacodec/UnknownData
     auxdatacodec/UuidCodec
+    auxdatacodec/Variant2Codec
+    auxdatacodec/Variant3Codec
+    auxdatacodec/Variant11Codec
     tuple/Pair
     tuple/Triple
     tuple/Quadruple
     tuple/Quintuple
+    variant/Token
+    variant/Variant2
+    variant/Variant3
+    variant/Variant11
     AuxDataContainer
     AuxDataSchema
     AuxDataSchemas
@@ -183,6 +190,7 @@ if(GTIRB_ENABLE_TESTS)
       TestModules
       TestSections
       TestSymbols
+      TestVariant
   )
 
   foreach(GTIRB_JAVA_TEST ${GTIRB_JAVA_TESTS})

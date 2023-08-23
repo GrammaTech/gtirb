@@ -186,7 +186,7 @@ public class AuxDataContainer extends Node {
      * Retrieve an arbitrary {@link AuxData} item from this container if it
      * exists.
      *
-     * @param name The schema for the AuxData
+     * @param schema The schema for the AuxData
      * @return An {@link AuxData} object, or empty() if not present.
      */
     public <T> Optional<T> getAuxData(AuxDataSchema<T> schema)
@@ -204,7 +204,8 @@ public class AuxDataContainer extends Node {
      * Adds an arbitrary {@link AuxData} item to this container. If an AuxData
      * already exists with the given schema, then it is overwritten.
      *
-     * @param auxData The data to add
+     * @param schema The schema to use for the data
+     * @param data The data to add
      */
     public <T> void putAuxData(AuxDataSchema<T> schema, T data) {
         AuxData ad = new AuxData(schema, data);

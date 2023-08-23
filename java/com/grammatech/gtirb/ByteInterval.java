@@ -705,7 +705,7 @@ public final class ByteInterval extends Node implements TreeListItem {
      *
      * @return  An iterator for iterating through the symbolic expressions
      * in this ByteInterval. Each value returned by the iterator is a of type
-     * Map.Entry<Long, SymbolicExpression>, where the key is the offset of
+     * Map.Entry&lt;Long, SymbolicExpression&gt;, where the key is the offset of
      * the SymbolicExpression in the ByteInterval.
      */
     public Iterator<Map.Entry<Long, SymbolicExpression>>

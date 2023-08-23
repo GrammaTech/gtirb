@@ -5,7 +5,14 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.grammatech.gtirb.*;
 import com.grammatech.gtirb.Module;
 import com.grammatech.gtirb.auxdatacodec.*;
+import com.grammatech.gtirb.auxdatacodec.Variant11Codec;
+import com.grammatech.gtirb.auxdatacodec.Variant2Codec;
+import com.grammatech.gtirb.auxdatacodec.Variant3Codec;
 import com.grammatech.gtirb.tuple.*;
+import com.grammatech.gtirb.variant.Token;
+import com.grammatech.gtirb.variant.Variant11;
+import com.grammatech.gtirb.variant.Variant2;
+import com.grammatech.gtirb.variant.Variant3;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Stream;
@@ -13,6 +20,101 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+class FooPair extends Pair<String, Long> {
+    public FooPair(String s, Long l) { super(s, l); }
+}
+
+class FooTriple extends Triple<String, Long, Float> {
+    public FooTriple(String s, Long l, Float f) { super(s, l, f); }
+}
+
+class FooQuadruple extends Quadruple<String, Long, Float, Boolean> {
+    public FooQuadruple(String s, Long l, Float f, Boolean b) {
+        super(s, l, f, b);
+    }
+}
+
+class FooQuintuple extends Quintuple<String, Long, Float, Boolean, Integer> {
+    public FooQuintuple(String s, Long l, Float f, Boolean b, Integer i) {
+        super(s, l, f, b, i);
+    }
+}
+
+class FooVariant2 extends Variant2<Long, Float> {
+    private FooVariant2(Token.T0 tok, Long l) { super(tok, l); }
+    private FooVariant2(Token.T1 tok, Float f) { super(tok, f); }
+    public static FooVariant2 ofLong(Long l) {
+        return new FooVariant2(new Token.T0(), l);
+    }
+    public static FooVariant2 ofFloat(Float f) {
+        return new FooVariant2(new Token.T1(), f);
+    }
+}
+
+class FooVariant3 extends Variant3<Long, Float, Boolean> {
+    private FooVariant3(Token.T0 tok, Long l) { super(tok, l); }
+    private FooVariant3(Token.T1 tok, Float f) { super(tok, f); }
+    private FooVariant3(Token.T2 tok, Boolean b) { super(tok, b); }
+    public static FooVariant3 ofLong(Long l) {
+        return new FooVariant3(new Token.T0(), l);
+    }
+    public static FooVariant3 ofFloat(Float f) {
+        return new FooVariant3(new Token.T1(), f);
+    }
+    public static FooVariant3 ofBoolean(Boolean b) {
+        return new FooVariant3(new Token.T2(), b);
+    }
+}
+
+class FooVariant11
+    extends Variant11<Long, Float, Boolean, Integer, String, Long, Float,
+                      Boolean, Integer, String, Offset> {
+    private FooVariant11(Token.T0 tok, Long l) { super(tok, l); }
+    private FooVariant11(Token.T1 tok, Float f) { super(tok, f); }
+    private FooVariant11(Token.T2 tok, Boolean b) { super(tok, b); }
+    private FooVariant11(Token.T3 tok, Integer i) { super(tok, i); }
+    private FooVariant11(Token.T4 tok, String s) { super(tok, s); }
+    private FooVariant11(Token.T5 tok, Long l) { super(tok, l); }
+    private FooVariant11(Token.T6 tok, Float f) { super(tok, f); }
+    private FooVariant11(Token.T7 tok, Boolean b) { super(tok, b); }
+    private FooVariant11(Token.T8 tok, Integer i) { super(tok, i); }
+    private FooVariant11(Token.T9 tok, String s) { super(tok, s); }
+    private FooVariant11(Token.T10 tok, Offset o) { super(tok, o); }
+    public static FooVariant11 ofLong1(Long l) {
+        return new FooVariant11(new Token.T0(), l);
+    }
+    public static FooVariant11 ofFloat1(Float f) {
+        return new FooVariant11(new Token.T1(), f);
+    }
+    public static FooVariant11 ofBoolean1(Boolean b) {
+        return new FooVariant11(new Token.T2(), b);
+    }
+    public static FooVariant11 ofInteger1(Integer i) {
+        return new FooVariant11(new Token.T3(), i);
+    }
+    public static FooVariant11 ofString1(String s) {
+        return new FooVariant11(new Token.T4(), s);
+    }
+    public static FooVariant11 ofLong2(Long l) {
+        return new FooVariant11(new Token.T5(), l);
+    }
+    public static FooVariant11 ofFloat2(Float f) {
+        return new FooVariant11(new Token.T6(), f);
+    }
+    public static FooVariant11 ofBoolean2(Boolean b) {
+        return new FooVariant11(new Token.T7(), b);
+    }
+    public static FooVariant11 ofInteger2(Integer i) {
+        return new FooVariant11(new Token.T8(), i);
+    }
+    public static FooVariant11 ofString2(String s) {
+        return new FooVariant11(new Token.T9(), s);
+    }
+    public static FooVariant11 ofOffset(Offset o) {
+        return new FooVariant11(new Token.T10(), o);
+    }
+}
 
 public class TestAuxData {
 
@@ -31,27 +133,21 @@ public class TestAuxData {
         hs.add("foo");
         hs.add("bar");
 
-        class FooPair extends Pair<String, Long> {
-            public FooPair(String s, Long l) { super(s, l); }
-        }
+        Variant11Codec<FooVariant11, Long, Float, Boolean, Integer, String,
+                       Long, Float, Boolean, Integer, String, Offset>
+            fooV11Codec = new Variant11Codec<>(
+                new LongCodec(), new FloatCodec(), new BoolCodec(),
+                new IntegerCodec(), new StringCodec(), new LongCodec(),
+                new FloatCodec(), new BoolCodec(), new IntegerCodec(),
+                new StringCodec(), new OffsetCodec(), FooVariant11::ofLong1,
+                FooVariant11::ofFloat1, FooVariant11::ofBoolean1,
+                FooVariant11::ofInteger1, FooVariant11::ofString1,
+                FooVariant11::ofLong2, FooVariant11::ofFloat2,
+                FooVariant11::ofBoolean2, FooVariant11::ofInteger2,
+                FooVariant11::ofString2, FooVariant11::ofOffset);
 
-        class FooTriple extends Triple<String, Long, Float> {
-            public FooTriple(String s, Long l, Float f) { super(s, l, f); }
-        }
-
-        class FooQuadruple extends Quadruple<String, Long, Float, Boolean> {
-            public FooQuadruple(String s, Long l, Float f, Boolean b) {
-                super(s, l, f, b);
-            }
-        }
-
-        class FooQuintuple
-            extends Quintuple<String, Long, Float, Boolean, Integer> {
-            public FooQuintuple(String s, Long l, Float f, Boolean b,
-                                Integer i) {
-                super(s, l, f, b, i);
-            }
-        }
+        String expFooV11Name =
+            "variant<int64_t,float,bool,int32_t,string,int64_t,float,bool,int32_t,string,Offset>";
 
         return Stream.of(
             Arguments.of("bool", new BoolCodec(), false),
@@ -97,7 +193,44 @@ public class TestAuxData {
                 new QuintupleCodec<>(new StringCodec(), new LongCodec(),
                                      new FloatCodec(), new BoolCodec(),
                                      new IntegerCodec(), FooQuintuple::new),
-                new FooQuintuple("hello", 27L, 3.14f, true, 42)));
+                new FooQuintuple("hello", 27L, 3.14f, true, 42)),
+            Arguments.of("variant<int64_t,float>",
+                         new Variant2Codec<>(new LongCodec(), new FloatCodec(),
+                                             FooVariant2::ofLong,
+                                             FooVariant2::ofFloat),
+                         FooVariant2.ofLong(42L)),
+            Arguments.of("variant<int64_t,float>",
+                         new Variant2Codec<>(new LongCodec(), new FloatCodec(),
+                                             FooVariant2::ofLong,
+                                             FooVariant2::ofFloat),
+                         FooVariant2.ofFloat(3.14f)),
+            Arguments.of("variant<int64_t,float,bool>",
+                         new Variant3Codec<>(
+                             new LongCodec(), new FloatCodec(), new BoolCodec(),
+                             FooVariant3::ofLong, FooVariant3::ofFloat,
+                             FooVariant3::ofBoolean),
+                         FooVariant3.ofBoolean(true)),
+            Arguments.of(expFooV11Name, fooV11Codec, FooVariant11.ofLong1(42L)),
+            Arguments.of(expFooV11Name, fooV11Codec,
+                         FooVariant11.ofFloat1(3.14f)),
+            Arguments.of(expFooV11Name, fooV11Codec,
+                         FooVariant11.ofBoolean1(true)),
+            Arguments.of(expFooV11Name, fooV11Codec,
+                         FooVariant11.ofInteger1(43)),
+            Arguments.of(expFooV11Name, fooV11Codec,
+                         FooVariant11.ofString1("abc")),
+            Arguments.of(expFooV11Name, fooV11Codec, FooVariant11.ofLong2(44L)),
+            Arguments.of(expFooV11Name, fooV11Codec,
+                         FooVariant11.ofFloat2(3.145f)),
+            Arguments.of(expFooV11Name, fooV11Codec,
+                         FooVariant11.ofBoolean2(false)),
+            Arguments.of(expFooV11Name, fooV11Codec,
+                         FooVariant11.ofInteger2(45)),
+            Arguments.of(expFooV11Name, fooV11Codec,
+                         FooVariant11.ofString2("def")),
+            Arguments.of(
+                expFooV11Name, fooV11Codec,
+                FooVariant11.ofOffset(new Offset(new UUID(9, 10), 11))));
     }
 
     @ParameterizedTest(name = "Test codec for protobuf type: {0}")

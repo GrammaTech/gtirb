@@ -31,7 +31,7 @@ public class Util {
     /**
      * Converts a 16-byte array into a UUID.
      *
-     * @param in The byte array.
+     * @param b The byte array.
      * @return The resulting UUID.
      */
     public static UUID byteArrayToUUID(byte[] b)
