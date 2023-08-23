@@ -14,21 +14,21 @@
 
 package com.grammatech.gtirb.auxdatacodec;
 
-import com.grammatech.gtirb.tuple.Triple;
+import com.grammatech.gtirb.tuple.Tuple3;
 import java.io.*;
 
-public class TripleCodec<T extends Triple<A, B, C>, A, B, C>
+public class Tuple3Codec<T extends Tuple3<A, B, C>, A, B, C>
     implements Codec<T> {
     private Codec<A> aCodec;
     private Codec<B> bCodec;
     private Codec<C> cCodec;
 
-    private TripleMaker<T, A, B, C> maker;
+    private Tuple3Maker<T, A, B, C> maker;
 
-    public interface TripleMaker<T, A, B, C> { public T make(A a, B b, C c); }
+    public interface Tuple3Maker<T, A, B, C> { public T make(A a, B b, C c); }
 
-    public TripleCodec(Codec<A> ac, Codec<B> bc, Codec<C> cc,
-                       TripleMaker<T, A, B, C> maker) {
+    public Tuple3Codec(Codec<A> ac, Codec<B> bc, Codec<C> cc,
+                       Tuple3Maker<T, A, B, C> maker) {
         this.aCodec = ac;
         this.bCodec = bc;
         this.cCodec = cc;
@@ -48,8 +48,8 @@ public class TripleCodec<T extends Triple<A, B, C>, A, B, C>
     }
 
     public void encode(OutputStream out, T val) throws IOException {
-        this.aCodec.encode(out, val.getFirst());
-        this.bCodec.encode(out, val.getSecond());
-        this.cCodec.encode(out, val.getThird());
+        this.aCodec.encode(out, val.get0());
+        this.bCodec.encode(out, val.get1());
+        this.cCodec.encode(out, val.get2());
     }
 }

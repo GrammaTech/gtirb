@@ -15,67 +15,60 @@
 package com.grammatech.gtirb.tuple;
 
 /**
- * Immutable collection of two elements of any type.
+ * Immutable collection of four elements of any type.
+ *
+ * Note that this class is abstract. Intended use is to extend this
+ * class with a simple wrapper that uses named getters/setters.
  */
-public class Quintuple<A, B, C, D, E> {
+public abstract class Tuple4<A, B, C, D> {
 
     private final A first;
     private final B second;
     private final C third;
     private final D fourth;
-    private final E fifth;
 
     /**
-     * Class constructor for a Quintuple. Once created, a tuple cannot be
+     * Class constructor for a Tuple4. Once created, a tuple cannot be
      * modified.
      * @param  first  The first element of the tuple.
      * @param  second  The second element of the tuple.
      * @param  third  The third element of the tuple.
      * @param  fourth  The fourth element of the tuple.
-     * @param  fifth  The fifth element of the tuple.
      */
-    public Quintuple(A first, B second, C third, D fourth, E fifth) {
+    public Tuple4(A first, B second, C third, D fourth) {
         this.first = first;
         this.second = second;
         this.third = third;
         this.fourth = fourth;
-        this.fifth = fifth;
     }
 
     /**
-     * Get the first element of the {@link Quintuple}.
+     * Get the first element of the {@link Tuple4}.
      *
      * @return  The first element.
      */
-    public A getFirst() { return this.first; }
+    public A get0() { return this.first; }
 
     /**
-     * Get the second element of the {@link Quintuple}.
+     * Get the second element of the {@link Tuple4}.
      *
      * @return  The second element.
      */
-    public B getSecond() { return this.second; }
+    public B get1() { return this.second; }
 
     /**
-     * Get the third element of the {@link Quintuple}.
+     * Get the third element of the {@link Tuple4}.
      *
      * @return  The third element.
      */
-    public C getThird() { return this.third; }
+    public C get2() { return this.third; }
 
     /**
-     * Get the fourth element of the {@link Quintuple}.
+     * Get the fourth element of the {@link Tuple4}.
      *
      * @return  The fourth element.
      */
-    public D getFourth() { return this.fourth; }
-
-    /**
-     * Get the fifth element of the {@link Quintuple}.
-     *
-     * @return  The fifth element.
-     */
-    public E getFifth() { return this.fifth; }
+    public D get3() { return this.fourth; }
 
     /**
      * Implementation of deep equality.
@@ -88,15 +81,14 @@ public class Quintuple<A, B, C, D, E> {
             return true;
         }
 
-        if (!(other instanceof Quintuple<?, ?, ?, ?, ?>)) {
+        if (!(other instanceof Tuple4<?, ?, ?, ?>)) {
             return false;
         }
 
-        Quintuple<?, ?, ?, ?, ?> asQuintuple = (Quintuple<?, ?, ?, ?, ?>)other;
-        return this.first.equals(asQuintuple.first) &&
-            this.second.equals(asQuintuple.second) &&
-            this.third.equals(asQuintuple.third) &&
-            this.fourth.equals(asQuintuple.fourth) &&
-            this.fifth.equals(asQuintuple.fifth);
+        Tuple4<?, ?, ?, ?> asTuple4 = (Tuple4<?, ?, ?, ?>)other;
+        return this.first.equals(asTuple4.first) &&
+            this.second.equals(asTuple4.second) &&
+            this.third.equals(asTuple4.third) &&
+            this.fourth.equals(asTuple4.fourth);
     }
 }

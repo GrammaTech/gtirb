@@ -14,48 +14,36 @@
 
 package com.grammatech.gtirb.auxdatacodec;
 
-import com.grammatech.gtirb.tuple.Quadruple;
+import com.grammatech.gtirb.tuple.Tuple2;
 import java.io.*;
 
-public class QuadrupleCodec<T extends Quadruple<A, B, C, D>, A, B, C, D>
-    implements Codec<T> {
+public class Tuple2Codec<T extends Tuple2<A, B>, A, B> implements Codec<T> {
     private Codec<A> aCodec;
     private Codec<B> bCodec;
-    private Codec<C> cCodec;
-    private Codec<D> dCodec;
 
-    private QuadrupleMaker<T, A, B, C, D> maker;
+    private Tuple2Maker<T, A, B> maker;
 
-    public interface QuadrupleMaker<T, A, B, C, D> {
-        public T make(A a, B b, C c, D d);
-    }
+    public interface Tuple2Maker<T, A, B> { public T make(A a, B b); }
 
-    public QuadrupleCodec(Codec<A> ac, Codec<B> bc, Codec<C> cc, Codec<D> dc,
-                          QuadrupleMaker<T, A, B, C, D> maker) {
+    public Tuple2Codec(Codec<A> ac, Codec<B> bc, Tuple2Maker<T, A, B> maker) {
         this.aCodec = ac;
         this.bCodec = bc;
-        this.cCodec = cc;
-        this.dCodec = dc;
         this.maker = maker;
     }
 
     public String getTypeName() {
         return "tuple<" + aCodec.getTypeName() + "," + bCodec.getTypeName() +
-            "," + cCodec.getTypeName() + "," + dCodec.getTypeName() + ">";
+            ">";
     }
 
     public T decode(InputStream in) throws IOException {
         A a = this.aCodec.decode(in);
         B b = this.bCodec.decode(in);
-        C c = this.cCodec.decode(in);
-        D d = this.dCodec.decode(in);
-        return this.maker.make(a, b, c, d);
+        return this.maker.make(a, b);
     }
 
     public void encode(OutputStream out, T val) throws IOException {
-        this.aCodec.encode(out, val.getFirst());
-        this.bCodec.encode(out, val.getSecond());
-        this.cCodec.encode(out, val.getThird());
-        this.dCodec.encode(out, val.getFourth());
+        this.aCodec.encode(out, val.get0());
+        this.bCodec.encode(out, val.get1());
     }
 }

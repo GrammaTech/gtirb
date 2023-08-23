@@ -14,10 +14,10 @@
 
 package com.grammatech.gtirb.auxdatacodec;
 
-import com.grammatech.gtirb.tuple.Quintuple;
+import com.grammatech.gtirb.tuple.Tuple5;
 import java.io.*;
 
-public class QuintupleCodec<T extends Quintuple<A, B, C, D, E>, A, B, C, D, E>
+public class Tuple5Codec<T extends Tuple5<A, B, C, D, E>, A, B, C, D, E>
     implements Codec<T> {
     private Codec<A> aCodec;
     private Codec<B> bCodec;
@@ -25,14 +25,14 @@ public class QuintupleCodec<T extends Quintuple<A, B, C, D, E>, A, B, C, D, E>
     private Codec<D> dCodec;
     private Codec<E> eCodec;
 
-    private QuintupleMaker<T, A, B, C, D, E> maker;
+    private Tuple5Maker<T, A, B, C, D, E> maker;
 
-    public interface QuintupleMaker<T, A, B, C, D, E> {
+    public interface Tuple5Maker<T, A, B, C, D, E> {
         public T make(A a, B b, C c, D d, E e);
     }
 
-    public QuintupleCodec(Codec<A> ac, Codec<B> bc, Codec<C> cc, Codec<D> dc,
-                          Codec<E> ec, QuintupleMaker<T, A, B, C, D, E> maker) {
+    public Tuple5Codec(Codec<A> ac, Codec<B> bc, Codec<C> cc, Codec<D> dc,
+                       Codec<E> ec, Tuple5Maker<T, A, B, C, D, E> maker) {
         this.aCodec = ac;
         this.bCodec = bc;
         this.cCodec = cc;
@@ -57,10 +57,10 @@ public class QuintupleCodec<T extends Quintuple<A, B, C, D, E>, A, B, C, D, E>
     }
 
     public void encode(OutputStream out, T val) throws IOException {
-        this.aCodec.encode(out, val.getFirst());
-        this.bCodec.encode(out, val.getSecond());
-        this.cCodec.encode(out, val.getThird());
-        this.dCodec.encode(out, val.getFourth());
-        this.eCodec.encode(out, val.getFifth());
+        this.aCodec.encode(out, val.get0());
+        this.bCodec.encode(out, val.get1());
+        this.cCodec.encode(out, val.get2());
+        this.dCodec.encode(out, val.get3());
+        this.eCodec.encode(out, val.get4());
     }
 }

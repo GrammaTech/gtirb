@@ -79,21 +79,21 @@ set(GTIRB_API_JAVAS
     auxdatacodec/IntegerCodec
     auxdatacodec/LongCodec
     auxdatacodec/OffsetCodec
-    auxdatacodec/PairCodec
-    auxdatacodec/QuadrupleCodec
-    auxdatacodec/QuintupleCodec
     auxdatacodec/StringCodec
-    auxdatacodec/TripleCodec
+    auxdatacodec/Tuple2Codec
+    auxdatacodec/Tuple3Codec
+    auxdatacodec/Tuple4Codec
+    auxdatacodec/Tuple5Codec
     auxdatacodec/UnknownCodecException
     auxdatacodec/UnknownData
     auxdatacodec/UuidCodec
     auxdatacodec/Variant2Codec
     auxdatacodec/Variant3Codec
     auxdatacodec/Variant11Codec
-    tuple/Pair
-    tuple/Triple
-    tuple/Quadruple
-    tuple/Quintuple
+    tuple/Tuple2
+    tuple/Tuple3
+    tuple/Tuple4
+    tuple/Tuple5
     variant/Token
     variant/Variant2
     variant/Variant3
@@ -190,6 +190,7 @@ if(GTIRB_ENABLE_TESTS)
       TestModules
       TestSections
       TestSymbols
+      TestTuple
       TestVariant
   )
 

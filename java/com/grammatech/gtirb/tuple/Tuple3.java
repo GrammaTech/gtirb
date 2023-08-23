@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020-2023 GrammaTech, Inc.
+ *  Copyright (C) 2020-2021 GrammaTech, Inc.
  *
  *  This code is licensed under the MIT license. See the LICENSE file in the
  *  project root for license terms.
@@ -15,37 +15,50 @@
 package com.grammatech.gtirb.tuple;
 
 /**
- * Immutable collection of two elements of any type.
+ * Immutable collection of three elements of any type.
+ *
+ * Note that this class is abstract. Intended use is to extend this
+ * class with a simple wrapper that uses named getters/setters.
  */
-public class Pair<A, B> {
+public abstract class Tuple3<A, B, C> {
 
     private final A first;
     private final B second;
+    private final C third;
 
     /**
-     * Class constructor for a Pair. Once created, a tuple cannot be
+     * Class constructor for a Tuple3. Once created, a tuple cannot be
      * modified.
      * @param  first  The first element of the tuple.
      * @param  second  The second element of the tuple.
+     * @param  third  The third element of the tuple.
      */
-    public Pair(A first, B second) {
+    public Tuple3(A first, B second, C third) {
         this.first = first;
         this.second = second;
+        this.third = third;
     }
 
     /**
-     * Get the first element of the {@link Pair}.
+     * Get the first element of the {@link Tuple3}.
      *
      * @return  The first element.
      */
-    public A getFirst() { return this.first; }
+    public A get0() { return this.first; }
 
     /**
-     * Get the second element of the {@link Pair}.
+     * Get the second element of the {@link Tuple3}.
      *
      * @return  The second element.
      */
-    public B getSecond() { return this.second; }
+    public B get1() { return this.second; }
+
+    /**
+     * Get the third element of the {@link Tuple3}.
+     *
+     * @return  The third element.
+     */
+    public C get2() { return this.third; }
 
     /**
      * Implementation of deep equality.
@@ -58,12 +71,13 @@ public class Pair<A, B> {
             return true;
         }
 
-        if (!(other instanceof Pair<?, ?>)) {
+        if (!(other instanceof Tuple3<?, ?, ?>)) {
             return false;
         }
 
-        Pair<?, ?> asPair = (Pair<?, ?>)other;
-        return this.first.equals(asPair.first) &&
-            this.second.equals(asPair.second);
+        Tuple3<?, ?, ?> asTuple3 = (Tuple3<?, ?, ?>)other;
+        return this.first.equals(asTuple3.first) &&
+            this.second.equals(asTuple3.second) &&
+            this.third.equals(asTuple3.third);
     }
 }

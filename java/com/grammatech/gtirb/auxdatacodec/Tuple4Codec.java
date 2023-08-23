@@ -14,36 +14,48 @@
 
 package com.grammatech.gtirb.auxdatacodec;
 
-import com.grammatech.gtirb.tuple.Pair;
+import com.grammatech.gtirb.tuple.Tuple4;
 import java.io.*;
 
-public class PairCodec<T extends Pair<A, B>, A, B> implements Codec<T> {
+public class Tuple4Codec<T extends Tuple4<A, B, C, D>, A, B, C, D>
+    implements Codec<T> {
     private Codec<A> aCodec;
     private Codec<B> bCodec;
+    private Codec<C> cCodec;
+    private Codec<D> dCodec;
 
-    private PairMaker<T, A, B> maker;
+    private Tuple4Maker<T, A, B, C, D> maker;
 
-    public interface PairMaker<T, A, B> { public T make(A a, B b); }
+    public interface Tuple4Maker<T, A, B, C, D> {
+        public T make(A a, B b, C c, D d);
+    }
 
-    public PairCodec(Codec<A> ac, Codec<B> bc, PairMaker<T, A, B> maker) {
+    public Tuple4Codec(Codec<A> ac, Codec<B> bc, Codec<C> cc, Codec<D> dc,
+                       Tuple4Maker<T, A, B, C, D> maker) {
         this.aCodec = ac;
         this.bCodec = bc;
+        this.cCodec = cc;
+        this.dCodec = dc;
         this.maker = maker;
     }
 
     public String getTypeName() {
         return "tuple<" + aCodec.getTypeName() + "," + bCodec.getTypeName() +
-            ">";
+            "," + cCodec.getTypeName() + "," + dCodec.getTypeName() + ">";
     }
 
     public T decode(InputStream in) throws IOException {
         A a = this.aCodec.decode(in);
         B b = this.bCodec.decode(in);
-        return this.maker.make(a, b);
+        C c = this.cCodec.decode(in);
+        D d = this.dCodec.decode(in);
+        return this.maker.make(a, b, c, d);
     }
 
     public void encode(OutputStream out, T val) throws IOException {
-        this.aCodec.encode(out, val.getFirst());
-        this.bCodec.encode(out, val.getSecond());
+        this.aCodec.encode(out, val.get0());
+        this.bCodec.encode(out, val.get1());
+        this.cCodec.encode(out, val.get2());
+        this.dCodec.encode(out, val.get3());
     }
 }

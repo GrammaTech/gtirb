@@ -21,21 +21,21 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 
-class FooPair extends Pair<String, Long> {
+class FooPair extends Tuple2<String, Long> {
     public FooPair(String s, Long l) { super(s, l); }
 }
 
-class FooTriple extends Triple<String, Long, Float> {
+class FooTriple extends Tuple3<String, Long, Float> {
     public FooTriple(String s, Long l, Float f) { super(s, l, f); }
 }
 
-class FooQuadruple extends Quadruple<String, Long, Float, Boolean> {
+class FooQuadruple extends Tuple4<String, Long, Float, Boolean> {
     public FooQuadruple(String s, Long l, Float f, Boolean b) {
         super(s, l, f, b);
     }
 }
 
-class FooQuintuple extends Quintuple<String, Long, Float, Boolean, Integer> {
+class FooQuintuple extends Tuple5<String, Long, Float, Boolean, Integer> {
     public FooQuintuple(String s, Long l, Float f, Boolean b, Integer i) {
         super(s, l, f, b, i);
     }
@@ -175,25 +175,24 @@ public class TestAuxData {
             Arguments.of("set<string>", new HashSetCodec<>(new StringCodec()),
                          hs),
             Arguments.of("tuple<string,int64_t>",
-                         new PairCodec<>(new StringCodec(), new LongCodec(),
-                                         FooPair::new),
+                         new Tuple2Codec<>(new StringCodec(), new LongCodec(),
+                                           FooPair::new),
                          new FooPair("hello", 27L)),
             Arguments.of("tuple<string,int64_t,float>",
-                         new TripleCodec<>(new StringCodec(), new LongCodec(),
+                         new Tuple3Codec<>(new StringCodec(), new LongCodec(),
                                            new FloatCodec(), FooTriple::new),
                          new FooTriple("hello", 27L, 3.14f)),
             Arguments.of("tuple<string,int64_t,float,bool>",
-                         new QuadrupleCodec<>(new StringCodec(),
-                                              new LongCodec(), new FloatCodec(),
-                                              new BoolCodec(),
-                                              FooQuadruple::new),
+                         new Tuple4Codec<>(new StringCodec(), new LongCodec(),
+                                           new FloatCodec(), new BoolCodec(),
+                                           FooQuadruple::new),
                          new FooQuadruple("hello", 27L, 3.14f, true)),
-            Arguments.of(
-                "tuple<string,int64_t,float,bool,int32_t>",
-                new QuintupleCodec<>(new StringCodec(), new LongCodec(),
-                                     new FloatCodec(), new BoolCodec(),
-                                     new IntegerCodec(), FooQuintuple::new),
-                new FooQuintuple("hello", 27L, 3.14f, true, 42)),
+            Arguments.of("tuple<string,int64_t,float,bool,int32_t>",
+                         new Tuple5Codec<>(new StringCodec(), new LongCodec(),
+                                           new FloatCodec(), new BoolCodec(),
+                                           new IntegerCodec(),
+                                           FooQuintuple::new),
+                         new FooQuintuple("hello", 27L, 3.14f, true, 42)),
             Arguments.of("variant<int64_t,float>",
                          new Variant2Codec<>(new LongCodec(), new FloatCodec(),
                                              FooVariant2::ofLong,
