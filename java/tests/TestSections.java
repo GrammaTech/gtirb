@@ -66,6 +66,96 @@ public class TestSections {
     }
 
     @Test
+    void testSectionSetAndGet() throws Exception {
+        String name = ".code";
+        long address = 0x8FFFFFFF;
+        long size = 0x40000;
+
+        Section section =
+            new Section("newSection", new HashSet<Section.SectionFlag>(),
+                        new ArrayList<ByteInterval>());
+        section.setName(name);
+        assertEquals(section.getName(), name);
+
+        ByteInterval bi = new ByteInterval();
+        bi.setAddress(address);
+        bi.setSize(size);
+
+        CodeBlock b1 = new CodeBlock(4, 1, CodeBlock.DecodeMode.Default);
+        bi.insertByteBlock(b1);
+
+        section.addByteInterval(bi);
+
+        assertEquals(section.getAddress(), OptionalLong.of(address));
+        assertEquals(section.getSize(), size);
+    }
+
+    @Test
+    void testSectionWithIntervalAddresses() throws Exception {
+        ArrayList<ByteInterval> biList = new ArrayList<ByteInterval>();
+        ByteInterval bi1 = new ByteInterval(null, 0x0);
+        bi1.setSize(0x100000);
+        biList.add(bi1);
+        ByteInterval bi2 = new ByteInterval(null, 0x100000);
+        bi2.setSize(0x100000);
+        biList.add(bi2);
+        ByteInterval bi3 = new ByteInterval(null, 0x200000);
+        bi3.setSize(0x100000);
+        biList.add(bi3);
+        Section section =
+            new Section("Section", new HashSet<Section.SectionFlag>(), biList);
+        assertEquals(section.getAddress(), OptionalLong.of(0x0));
+        assertEquals(section.getSize(), 0x300000L);
+
+        // Find intervals that contain an address - single
+        List<ByteInterval> biOn1 = section.findByteIntervalsOn(0x180000);
+        assertEquals(biOn1.size(), 1);
+        assertEquals(biOn1.get(0), bi2);
+
+        // Find intervals that contain an address - range
+        List<ByteInterval> biOn2 =
+            section.findByteIntervalsOn(0x80000, 0x180000);
+        assertEquals(biOn2.size(), 2);
+        assertEquals(biOn2.get(0), bi1);
+        assertEquals(biOn2.get(1), bi2);
+
+        // Find intervals that start at an address - single
+        List<ByteInterval> biAt1 = section.findByteIntervalsAt(0x100000);
+        assertEquals(biAt1.size(), 1);
+        assertEquals(biAt1.get(0), bi2);
+
+        // Find intervals that start at an address - range
+        List<ByteInterval> biAt2 =
+            section.findByteIntervalsAt(0x80000, 0x180000);
+        assertEquals(biAt2.size(), 1);
+        assertEquals(biAt2.get(0), bi2);
+    }
+
+    @Test
+    void testSectionNoAddressIntervals() throws Exception {
+        Section section =
+            new Section("aSection", new HashSet<Section.SectionFlag>(),
+                        new ArrayList<ByteInterval>());
+
+        ByteInterval bi1 = new ByteInterval(null, 0x0);
+        bi1.setSize(0x100000);
+        section.addByteInterval(bi1);
+
+        // bi2 is a ByteInterval without an address, making the calculation of
+        // address and size for the section impossible
+        ByteInterval bi2 = new ByteInterval();
+        bi2.setSize(0x100000);
+        section.addByteInterval(bi2);
+
+        ByteInterval bi3 = new ByteInterval(null, 0x400000);
+        bi3.setSize(0x100000);
+        section.addByteInterval(bi3);
+
+        assertEquals(section.getAddress(), OptionalLong.empty());
+        assertEquals(section.getSize(), 0L);
+    }
+
+    @Test
     void testAddAndRemoveFlags() throws Exception {
         Section section =
             new Section("section", new HashSet<Section.SectionFlag>(),

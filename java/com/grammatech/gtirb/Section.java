@@ -233,10 +233,14 @@ public class Section extends Node implements TreeListItem {
         if (byteIntervalTree.size() == 0)
             return 0;
 
-        // Check whether any ByteIntervals lack an address (with key 0).
-        for (ByteInterval byteInterval : byteIntervalTree.get(0))
-            if (!byteInterval.hasAddress())
-                return 0;
+        // Check whether any ByteIntervals lack an address.
+        // A BI inserted without an address would use 0 for a key.
+        if (this.byteIntervalTree.containsKey(0L)) {
+            for (ByteInterval byteInterval : byteIntervalTree.get(0L)) {
+                if (!byteInterval.hasAddress())
+                    return 0;
+            }
+        }
 
         // If we get here, there is at least one ByteInterval, and every one has
         // an address.
@@ -251,9 +255,9 @@ public class Section extends Node implements TreeListItem {
             long biStart = byteInterval.getAddress().orElseThrow(
                 NoSuchElementException::new);
             long biEnd = biStart + byteInterval.getSize();
-            if (Long.compareUnsigned(biStart, sectionStart) < 0)
+            if (Long.compareUnsigned(biStart, sectionStart) < 0L)
                 sectionStart = biStart;
-            if (Long.compareUnsigned(biEnd, sectionEnd) > 0)
+            if (Long.compareUnsigned(biEnd, sectionEnd) > 0L)
                 sectionEnd = biEnd;
         }
         return sectionEnd - sectionStart;

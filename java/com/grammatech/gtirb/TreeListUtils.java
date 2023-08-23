@@ -135,18 +135,21 @@ public class TreeListUtils<Type> implements Iterable<Type> {
                 long start = item.getIndex();
                 long end = start + item.getSize();
                 // Check for overlap, including end points:
-                //    (1) Item start is at or above the range start AND
+                //    (1) The range starts within the range of this interval:
+                //        Item start is at or above the range start AND
                 //        item start is at or below the range end
-                // OR (2) Item end is at or above the range start AND
+                // OR (2) The range ends within the range of this interval:
+                //        Item end is at or above the range start AND
                 //        item end is at or below the range end
-                // OR (3) Item start is below range start AND
+                // OR (3) The range includes the range of this interval
+                //        Item start is below range start AND
                 //        item end is above range end
                 // If so add it to the list to return.
-                if (start <= startIndex && start >= endIndex)
+                if (startIndex >= start && startIndex <= end)
                     resultList.add(item);
-                else if (end <= startIndex && end >= endIndex)
+                else if (endIndex >= start && endIndex <= end)
                     resultList.add(item);
-                else if (start < startIndex && end > endIndex)
+                else if (startIndex < start && endIndex > end)
                     resultList.add(item);
             }
         }
