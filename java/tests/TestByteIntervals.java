@@ -2,10 +2,81 @@ package tests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.grammatech.gtirb.*;
+import com.grammatech.gtirb.Module;
+import com.grammatech.gtirb.Module.FileFormat;
+import com.grammatech.gtirb.Module.ISA;
+import java.io.File;
 import java.util.*;
 import org.junit.jupiter.api.Test;
 
 public class TestByteIntervals {
+
+    @Test
+    void testByteIntervalSaveAndLoad() throws Exception {
+        IR ir = new IR();
+        Module module = new Module("c:/foo.exe", 0xCAFE, 0xBEEF, FileFormat.ELF,
+                                   ISA.X64, "myModule");
+        Section section =
+            new Section("mySection", new HashSet<Section.SectionFlag>(),
+                        new ArrayList<ByteInterval>());
+        ByteInterval byteInterval =
+            new ByteInterval("SaveAndLoad".getBytes(), 0xFEED);
+        section.addByteInterval(byteInterval);
+        ir.addModule(module);
+        module.addSection(section);
+
+        // Reset address
+        byteInterval.clearAddress();
+
+        File file = File.createTempFile("temp", null);
+        String filename = file.getName();
+        try {
+            ir.saveFile(filename);
+        } catch (Exception e) {
+            file.delete();
+            throw e;
+        }
+
+        IR ir_reloaded;
+        try {
+            ir_reloaded = IR.loadFile(filename);
+        } catch (Exception e) {
+            file.delete();
+            throw e;
+        }
+        file.delete();
+
+        ByteInterval biReloaded = ir_reloaded.getModules()
+                                      .get(0)
+                                      .getSections()
+                                      .get(0)
+                                      .getByteIntervals()
+                                      .get(0);
+        // Verify address was reset
+        assertFalse(biReloaded.hasAddress());
+        // Test set and get of address
+        biReloaded.setAddress(0xDEADBEEF);
+        assertEquals(biReloaded.getAddress(), OptionalLong.of(0xDEADBEEF));
+        // Verify byte array content
+        assertTrue(
+            Arrays.equals(biReloaded.getBytes(), "SaveAndLoad".getBytes()));
+    }
+
+    @Test
+    void testByteIntervalTruncation() throws Exception {
+        ByteInterval bi = new ByteInterval();
+        int bytesSize = 1000;
+        byte[] bytes = new byte[bytesSize];
+
+        bi.setSize(2000);
+        bi.setBytes(bytes);
+        assertEquals(bi.getSize(), 2000);
+        assertEquals(bi.getInitializedSize(), bytesSize);
+        bi.setSize(500);
+        assertEquals(bi.getSize(), 500);
+        assertEquals(bi.getInitializedSize(), 500);
+        assertEquals(bi.getBytes().length, 500);
+    }
 
     // Run through all blocks with a ByteBlock iterator
     @Test
@@ -23,6 +94,9 @@ public class TestByteIntervals {
         bi.insertByteBlock(b3);
         bi.insertByteBlock(b4);
         bi.insertByteBlock(b5);
+
+        List<ByteBlock> blockList = bi.getBlockList();
+        assertEquals(5, blockList.size());
 
         Iterator<ByteBlock> blocks = bi.byteBlockIterator();
         // Dump of block types
