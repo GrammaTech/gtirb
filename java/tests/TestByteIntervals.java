@@ -64,18 +64,21 @@ public class TestByteIntervals {
 
     @Test
     void testByteIntervalTruncation() throws Exception {
-        ByteInterval bi = new ByteInterval();
         int bytesSize = 1000;
-        byte[] bytes = new byte[bytesSize];
+        int intervalSize = 2000;
+        int truncatedSize = 500;
 
-        bi.setSize(2000);
+        byte[] bytes = new byte[bytesSize];
+        ByteInterval bi = new ByteInterval(intervalSize);
+
         bi.setBytes(bytes);
-        assertEquals(bi.getSize(), 2000);
+        assertEquals(bi.getSize(), intervalSize);
         assertEquals(bi.getInitializedSize(), bytesSize);
-        bi.setSize(500);
-        assertEquals(bi.getSize(), 500);
-        assertEquals(bi.getInitializedSize(), 500);
-        assertEquals(bi.getBytes().length, 500);
+
+        bi.setSize(truncatedSize);
+        assertEquals(bi.getSize(), truncatedSize);
+        assertEquals(bi.getInitializedSize(), truncatedSize);
+        assertEquals(bi.getBytes().length, truncatedSize);
     }
 
     // Run through all blocks with a ByteBlock iterator

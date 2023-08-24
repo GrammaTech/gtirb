@@ -29,8 +29,16 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * The ByteInterval class has an array of bytes and it stores references to them
- * in the form of Blocks and SymbolicExpressions.
+ * A ByteInterval represents a piece of runtime memory.
+ *
+ * The ByteInterval class has a size and can store contents as a byte
+ * array, Not having a byte array, or having one with a size smaller than
+ * the ByteInterval size is allowed, generally this would represent
+ * uninitialized memory.
+ *
+ * The byte blocks (code blocks and data blocks) and symbolic expressions
+ * attached to a byte interval reference the memory range it contains,
+ * and it may or may not have an assigned address at any one time.
  */
 public final class ByteInterval extends Node implements TreeListItem {
 
@@ -117,6 +125,17 @@ public final class ByteInterval extends Node implements TreeListItem {
         if (bytes != null) {
             this.size = bytes.length;
         }
+    }
+
+    /**
+     * Class Constructor.
+     * @param  size  The size of the new ByteInterval.
+     */
+    public ByteInterval(long size) {
+        super();
+        this.setSize(size);
+        this.section = Optional.empty();
+        this.address = OptionalLong.empty();
     }
 
     /**
