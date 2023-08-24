@@ -7,6 +7,7 @@ import com.grammatech.gtirb.CodeBlock.DecodeMode;
 import com.grammatech.gtirb.Module;
 import com.grammatech.gtirb.Module.FileFormat;
 import com.grammatech.gtirb.Module.ISA;
+import com.grammatech.gtirb.Section.SectionFlag;
 import java.io.File;
 import java.util.*;
 import org.junit.jupiter.api.Test;
@@ -205,5 +206,54 @@ public class TestModules {
         assertTrue(proxyBlock2.getModule().isEmpty());
 
         assertEquals(module.getProxyBlocks().size(), 0);
+    }
+
+    @Test
+    void testModuleFindSections() throws Exception {
+
+        Module module = new Module("module", 0x0000, 0x0FFF, FileFormat.ELF,
+                                   ISA.X64, "module");
+        Set<SectionFlag> flags = new HashSet<SectionFlag>();
+        flags.add(SectionFlag.Readable);
+        flags.add(SectionFlag.Writable);
+
+        ArrayList<ByteInterval> biList1 = new ArrayList<ByteInterval>();
+        biList1.add(new ByteInterval(null, 0x0));
+        biList1.get(0).setSize(0x100000);
+        Section section1 = new Section("Section1", flags, biList1);
+        module.addSection(section1);
+
+        ArrayList<ByteInterval> biList2 = new ArrayList<ByteInterval>();
+        biList2.add(new ByteInterval(null, 0x100000));
+        biList2.get(0).setSize(0x100000);
+        Section section2 = new Section("Section2", flags, biList2);
+        module.addSection(section2);
+
+        ArrayList<ByteInterval> biList3 = new ArrayList<ByteInterval>();
+        biList3.add(new ByteInterval(null, 0x200000));
+        biList3.get(0).setSize(0x100000);
+        Section section3 = new Section("Section3", flags, biList3);
+        module.addSection(section3);
+
+        // Find sections that contain an address - single
+        List<Section> sectionsOn1 = module.findSectionsOn(0x7FFF);
+        assertEquals(sectionsOn1.size(), 1);
+        assertEquals(sectionsOn1.get(0), section1);
+
+        // Find sections that contain an address - range
+        List<Section> sectionsOn2 = module.findSectionsOn(0x180000, 0x280000);
+        assertEquals(sectionsOn2.size(), 2);
+        assertEquals(sectionsOn2.get(0), section2);
+        assertEquals(sectionsOn2.get(1), section3);
+
+        // Find sections that start at an address - single
+        List<Section> sectionsAt1 = module.findSectionsAt(0x0);
+        assertEquals(sectionsAt1.size(), 1);
+        assertEquals(sectionsAt1.get(0), section1);
+
+        // Find sections that start at an address - range
+        List<Section> sectionsAt2 = module.findSectionsAt(0x180000, 0x280000);
+        assertEquals(sectionsAt2.size(), 1);
+        assertEquals(sectionsAt2.get(0), section3);
     }
 }

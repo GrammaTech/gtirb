@@ -81,23 +81,29 @@ public class TestSymbols {
     @Test
     void testSymbolSetAndGet() throws Exception {
 
-        Symbol symbol = new Symbol("badSymbol");
+        Symbol symbol = new Symbol("badName");
         symbol.setAtEnd(true);
-        symbol.setName("goodSymbol");
+        symbol.setName("goodName");
 
-        UUID referentUuid = UUID.randomUUID();
+        CodeBlock codeBlock =
+            new CodeBlock(0x10L, 0x400L, CodeBlock.DecodeMode.Default);
         long symbolValue = 0x5A3C;
 
-        symbol.setReferentUuid(referentUuid);
-        assertEquals(symbol.getReferentUuid(), Optional.of(referentUuid));
+        // test that setting a referent sets the payload type to REFERENT
+        symbol.setReferentUuid(codeBlock.getUuid());
+        assertEquals(symbol.getReferentUuid(),
+                     Optional.of(codeBlock.getUuid()));
         assertEquals(symbol.getPayloadType(), Symbol.PayloadType.REFERENT);
+        assertEquals(symbol.getReferent(), codeBlock);
 
+        // test that setting a value sets the payload type to VALUE
         symbol.setValue(symbolValue);
         assertEquals(symbol.getValue(), OptionalLong.of(symbolValue));
         assertEquals(symbol.getPayloadType(), Symbol.PayloadType.VALUE);
 
+        // test that symbol properties have held
         assertEquals(symbol.getModule(), Optional.empty());
         assertEquals(symbol.isAtEnd(), true);
-        assertEquals(symbol.getName(), "goodSymbol");
+        assertEquals(symbol.getName(), "goodName");
     }
 }

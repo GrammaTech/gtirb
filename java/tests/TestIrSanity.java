@@ -3,7 +3,10 @@ package tests;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.grammatech.gtirb.*;
+import com.grammatech.gtirb.Edge.EdgeType;
 import com.grammatech.gtirb.Module;
+import com.grammatech.gtirb.Module.FileFormat;
+import com.grammatech.gtirb.Module.ISA;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -46,6 +49,39 @@ public class TestIrSanity {
         assertNotNull(ir_reloaded);
         Module mod_reloaded = ir_reloaded.getModules().get(0);
         assertEquals("foo.exe", mod_reloaded.getName());
+        assertEquals(ir_reloaded.getVersion(), Version.gtirbProtobufVersion);
+    }
+
+    @Test
+    void testIrSetAndGet() throws Exception {
+        IR ir = new IR();
+
+        // test addModules (list)
+        List<Module> modules = new ArrayList<Module>();
+        modules.add(new Module(
+            "/opt/testModules/testModules-1.0.0/testModule0/bin/mod",
+            0x8FFFFFFF00000201L, 0x0L, FileFormat.ELF, ISA.X64, "mod0"));
+        modules.add(new Module(
+            "/opt/testModules/testModules-1.0.0/testModule1/bin/mod",
+            0x8FFFFFFF00000401L, 0x0L, FileFormat.ELF, ISA.X64, "mod1"));
+        ir.addModules(modules);
+        assertTrue(ir.getModules().equals(modules));
+
+        // test get/set version
+        ir.setVersion(1234);
+        assertEquals(ir.getVersion(), 1234);
+
+        // test set/get CFG
+        List<Edge> edges = new ArrayList<Edge>();
+        edges.add(new Edge(UUID.randomUUID(), UUID.randomUUID(),
+                           EdgeType.Branch, false, false));
+        edges.add(new Edge(UUID.randomUUID(), UUID.randomUUID(), EdgeType.Call,
+                           true, false));
+        List<byte[]> vertices = new ArrayList<byte[]>();
+        vertices.add("OneSingleVertice".getBytes());
+        CFG cfg = new CFG(edges, vertices);
+        ir.setCfg(cfg);
+        assertEquals(ir.getCfg(), cfg);
     }
 
     // TODO: The next few tests here each test different ways the loadFile()
@@ -107,13 +143,13 @@ public class TestIrSanity {
     void testAddAndRemoveModules() throws Exception {
         IR ir = new IR();
         Module mod0 = new Module("/usr/bin/mod0", 0x0000, 0x0FFF,
-                                 Module.FileFormat.ELF, Module.ISA.X64, "mod0");
+                                 FileFormat.ELF, ISA.X64, "mod0");
         ir.addModule(mod0);
-        Module mod1 = new Module("/usr/bin/mod0", 0x1000, 0x1FFF,
-                                 Module.FileFormat.ELF, Module.ISA.X64, "mod1");
+        Module mod1 = new Module("/usr/bin/mod1", 0x1000, 0x1FFF,
+                                 FileFormat.ELF, ISA.X64, "mod1");
         ir.addModule(mod1);
         Module mod2 = new Module("/usr/bin/mod2", 0x2000, 0x2FFF,
-                                 Module.FileFormat.ELF, Module.ISA.X64, "mod2");
+                                 FileFormat.ELF, ISA.X64, "mod2");
         ir.addModule(mod2);
         List<Module> modules = ir.getModules();
         assertEquals(modules.size(), 3);
