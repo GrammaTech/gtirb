@@ -15,9 +15,9 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.proto.SymbolOuterClass;
+import java.io.IOException;
 import java.util.Optional;
 import java.util.OptionalLong;
-import java.io.IOException;
 import java.util.UUID;
 
 /**
@@ -45,8 +45,7 @@ public class Symbol extends Node {
      * Class constructor for a Symbol from a protobuf symbol.
      * @param  protoSymbol   The Symbol as serialized into a protocol buffer.
      */
-    private Symbol(SymbolOuterClass.Symbol protoSymbol)
-        throws IOException {
+    private Symbol(SymbolOuterClass.Symbol protoSymbol) throws IOException {
         super(Util.byteStringToUuid(protoSymbol.getUuid()));
         this.module = Optional.empty();
         this.name = protoSymbol.getName();
@@ -226,7 +225,8 @@ public class Symbol extends Node {
      * @param protoSymbol The protobuf version of this symbol
      * @return An initialized symbol.
      */
-    static Symbol fromProtobuf(SymbolOuterClass.Symbol protoSymbol) throws IOException {
+    static Symbol fromProtobuf(SymbolOuterClass.Symbol protoSymbol)
+        throws IOException {
         return new Symbol(protoSymbol);
     }
 

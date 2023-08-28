@@ -57,8 +57,7 @@ public class Section extends Node implements TreeListItem {
      * Class constructor for a Section from a protobuf section.
      * @param  protoSection  The section as serialized into a protocol buffer.
      */
-    private Section(SectionOuterClass.Section protoSection)
-        throws IOException {
+    private Section(SectionOuterClass.Section protoSection) throws IOException {
         super(Util.byteStringToUuid(protoSection.getUuid()));
 
         this.name = protoSection.getName();
@@ -372,7 +371,8 @@ public class Section extends Node implements TreeListItem {
      *
      * @return An initialized section.
      */
-    static Section fromProtobuf(SectionOuterClass.Section protoSection) throws IOException {
+    static Section fromProtobuf(SectionOuterClass.Section protoSection)
+        throws IOException {
         return new Section(protoSection);
     }
 

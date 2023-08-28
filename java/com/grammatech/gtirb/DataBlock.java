@@ -29,7 +29,8 @@ public class DataBlock extends ByteBlock {
      * @param  protoBlock  The DataBlock as serialized into a protocol buffer.
      */
     private DataBlock(ByteString protoUuid,
-                      ByteIntervalOuterClass.Block protoBlock, long size) throws IOException {
+                      ByteIntervalOuterClass.Block protoBlock, long size)
+        throws IOException {
         super(protoUuid, protoBlock, size);
     }
 

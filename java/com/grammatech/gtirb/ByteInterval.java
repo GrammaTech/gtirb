@@ -56,8 +56,8 @@ public final class ByteInterval extends Node implements TreeListItem {
      * @param  protoByteInterval  The byte interval as serialized into a
      * protocol buffer.
      */
-    private ByteInterval(
-        ByteIntervalOuterClass.ByteInterval protoByteInterval) throws IOException {
+    private ByteInterval(ByteIntervalOuterClass.ByteInterval protoByteInterval)
+        throws IOException {
         super(Util.byteStringToUuid(protoByteInterval.getUuid()));
         this.section = Optional.empty();
         if (protoByteInterval.getHasAddress()) {
@@ -763,7 +763,8 @@ public final class ByteInterval extends Node implements TreeListItem {
      * @return An initialized ByteInterval.
      */
     static ByteInterval
-    fromProtobuf(ByteIntervalOuterClass.ByteInterval protoByteInterval) throws IOException {
+    fromProtobuf(ByteIntervalOuterClass.ByteInterval protoByteInterval)
+        throws IOException {
         return new ByteInterval(protoByteInterval);
     }
 

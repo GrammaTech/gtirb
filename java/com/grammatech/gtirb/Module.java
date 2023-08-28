@@ -483,7 +483,8 @@ public class Module extends AuxDataContainer {
      *
      */
     private void
-    initializeSectionList(List<SectionOuterClass.Section> protoSectionList) throws IOException {
+    initializeSectionList(List<SectionOuterClass.Section> protoSectionList)
+        throws IOException {
         this.sectionTree = new TreeMap<>();
         // For each section, add to sectionList in this class
         for (SectionOuterClass.Section protoSection : protoSectionList) {
@@ -501,7 +502,8 @@ public class Module extends AuxDataContainer {
      *
      */
     private void
-    initializeSymbolList(List<SymbolOuterClass.Symbol> protoSymbolList) throws IOException {
+    initializeSymbolList(List<SymbolOuterClass.Symbol> protoSymbolList)
+        throws IOException {
         this.symbolList = new ArrayList<Symbol>();
         // For each symbol, add to symbolList in this class
         for (SymbolOuterClass.Symbol protoSymbol : protoSymbolList) {
@@ -519,7 +521,8 @@ public class Module extends AuxDataContainer {
      *
      */
     private void initializeProxyBlockList(
-        List<ProxyBlockOuterClass.ProxyBlock> protoProxyBlockList) throws IOException {
+        List<ProxyBlockOuterClass.ProxyBlock> protoProxyBlockList)
+        throws IOException {
         this.proxyBlockList = new ArrayList<ProxyBlock>();
         // For each proxy block, add to proxyBlockList in this class
         for (ProxyBlockOuterClass.ProxyBlock protoProxyBlock :

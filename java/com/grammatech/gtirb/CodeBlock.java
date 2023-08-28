@@ -38,7 +38,8 @@ public class CodeBlock extends ByteBlock {
      * @param  protoBlock  The CodeBlock as serialized into a protocol buffer.
      */
     private CodeBlock(ByteString protoUuid,
-                      ByteIntervalOuterClass.Block protoBlock, long size) throws IOException {
+                      ByteIntervalOuterClass.Block protoBlock, long size)
+        throws IOException {
         super(protoUuid, protoBlock, size);
         assert (protoBlock.getValueCase() ==
                 ByteIntervalOuterClass.Block.ValueCase.CODE);

@@ -31,7 +31,8 @@ public class ProxyBlock extends Node {
      * @param  protoProxyBlock  The ProxyBlock as serialized into a protocol
      * buffer.
      */
-    private ProxyBlock(ProxyBlockOuterClass.ProxyBlock protoProxyBlock) throws IOException {
+    private ProxyBlock(ProxyBlockOuterClass.ProxyBlock protoProxyBlock)
+        throws IOException {
         super(Util.byteStringToUuid(protoProxyBlock.getUuid()));
         this.module = Optional.empty();
     }
