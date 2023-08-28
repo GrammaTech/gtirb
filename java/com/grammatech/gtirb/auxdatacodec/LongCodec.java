@@ -19,7 +19,11 @@ import java.nio.ByteBuffer;
 
 public class LongCodec implements Codec<Long> {
 
-    public String getTypeName() { return "int64_t"; }
+    private String typeName;
+
+    private LongCodec(String tn) { this.typeName = tn; }
+
+    public String getTypeName() { return this.typeName; }
 
     public static long decodeStatic(InputStream in) throws IOException {
         byte[] b = new byte[8];
@@ -45,4 +49,7 @@ public class LongCodec implements Codec<Long> {
     public void encode(OutputStream out, Long val) throws IOException {
         encodeStatic(out, val);
     }
+
+    public final static LongCodec INT64 = new LongCodec("int64_t");
+    public final static LongCodec UINT64 = new LongCodec("uint64_t");
 }

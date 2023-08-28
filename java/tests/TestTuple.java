@@ -2,11 +2,17 @@ package tests;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.grammatech.gtirb.tuple.Tuple1;
 import com.grammatech.gtirb.tuple.Tuple2;
 import com.grammatech.gtirb.tuple.Tuple3;
 import com.grammatech.gtirb.tuple.Tuple4;
 import com.grammatech.gtirb.tuple.Tuple5;
 import org.junit.jupiter.api.Test;
+
+class FooSingle extends Tuple1<String> {
+    public FooSingle(String s) { super(s); }
+    public String getString() { return this.get0(); }
+}
 
 class FooPair extends Tuple2<String, Long> {
     public FooPair(String s, Long l) { super(s, l); }
@@ -43,6 +49,16 @@ class FooQuintuple extends Tuple5<String, Long, Float, Boolean, Integer> {
 }
 
 public class TestTuple {
+    @Test
+    public void testTuple1() {
+        FooSingle f1 = new FooSingle("abc");
+        assertEquals("abc", f1.getString());
+        FooSingle f2 = new FooSingle("abc");
+        assertEquals(f1, f2);
+        FooSingle f3 = new FooSingle("def");
+        assertNotEquals(f1, f3);
+    }
+
     @Test
     public void testTuple2() {
         FooPair f1 = new FooPair("abc", 42L);

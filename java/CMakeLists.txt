@@ -71,6 +71,7 @@ configure_file(
 set(GTIRB_API_JAVAS
     auxdatacodec/ArrayListCodec
     auxdatacodec/BoolCodec
+    auxdatacodec/ByteCodec
     auxdatacodec/Codec
     auxdatacodec/DecodeException
     auxdatacodec/EncodeException
@@ -79,7 +80,9 @@ set(GTIRB_API_JAVAS
     auxdatacodec/IntegerCodec
     auxdatacodec/LongCodec
     auxdatacodec/OffsetCodec
+    auxdatacodec/ShortCodec
     auxdatacodec/StringCodec
+    auxdatacodec/Tuple1Codec
     auxdatacodec/Tuple2Codec
     auxdatacodec/Tuple3Codec
     auxdatacodec/Tuple4Codec
@@ -90,6 +93,7 @@ set(GTIRB_API_JAVAS
     auxdatacodec/Variant2Codec
     auxdatacodec/Variant3Codec
     auxdatacodec/Variant11Codec
+    tuple/Tuple1
     tuple/Tuple2
     tuple/Tuple3
     tuple/Tuple4
@@ -104,14 +108,22 @@ set(GTIRB_API_JAVAS
     ByteBlock
     ByteInterval
     CFG
+    CfiDirective
     CodeBlock
     DataBlock
     Edge
+    ElfSectionPropertyTuple
+    ElfSymbolInfoTuple
+    ElfSymbolVersionsTable
     InconsistentAuxDataSchemaException
     IR
     Module
     Node
     Offset
+    PeExportEntry
+    PeImportEntry
+    PeResourceEntry
+    ProbFuncName
     ProxyBlock
     Section
     SymAddrAddr
@@ -120,6 +132,7 @@ set(GTIRB_API_JAVAS
     Symbol
     TreeListItem
     TreeListUtils
+    TypeTableEntry
     Util
     Version
 )
