@@ -72,8 +72,6 @@ set(GTIRB_API_JAVAS
     auxdatacodec/BoolCodec
     auxdatacodec/ByteCodec
     auxdatacodec/Codec
-    auxdatacodec/DecodeException
-    auxdatacodec/EncodeException
     auxdatacodec/IntegerCodec
     auxdatacodec/ListCodec
     auxdatacodec/LongCodec
@@ -87,8 +85,6 @@ set(GTIRB_API_JAVAS
     auxdatacodec/Tuple3Codec
     auxdatacodec/Tuple4Codec
     auxdatacodec/Tuple5Codec
-    auxdatacodec/UnknownCodecException
-    auxdatacodec/UnknownData
     auxdatacodec/UuidCodec
     auxdatacodec/Variant2Codec
     auxdatacodec/Variant3Codec
@@ -115,7 +111,6 @@ set(GTIRB_API_JAVAS
     ElfSectionPropertyTuple
     ElfSymbolInfoTuple
     ElfSymbolVersionsTable
-    InconsistentAuxDataSchemaException
     IR
     Module
     Node

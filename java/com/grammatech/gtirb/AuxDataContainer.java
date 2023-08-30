@@ -17,6 +17,7 @@ package com.grammatech.gtirb;
 import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.AuxDataOuterClass;
 import java.io.*;
+import java.lang.IllegalArgumentException;
 import java.util.*;
 
 /**
@@ -93,7 +94,7 @@ public class AuxDataContainer extends Node {
         /**
          * Get the decoded form of the AuxData.
          */
-        <T> T getDecodedData(AuxDataSchema<T> sch) throws Exception {
+        <T> T getDecodedData(AuxDataSchema<T> sch) throws IOException {
             // TODO: Some better way to confirm schema equivalence here.
             // In particular, one could have the correct name and type
             // name but still have an inconsistent type for T. Specifically,
@@ -106,7 +107,7 @@ public class AuxDataContainer extends Node {
             // This could be incorrect if the client is using inconsistent
             // schemas with the same schema name.
             if (!this.typeName.equals(sch.getCodec().getTypeName())) {
-                throw new InconsistentAuxDataSchemaException(
+                throw new IllegalArgumentException(
                     "Schema type names do not match! " + this.typeName +
                     " vs. " + sch.getCodec().getTypeName());
             }
