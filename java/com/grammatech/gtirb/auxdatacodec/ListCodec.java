@@ -15,20 +15,24 @@
 package com.grammatech.gtirb.auxdatacodec;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
-public class ArrayListCodec<T> implements Codec<List<T>> {
+public class ListCodec<T> implements Codec<List<T>> {
     private Codec<T> tCodec;
+    private Supplier<List<T>> sup;
 
-    public ArrayListCodec(Codec<T> tc) { this.tCodec = tc; }
+    public ListCodec(Codec<T> tc, Supplier<List<T>> s) {
+        this.tCodec = tc;
+        this.sup = s;
+    }
 
     public String getTypeName() {
         return "sequence<" + this.tCodec.getTypeName() + ">";
     }
 
     public List<T> decode(InputStream in) throws IOException {
-        List<T> al = new ArrayList<T>();
+        List<T> al = this.sup.get();
         long len = LongCodec.decodeStatic(in);
 
         for (int i = 0; i < len; i++)

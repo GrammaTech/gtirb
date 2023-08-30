@@ -69,17 +69,17 @@ configure_file(
 )
 
 set(GTIRB_API_JAVAS
-    auxdatacodec/ArrayListCodec
     auxdatacodec/BoolCodec
     auxdatacodec/ByteCodec
     auxdatacodec/Codec
     auxdatacodec/DecodeException
     auxdatacodec/EncodeException
-    auxdatacodec/HashMapCodec
-    auxdatacodec/HashSetCodec
     auxdatacodec/IntegerCodec
+    auxdatacodec/ListCodec
     auxdatacodec/LongCodec
+    auxdatacodec/MapCodec
     auxdatacodec/OffsetCodec
+    auxdatacodec/SetCodec
     auxdatacodec/ShortCodec
     auxdatacodec/StringCodec
     auxdatacodec/Tuple1Codec

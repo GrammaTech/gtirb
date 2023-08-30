@@ -15,16 +15,18 @@
 package com.grammatech.gtirb.auxdatacodec;
 
 import java.io.*;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Supplier;
 
-public class HashMapCodec<K, V> implements Codec<Map<K, V>> {
+public class MapCodec<K, V> implements Codec<Map<K, V>> {
     private Codec<K> kCodec;
     private Codec<V> vCodec;
+    private Supplier<Map<K, V>> sup;
 
-    public HashMapCodec(Codec<K> kc, Codec<V> vc) {
+    public MapCodec(Codec<K> kc, Codec<V> vc, Supplier<Map<K, V>> s) {
         this.kCodec = kc;
         this.vCodec = vc;
+        this.sup = s;
     }
 
     public String getTypeName() {
@@ -32,7 +34,7 @@ public class HashMapCodec<K, V> implements Codec<Map<K, V>> {
     }
 
     public Map<K, V> decode(InputStream in) throws IOException {
-        Map<K, V> map = new HashMap<K, V>();
+        Map<K, V> map = this.sup.get();
 
         // Size of the map.
         long len = LongCodec.decodeStatic(in);

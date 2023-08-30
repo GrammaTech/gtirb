@@ -15,20 +15,24 @@
 package com.grammatech.gtirb.auxdatacodec;
 
 import java.io.*;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Supplier;
 
-public class HashSetCodec<T> implements Codec<Set<T>> {
+public class SetCodec<T> implements Codec<Set<T>> {
     private Codec<T> tCodec;
+    private Supplier<Set<T>> sup;
 
-    public HashSetCodec(Codec<T> tc) { this.tCodec = tc; }
+    public SetCodec(Codec<T> tc, Supplier<Set<T>> s) {
+        this.tCodec = tc;
+        this.sup = s;
+    }
 
     public String getTypeName() {
         return "set<" + this.tCodec.getTypeName() + ">";
     }
 
     public Set<T> decode(InputStream in) throws IOException {
-        Set<T> set = new HashSet<T>();
+        Set<T> set = this.sup.get();
 
         // Size of the set.
         long len = LongCodec.decodeStatic(in);
