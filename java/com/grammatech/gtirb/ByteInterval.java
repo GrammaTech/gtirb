@@ -180,7 +180,7 @@ public final class ByteInterval extends Node implements TreeListItem {
     /**
      * Get the blocks of this ByteInterval.
      *
-     * @return  An unmodifiable {@link Block} list of all the
+     * @return  An unmodifiable {@link ByteBlock} list of all the
      * blocks in this {@link ByteInterval}.
      */
     public List<ByteBlock> getBlockList() {

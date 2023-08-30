@@ -163,7 +163,7 @@ public class SymbolicExpression {
      * Get the flags applying to this SymbolicExpression.
      *
      * @return  An unmodifiable {@link AttributeFlag} set of all the
-     * attribute flags in this {@link SymbolicExpresion}.
+     * attribute flags in this {@link SymbolicExpression}.
      */
     public Set<AttributeFlag> getAttributeFlags() {
         return Collections.unmodifiableSet(this.attributeFlags);
@@ -195,7 +195,7 @@ public class SymbolicExpression {
      * Get unknown attribute flags applying to this SymbolicExpression.
      *
      * @return  An unmodifiable list of all the unknown attribute
-     * flags in this {@link SymbolicExpresion}, as integers.
+     * flags in this {@link SymbolicExpression}, as integers.
      */
     public Set<Integer> getUnknownAttributeFlags() {
         return Collections.unmodifiableSet(this.unknownAttributeFlags);
@@ -204,7 +204,7 @@ public class SymbolicExpression {
     /**
      * Add an unknown attribute flag to this SymbolicExpression.
      *
-     * @param Integer An unknown attribute flag that will be applied
+     * @param unknownFlag An unknown attribute flag that will be applied
      * to this symbolic expression and stored as an integer.
      */
     public void addUnknownFlag(Integer unknownFlag) {
@@ -214,7 +214,7 @@ public class SymbolicExpression {
     /**
      * Remove an unknown attribute flag from this SymbolicExpression.
      *
-     * @param Integer An unknown attribute flag that will be removed
+     * @param unknownFlag An unknown attribute flag that will be removed
      * to this symbolic expression.
      * @return boolean true if this symbolic expression contained the attribute
      * flag, and it was removed.

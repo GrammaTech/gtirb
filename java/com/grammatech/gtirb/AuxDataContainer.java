@@ -29,7 +29,7 @@ import java.util.Optional;
  * Provides functionality for associating auxiliary
  * data with elements of the intermediate representation.
  */
-public class AuxDataContainer extends Node {
+public abstract class AuxDataContainer extends Node {
 
     /**
      * Inner class for managing AuxData instances
