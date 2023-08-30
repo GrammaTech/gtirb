@@ -270,7 +270,7 @@ public class TestAuxData {
     }
 
     @Test
-    public void testAuxDataDecodeEncode() throws Exception {
+    public void testAuxDataDecodeEncode() throws IOException {
         // Construct an IR+Module to dangle AuxData off of
         IR ir1 = new IR();
         Module m1 = new Module(
@@ -306,5 +306,71 @@ public class TestAuxData {
             m1.getAuxData(AuxDataSchemas.functionNames);
         assertTrue(oad2.isPresent());
         assertEquals(func_names, oad2.get());
+    }
+
+    AuxDataSchema<Long> aSchema =
+        new AuxDataSchema<>("aSchema", LongCodec.UINT64);
+    AuxDataSchema<Boolean> anotherSchema =
+        new AuxDataSchema<>("anotherSchema", new BoolCodec());
+
+    @Test
+    public void testRemoveAuxData() throws IOException {
+        Module m = new Module("test", 0xDEADBEEF, 0, Module.FileFormat.ELF,
+                              Module.ISA.IA32, "test", new ArrayList<Section>(),
+                              new ArrayList<Symbol>(),
+                              new ArrayList<ProxyBlock>(), null);
+
+        m.putAuxData(aSchema, 42L);
+        assertEquals(Optional.of(42L), m.getAuxData(aSchema));
+
+        boolean rv = m.removeAuxData("aSchema");
+        assertTrue(rv);
+        assertEquals(Optional.empty(), m.getAuxData(aSchema));
+        rv = m.removeAuxData("aSchema");
+        assertFalse(rv);
+
+        m.putAuxData(aSchema, 43L);
+        assertEquals(Optional.of(43L), m.getAuxData(aSchema));
+
+        rv = m.removeAuxData(aSchema);
+        assertTrue(rv);
+        assertEquals(Optional.empty(), m.getAuxData(aSchema));
+        rv = m.removeAuxData(aSchema);
+        assertFalse(rv);
+    }
+
+    @Test
+    public void testClearAuxData() throws IOException {
+        Module m = new Module("test", 0xDEADBEEF, 0, Module.FileFormat.ELF,
+                              Module.ISA.IA32, "test", new ArrayList<Section>(),
+                              new ArrayList<Symbol>(),
+                              new ArrayList<ProxyBlock>(), null);
+
+        m.putAuxData(aSchema, 42L);
+        m.putAuxData(anotherSchema, true);
+        assertEquals(Optional.of(42L), m.getAuxData(aSchema));
+        assertEquals(Optional.of(true), m.getAuxData(anotherSchema));
+
+        m.clearAuxData();
+        assertEquals(Optional.empty(), m.getAuxData(aSchema));
+        assertEquals(Optional.empty(), m.getAuxData(anotherSchema));
+    }
+
+    @Test
+    public void testGetAuxDataMap() throws IOException {
+        Module m = new Module("test", 0xDEADBEEF, 0, Module.FileFormat.ELF,
+                              Module.ISA.IA32, "test", new ArrayList<Section>(),
+                              new ArrayList<Symbol>(),
+                              new ArrayList<ProxyBlock>(), null);
+
+        m.putAuxData(aSchema, 42L);
+        m.putAuxData(anotherSchema, true);
+        assertEquals(Optional.of(42L), m.getAuxData(aSchema));
+        assertEquals(Optional.of(true), m.getAuxData(anotherSchema));
+
+        Map<String, AuxDataContainer.AuxData> adMap = m.getAuxDataMap();
+        assertTrue(adMap.containsKey(aSchema.getName()));
+        assertTrue(adMap.containsKey(anotherSchema.getName()));
+        assertThrows(UnsupportedOperationException.class, () -> adMap.clear());
     }
 }

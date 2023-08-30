@@ -29,7 +29,7 @@ public class AuxDataContainer extends Node {
     /**
      * Inner class for managing AuxData instances
      */
-    static class AuxData {
+    public static class AuxData {
 
         // Always populated.
         private String name;
@@ -44,10 +44,10 @@ public class AuxDataContainer extends Node {
         private Optional<Object> decoded;
 
         /**
-         * Class constructor for AuxData from protobuf AuxData.
-         * @param  protoAuxData   The AuxData as serialized into a protocol
-         *     buffer.
-         * @param  name           The name of this AuxData.
+         * Class constructor for AuxData from protobuf {@link AuxData}.
+         * @param  protoAuxData   The {@link AuxData} as serialized into a
+         *     protocol buffer.
+         * @param  name           The name of this {@link AuxData}.
          */
         AuxData(String name, AuxDataOuterClass.AuxData protoAuxData) {
             this.name = name;
@@ -58,7 +58,7 @@ public class AuxDataContainer extends Node {
         }
 
         /**
-         * Class constructor for AuxData from an in-memory object.
+         * Class constructor for {@link AuxData} from an in-memory object.
          * @param schema The {@link AuxDataSchema} for the AuxData entry.
          * @param value The value to associate with thie AuxData entry.
          */
@@ -71,7 +71,7 @@ public class AuxDataContainer extends Node {
         }
 
         /**
-         * Get the AuxData name.
+         * Get the {@link AuxData} name.
          *
          * @return the name.
          */
@@ -85,14 +85,20 @@ public class AuxDataContainer extends Node {
         String getTypeName() { return this.typeName; }
 
         /**
-         * Get the AuxData bytes.
+         * Get the {@link AuxData} bytes.
+         *
+         * This content is considered stale once a call to {@link
+         * getDecodedData} occurs.
          *
          * @return This AuxData as a byte array.
          */
         Optional<byte[]> getEncodedData() { return this.encoded; }
 
         /**
-         * Get the decoded form of the AuxData.
+         * Get the decoded form of the {@link AuxData}.
+         *
+         * @param sch The schema used for decoding this {@link AuxData}.
+         * @return The decoded data object for this {@link AuxData}.
          */
         <T> T getDecodedData(AuxDataSchema<T> sch) throws IOException {
             // TODO: Some better way to confirm schema equivalence here.
@@ -191,7 +197,7 @@ public class AuxDataContainer extends Node {
      * @return An {@link AuxData} object, or empty() if not present.
      */
     public <T> Optional<T> getAuxData(AuxDataSchema<T> schema)
-        throws Exception {
+        throws IOException {
         AuxData ad = this.auxDataMap.get(schema.getName());
 
         if (ad == null) {
@@ -211,5 +217,46 @@ public class AuxDataContainer extends Node {
     public <T> void putAuxData(AuxDataSchema<T> schema, T data) {
         AuxData ad = new AuxData(schema, data);
         this.auxDataMap.put(schema.getName(), ad);
+    }
+
+    /**
+     * Remove an {@link AuxData} from this container.
+     *
+     * @param schema The schema of the {@link AuxData} to remove.
+     * @return False if the {@link AuxData} was not present in the container.
+     *     True otherwise.
+     */
+    public boolean removeAuxData(AuxDataSchema<?> schema) {
+        return this.removeAuxData(schema.getName());
+    }
+
+    /**
+     * Remove an {@link AuxData} from this container.
+     *
+     * This version of the function can be used for AuxData for which
+     * the schema is not known locally.
+     *
+     * @param name The name of the {@link AuxData} to remove.
+     * @return False if the {@link AuxData} was not present in the container.
+     *     True otherwise.
+     */
+    public boolean removeAuxData(String name) {
+        AuxData ad = this.auxDataMap.remove(name);
+        return ad != null;
+    }
+
+    /**
+     * Remove all {@link AuxData} from this container.
+     */
+    public void clearAuxData() { this.auxDataMap.clear(); }
+
+    /**
+     * Get a view of the {@link AuxData} entries present in this container.
+     *
+     * @return An unmodifiable view of the map of {@link AuxData} entries in
+     *     this container indexec by name.
+     */
+    public Map<String, AuxData> getAuxDataMap() {
+        return Collections.unmodifiableMap(this.auxDataMap);
     }
 }

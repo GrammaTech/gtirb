@@ -11,7 +11,7 @@ public final class AuxDataSchema<T> {
         this.codec = c;
     }
 
-    String getName() { return this.name; }
+    public String getName() { return this.name; }
 
-    Codec<T> getCodec() { return this.codec; }
+    public Codec<T> getCodec() { return this.codec; }
 }
