@@ -4,7 +4,7 @@ import com.grammatech.gtirb.tuple.Tuple1;
 import com.grammatech.gtirb.tuple.Tuple2;
 import com.grammatech.gtirb.variant.Token;
 import com.grammatech.gtirb.variant.Variant11;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -58,14 +58,14 @@ public class TypeTableEntry
     /**
      * A marker type for representing function types.
      */
-    public static class FunctionType extends Tuple2<UUID, ArrayList<UUID>> {
+    public static class FunctionType extends Tuple2<UUID, List<UUID>> {
         /**
          * Constructor.
          *
          * @param returnType The UUID of the return type.
          * @param paramTypes The types of the parameters.
          */
-        public FunctionType(UUID returnType, ArrayList<UUID> paramTypes) {
+        public FunctionType(UUID returnType, List<UUID> paramTypes) {
             super(returnType, paramTypes);
         }
 
@@ -77,7 +77,7 @@ public class TypeTableEntry
         /**
          * Get the types of the parameters.
          */
-        public ArrayList<UUID> getParamTypes() { return this.get1(); }
+        public List<UUID> getParamTypes() { return this.get1(); }
     }
 
     /**
@@ -129,15 +129,14 @@ public class TypeTableEntry
     /**
      * A marker type for representing structure types.
      */
-    public static class StructType
-        extends Tuple2<Long, ArrayList<StructField>> {
+    public static class StructType extends Tuple2<Long, List<StructField>> {
         /**
          * Constructor.
          *
          * @param size The total size of the struct.
          * @param fields The list of fields in the struct.
          */
-        public StructType(Long size, ArrayList<StructField> fields) {
+        public StructType(Long size, List<StructField> fields) {
             super(size, fields);
         }
 
@@ -149,7 +148,7 @@ public class TypeTableEntry
         /**
          * Get the fields of the struct.
          */
-        public ArrayList<StructField> getFields() { return this.get1(); }
+        public List<StructField> getFields() { return this.get1(); }
     }
 
     /**

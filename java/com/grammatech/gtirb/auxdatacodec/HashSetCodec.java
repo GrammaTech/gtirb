@@ -16,8 +16,9 @@ package com.grammatech.gtirb.auxdatacodec;
 
 import java.io.*;
 import java.util.HashSet;
+import java.util.Set;
 
-public class HashSetCodec<T> implements Codec<HashSet<T>> {
+public class HashSetCodec<T> implements Codec<Set<T>> {
     private Codec<T> tCodec;
 
     public HashSetCodec(Codec<T> tc) { this.tCodec = tc; }
@@ -26,8 +27,8 @@ public class HashSetCodec<T> implements Codec<HashSet<T>> {
         return "set<" + this.tCodec.getTypeName() + ">";
     }
 
-    public HashSet<T> decode(InputStream in) throws IOException {
-        HashSet<T> set = new HashSet<T>();
+    public Set<T> decode(InputStream in) throws IOException {
+        Set<T> set = new HashSet<T>();
 
         // Size of the set.
         long len = LongCodec.decodeStatic(in);
@@ -40,7 +41,7 @@ public class HashSetCodec<T> implements Codec<HashSet<T>> {
         return set;
     }
 
-    public void encode(OutputStream out, HashSet<T> set) throws IOException {
+    public void encode(OutputStream out, Set<T> set) throws IOException {
         // Size of the set.
         LongCodec.encodeStatic(out, (long)set.size());
 

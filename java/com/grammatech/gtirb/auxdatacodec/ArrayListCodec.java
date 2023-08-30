@@ -16,8 +16,9 @@ package com.grammatech.gtirb.auxdatacodec;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.List;
 
-public class ArrayListCodec<T> implements Codec<ArrayList<T>> {
+public class ArrayListCodec<T> implements Codec<List<T>> {
     private Codec<T> tCodec;
 
     public ArrayListCodec(Codec<T> tc) { this.tCodec = tc; }
@@ -26,8 +27,8 @@ public class ArrayListCodec<T> implements Codec<ArrayList<T>> {
         return "sequence<" + this.tCodec.getTypeName() + ">";
     }
 
-    public ArrayList<T> decode(InputStream in) throws IOException {
-        ArrayList<T> al = new ArrayList<T>();
+    public List<T> decode(InputStream in) throws IOException {
+        List<T> al = new ArrayList<T>();
         long len = LongCodec.decodeStatic(in);
 
         for (int i = 0; i < len; i++)
@@ -35,7 +36,7 @@ public class ArrayListCodec<T> implements Codec<ArrayList<T>> {
         return al;
     }
 
-    public void encode(OutputStream out, ArrayList<T> al) throws IOException {
+    public void encode(OutputStream out, List<T> al) throws IOException {
         LongCodec.encodeStatic(out, (long)al.size());
         for (T item : al) {
             this.tCodec.encode(out, item);

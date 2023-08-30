@@ -18,7 +18,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
-public class HashMapCodec<K, V> implements Codec<HashMap<K, V>> {
+public class HashMapCodec<K, V> implements Codec<Map<K, V>> {
     private Codec<K> kCodec;
     private Codec<V> vCodec;
 
@@ -31,8 +31,8 @@ public class HashMapCodec<K, V> implements Codec<HashMap<K, V>> {
         return "map<" + kCodec.getTypeName() + "," + vCodec.getTypeName() + ">";
     }
 
-    public HashMap<K, V> decode(InputStream in) throws IOException {
-        HashMap<K, V> map = new HashMap<K, V>();
+    public Map<K, V> decode(InputStream in) throws IOException {
+        Map<K, V> map = new HashMap<K, V>();
 
         // Size of the map.
         long len = LongCodec.decodeStatic(in);
@@ -46,7 +46,7 @@ public class HashMapCodec<K, V> implements Codec<HashMap<K, V>> {
         return map;
     }
 
-    public void encode(OutputStream out, HashMap<K, V> map) throws IOException {
+    public void encode(OutputStream out, Map<K, V> map) throws IOException {
         // Size of the map.
         LongCodec.encodeStatic(out, (long)map.size());
 

@@ -1,13 +1,13 @@
 package com.grammatech.gtirb;
 
 import com.grammatech.gtirb.tuple.Tuple3;
-import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 /**
  * A tuple representing an individual CFI directive.
  */
-public class CfiDirective extends Tuple3<String, ArrayList<Long>, UUID> {
+public class CfiDirective extends Tuple3<String, List<Long>, UUID> {
     /**
      * Constructor for a CFI directive.
      *
@@ -16,7 +16,7 @@ public class CfiDirective extends Tuple3<String, ArrayList<Long>, UUID> {
      * @param symbolUuid UUID of the {@link Symbol} indicating where the
      *     directive applies.
      */
-    public CfiDirective(String name, ArrayList<Long> args, UUID symbolUuid) {
+    public CfiDirective(String name, List<Long> args, UUID symbolUuid) {
         super(name, args, symbolUuid);
     }
 
@@ -28,7 +28,7 @@ public class CfiDirective extends Tuple3<String, ArrayList<Long>, UUID> {
     /**
      * Get the numeric arguments to the directive.
      */
-    public ArrayList<Long> getArgs() { return this.get1(); }
+    public List<Long> getArgs() { return this.get1(); }
 
     /**
      * Get the UUID of the {@link Symbol} indicating where the directive

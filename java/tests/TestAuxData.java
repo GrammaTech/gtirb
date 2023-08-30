@@ -14,7 +14,15 @@ import com.grammatech.gtirb.variant.Variant11;
 import com.grammatech.gtirb.variant.Variant2;
 import com.grammatech.gtirb.variant.Variant3;
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.UUID;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -124,16 +132,16 @@ public class TestAuxData {
 
     private static Stream<Arguments> argProviderForTestCodec() {
 
-        ArrayList<Integer> ali = new ArrayList<>();
+        List<Integer> ali = new ArrayList<>();
         ali.add(4);
         ali.add(2);
 
-        ArrayList<Float> alf = new ArrayList<>();
+        List<Float> alf = new ArrayList<>();
         alf.add(5.3f);
-        HashMap<UUID, ArrayList<Float>> hm = new HashMap<>();
+        Map<UUID, List<Float>> hm = new HashMap<>();
         hm.put(new UUID(2, 4), alf);
 
-        HashSet<String> hs = new HashSet<>();
+        Set<String> hs = new HashSet<>();
         hs.add("foo");
         hs.add("bar");
 
@@ -271,10 +279,10 @@ public class TestAuxData {
         // Add the AuxData
         assertEquals(Optional.empty(),
                      m1.getAuxData(AuxDataSchemas.functionNames));
-        HashMap<UUID, UUID> func_names = new HashMap<>();
+        Map<UUID, UUID> func_names = new TreeMap<>();
         func_names.put(new UUID(1, 2), new UUID(3, 4));
         m1.putAuxData(AuxDataSchemas.functionNames, func_names);
-        Optional<HashMap<UUID, UUID>> oad1 =
+        Optional<Map<UUID, UUID>> oad1 =
             m1.getAuxData(AuxDataSchemas.functionNames);
         assertTrue(oad1.isPresent());
         assertEquals(func_names, oad1.get());
@@ -291,7 +299,7 @@ public class TestAuxData {
         Module m2 = mods2.get(0);
 
         // Fetch the AuxData back.
-        Optional<HashMap<UUID, UUID>> oad2 =
+        Optional<Map<UUID, UUID>> oad2 =
             m1.getAuxData(AuxDataSchemas.functionNames);
         assertTrue(oad2.isPresent());
         assertEquals(func_names, oad2.get());

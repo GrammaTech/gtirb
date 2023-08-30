@@ -30,8 +30,8 @@ public class AuxDataSchemas {
      * This table identifies all of the {@link CodeBlock}s that belong to each
      * function.
      */
-    public final static AuxDataSchema<HashMap<UUID, HashSet<UUID>>>
-        functionBlocks = new AuxDataSchema<>(
+    public final static AuxDataSchema<Map<UUID, Set<UUID>>> functionBlocks =
+        new AuxDataSchema<>(
             "functionBlocks",
             new HashMapCodec<>(new UuidCodec(),
                                new HashSetCodec<>(new UuidCodec())));
@@ -40,8 +40,8 @@ public class AuxDataSchemas {
      * This table identifies all {@link CodeBlock}s that represent entry points
      * to each function.
      */
-    public final static AuxDataSchema<HashMap<UUID, HashSet<UUID>>>
-        functionEntries = new AuxDataSchema<>(
+    public final static AuxDataSchema<Map<UUID, Set<UUID>>> functionEntries =
+        new AuxDataSchema<>(
             "functionEntries",
             new HashMapCodec<>(new UuidCodec(),
                                new HashSetCodec<>(new UuidCodec())));
@@ -50,7 +50,7 @@ public class AuxDataSchemas {
      * This table identifies a canonical {@link Symbol} to be used for each
      * function.
      */
-    public final static AuxDataSchema<HashMap<UUID, UUID>> functionNames =
+    public final static AuxDataSchema<Map<UUID, UUID>> functionNames =
         new AuxDataSchema<>(
             "functionNames",
             new HashMapCodec<>(new UuidCodec(), new UuidCodec()));
@@ -59,7 +59,7 @@ public class AuxDataSchemas {
      * An entry in this table indicates that the given {@link DataBlock}
      * contains content that exhibits the given C++ type.
      */
-    public final static AuxDataSchema<HashMap<UUID, String>> types =
+    public final static AuxDataSchema<Map<UUID, String>> types =
         new AuxDataSchema<>(
             "types", new HashMapCodec<>(new UuidCodec(), new StringCodec()));
 
@@ -67,14 +67,14 @@ public class AuxDataSchemas {
      * An entry in this table indicates that the given object's address is
      * required to be evenly divisible by the alignment value.
      */
-    public final static AuxDataSchema<HashMap<UUID, Long>> alignment =
+    public final static AuxDataSchema<Map<UUID, Long>> alignment =
         new AuxDataSchema<>(
             "alignment", new HashMapCodec<>(new UuidCodec(), LongCodec.UINT64));
 
     /**
      * Comment strings relevant to offsets in the GTIRB entries.
      */
-    public final static AuxDataSchema<HashMap<Offset, String>> comments =
+    public final static AuxDataSchema<Map<Offset, String>> comments =
         new AuxDataSchema<>("comments", new HashMapCodec<>(new OffsetCodec(),
                                                            new StringCodec()));
 
@@ -82,7 +82,7 @@ public class AuxDataSchemas {
      * A mapping of symbols in one module that are bound dynamically to symbols
      * in another module.
      */
-    public final static AuxDataSchema<HashMap<UUID, UUID>> symbolForwarding =
+    public final static AuxDataSchema<Map<UUID, UUID>> symbolForwarding =
         new AuxDataSchema<>(
             "symbolForwarding",
             new HashMapCodec<>(new UuidCodec(), new UuidCodec()));
@@ -90,7 +90,7 @@ public class AuxDataSchemas {
     /**
      * Locations of unused padding bytes in the binary.
      */
-    public final static AuxDataSchema<HashMap<Offset, Long>> padding =
+    public final static AuxDataSchema<Map<Offset, Long>> padding =
         new AuxDataSchema<>(
             "padding", new HashMapCodec<>(new OffsetCodec(), LongCodec.UINT64));
 
@@ -100,14 +100,14 @@ public class AuxDataSchemas {
      * Type descriptors representing what type of binary the GTIRB models (e.g.
      * executable vs. dynamic library.)
      */
-    public final static AuxDataSchema<ArrayList<String>> binaryType =
+    public final static AuxDataSchema<List<String>> binaryType =
         new AuxDataSchema<>("binaryType",
                             new ArrayListCodec(new StringCodec()));
 
     /**
      * Map from Offsets to  vector of cfi directives.
      */
-    public final static AuxDataSchema<HashMap<Offset, ArrayList<CfiDirective>>>
+    public final static AuxDataSchema<Map<Offset, List<CfiDirective>>>
         cfiDirectives = new AuxDataSchema<>(
             "cfiDirectives",
             new HashMapCodec<>(
@@ -119,7 +119,7 @@ public class AuxDataSchemas {
     /**
      * Map from section UUIDs to tuples with the ELF section types and flags.
      */
-    public final static AuxDataSchema<HashMap<UUID, ElfSectionPropertyTuple>>
+    public final static AuxDataSchema<Map<UUID, ElfSectionPropertyTuple>>
         elfSectionProperties = new AuxDataSchema<>(
             "elfSectionProperties",
             new HashMapCodec<>(
@@ -130,7 +130,7 @@ public class AuxDataSchemas {
     /**
      * Map from symbols to their type, binding, and visibility categories.
      */
-    public final static AuxDataSchema<HashMap<UUID, ElfSymbolInfoTuple>>
+    public final static AuxDataSchema<Map<UUID, ElfSymbolInfoTuple>>
         elfSymbolInfo = new AuxDataSchema<>(
             "elfSymbolInfo",
             new HashMapCodec<>(
@@ -165,7 +165,7 @@ public class AuxDataSchemas {
      * std::string containing an assembler encoding specifier: "string",
      * "uleb128" or "sleb128".
      */
-    public final static AuxDataSchema<HashMap<UUID, String>> encodings =
+    public final static AuxDataSchema<Map<UUID, String>> encodings =
         new AuxDataSchema<>("encodings", new HashMapCodec<>(new UuidCodec(),
                                                             new StringCodec()));
 
@@ -173,8 +173,8 @@ public class AuxDataSchemas {
      * Map from function UUID to a list of weighted predictions.
      */
     public final static AuxDataSchema<
-        HashMap<String, HashMap<UUID, ArrayList<ProbFuncName>>>>
-        functionNameProbabilities = new AuxDataSchema<>(
+        Map<String, Map<UUID, List<ProbFuncName>>>> functionNameProbabilities =
+        new AuxDataSchema<>(
             "functionNameProbabilities",
             new HashMapCodec<>(
                 new StringCodec(),
@@ -186,8 +186,8 @@ public class AuxDataSchemas {
     /**
      * Names of libraries that are included in an executable (statically linked)
      */
-    public final static AuxDataSchema<HashMap<UUID, String>>
-        includedLibraryNames = new AuxDataSchema<>(
+    public final static AuxDataSchema<Map<UUID, String>> includedLibraryNames =
+        new AuxDataSchema<>(
             "includedLibraryNames",
             new HashMapCodec<>(new UuidCodec(), new StringCodec()));
 
@@ -195,7 +195,7 @@ public class AuxDataSchemas {
      * Versions of libraries that are included in an executable (statically
      * linked)
      */
-    public final static AuxDataSchema<HashMap<UUID, String>>
+    public final static AuxDataSchema<Map<UUID, String>>
         includedLibraryVersions = new AuxDataSchema<>(
             "includedLibraryVersions",
             new HashMapCodec<>(new UuidCodec(), new StringCodec()));
@@ -203,30 +203,30 @@ public class AuxDataSchemas {
     /**
      * Names of the external libraries that are needed dynamically at run time.
      */
-    public final static AuxDataSchema<ArrayList<String>> libraries =
+    public final static AuxDataSchema<List<String>> libraries =
         new AuxDataSchema<>("libraries",
                             new ArrayListCodec<>(new StringCodec()));
 
     /**
      * Paths contained in the rpath of the binary.
      */
-    public final static AuxDataSchema<ArrayList<String>> libraryPaths =
+    public final static AuxDataSchema<List<String>> libraryPaths =
         new AuxDataSchema<>("libraryPaths",
                             new ArrayListCodec<>(new StringCodec()));
 
     /**
      * List of tuples detailing an exported address, ordinal, and name for PE.
      */
-    public final static AuxDataSchema<ArrayList<PeExportEntry>>
-        peExportEntries = new AuxDataSchema<>(
-            "peExportEntries", new ArrayListCodec<>(new Tuple3Codec<>(
-                                   LongCodec.UINT64, LongCodec.INT64,
-                                   new StringCodec(), PeExportEntry::new)));
+    public final static AuxDataSchema<List<PeExportEntry>> peExportEntries =
+        new AuxDataSchema<>("peExportEntries",
+                            new ArrayListCodec<>(new Tuple3Codec<>(
+                                LongCodec.UINT64, LongCodec.INT64,
+                                new StringCodec(), PeExportEntry::new)));
 
     /**
      * UUIDs of the exported symbols for PE.
      */
-    public final static AuxDataSchema<ArrayList<UUID>> peExportedSymbols =
+    public final static AuxDataSchema<List<UUID>> peExportedSymbols =
         new AuxDataSchema<>("peExportedSymbols",
                             new ArrayListCodec<>(new UuidCodec()));
 
@@ -234,8 +234,8 @@ public class AuxDataSchemas {
      * List of tuples detailing an imported function address, ordinal, function
      * name, and library names for PE.
      */
-    public final static AuxDataSchema<ArrayList<PeImportEntry>>
-        peImportEntries = new AuxDataSchema<>(
+    public final static AuxDataSchema<List<PeImportEntry>> peImportEntries =
+        new AuxDataSchema<>(
             "peImportEntries",
             new ArrayListCodec<>(new Tuple4Codec<>(
                 LongCodec.UINT64, LongCodec.INT64, new StringCodec(),
@@ -244,14 +244,14 @@ public class AuxDataSchemas {
     /**
      * UUIDs of the imported symbols for PE.
      */
-    public final static AuxDataSchema<ArrayList<UUID>> peImportedSymbols =
+    public final static AuxDataSchema<List<UUID>> peImportedSymbols =
         new AuxDataSchema<>("peImportedSymbols",
                             new ArrayListCodec<>(new UuidCodec()));
 
     /**
      * List of PE resources.
      */
-    public final static AuxDataSchema<ArrayList<PeResourceEntry>> peResource =
+    public final static AuxDataSchema<List<PeResourceEntry>> peResource =
         new AuxDataSchema<>(
             "peResource",
             new ArrayListCodec<>(new Tuple3Codec<>(
@@ -261,7 +261,7 @@ public class AuxDataSchemas {
     /**
      * Profiling data. Executions by {@link CodeBlock}
      */
-    public final static AuxDataSchema<HashMap<UUID, Long>> profile =
+    public final static AuxDataSchema<Map<UUID, Long>> profile =
         new AuxDataSchema<>(
             "profile", new HashMapCodec<>(new UuidCodec(), LongCodec.UINT64));
 
@@ -269,7 +269,7 @@ public class AuxDataSchemas {
      * Map of function UUIDs to their associated typeTable entries for the
      * purpose of giving them prototypes.
      */
-    public final static AuxDataSchema<HashMap<UUID, UUID>> prototypeTable =
+    public final static AuxDataSchema<Map<UUID, UUID>> prototypeTable =
         new AuxDataSchema<>(
             "prototypeTable",
             new HashMapCodec<>(new UuidCodec(), new UuidCodec()));
@@ -277,7 +277,7 @@ public class AuxDataSchemas {
     /**
      * The intra-procedural SCC identifier of each {@link CodeBlock}.
      */
-    public final static AuxDataSchema<HashMap<UUID, Long>> sccs =
+    public final static AuxDataSchema<Map<UUID, Long>> sccs =
         new AuxDataSchema<>(
             "SCCs", new HashMapCodec<>(new UuidCodec(), LongCodec.INT64));
 
@@ -285,7 +285,7 @@ public class AuxDataSchemas {
      * Map from an Offset of a {@link SymbolicExpression} in a {@link
      * ByteInterval} to its extent, a size in bytes.
      */
-    public final static AuxDataSchema<HashMap<Offset, Long>>
+    public final static AuxDataSchema<Map<Offset, Long>>
         symbolicExpressionSizes = new AuxDataSchema<>(
             "symbolicExpressionSizes",
             new HashMapCodec<>(new OffsetCodec(), LongCodec.UINT64));
@@ -293,7 +293,7 @@ public class AuxDataSchemas {
     /**
      * Structured type information about objects.
      */
-    public final static AuxDataSchema<HashMap<UUID, TypeTableEntry>> typeTable =
+    public final static AuxDataSchema<Map<UUID, TypeTableEntry>> typeTable =
         new AuxDataSchema<>(
             "typeTable",
             new HashMapCodec<>(
