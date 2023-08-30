@@ -14,12 +14,19 @@
 
 package com.grammatech.gtirb.auxdatacodec;
 
-import java.io.*;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.ByteBuffer;
 
 public class IntegerCodec implements Codec<Integer> {
 
-    public String getTypeName() { return "int32_t"; }
+    private String typeName;
+
+    private IntegerCodec(String tn) { this.typeName = tn; }
+
+    public String getTypeName() { return this.typeName; }
 
     public Integer decode(InputStream in) throws IOException {
         byte[] b = new byte[4];
@@ -37,4 +44,7 @@ public class IntegerCodec implements Codec<Integer> {
         bb.putInt(val);
         out.write(b, 0, 4);
     }
+
+    public final static IntegerCodec INT32 = new IntegerCodec("int32_t");
+    public final static IntegerCodec UINT32 = new IntegerCodec("uint32_t");
 }
