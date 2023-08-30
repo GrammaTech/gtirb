@@ -14,7 +14,9 @@
 
 package com.grammatech.gtirb.auxdatacodec;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Map;
 import java.util.function.Supplier;
 

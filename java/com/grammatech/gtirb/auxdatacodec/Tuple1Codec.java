@@ -1,7 +1,9 @@
 package com.grammatech.gtirb.auxdatacodec;
 
 import com.grammatech.gtirb.tuple.Tuple1;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class Tuple1Codec<T extends Tuple1<A>, A> implements Codec<T> {
     private Codec<A> aCodec;

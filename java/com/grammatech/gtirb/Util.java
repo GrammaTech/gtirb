@@ -15,8 +15,11 @@
 package com.grammatech.gtirb;
 
 import com.google.protobuf.ByteString;
-import java.io.*;
-import java.lang.*;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.IllegalArgumentException;
 import java.nio.ByteBuffer;
 import java.util.UUID;
 

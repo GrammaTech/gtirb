@@ -16,9 +16,14 @@ package com.grammatech.gtirb;
 
 import com.google.protobuf.ByteString;
 import com.grammatech.gtirb.proto.AuxDataOuterClass;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.IllegalArgumentException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  * Provides functionality for associating auxiliary

@@ -15,7 +15,9 @@
 package com.grammatech.gtirb.auxdatacodec;
 
 import com.grammatech.gtirb.Util;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.UUID;
 
 public class UuidCodec implements Codec<UUID> {

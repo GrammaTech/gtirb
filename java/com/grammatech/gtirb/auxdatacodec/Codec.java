@@ -14,13 +14,13 @@
 
 package com.grammatech.gtirb.auxdatacodec;
 
-// CONSIDER: Should this be an interface rather than an object hierarchy?
-// What at all is gained from doing it this way?
-// If there are classes without implementations of encode/decode, maybe _they_
-// have a parent class.
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
-import java.io.*;
-
+/**
+ * A codec is an object that knows how to encode and decode AuxData objects.
+ */
 public interface Codec<T> {
 
     /**

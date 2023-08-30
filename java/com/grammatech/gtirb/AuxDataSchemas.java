@@ -1,7 +1,29 @@
 package com.grammatech.gtirb;
 
-import com.grammatech.gtirb.auxdatacodec.*;
-import java.util.*;
+import com.grammatech.gtirb.auxdatacodec.BoolCodec;
+import com.grammatech.gtirb.auxdatacodec.ByteCodec;
+import com.grammatech.gtirb.auxdatacodec.FloatCodec;
+import com.grammatech.gtirb.auxdatacodec.ListCodec;
+import com.grammatech.gtirb.auxdatacodec.LongCodec;
+import com.grammatech.gtirb.auxdatacodec.MapCodec;
+import com.grammatech.gtirb.auxdatacodec.OffsetCodec;
+import com.grammatech.gtirb.auxdatacodec.SetCodec;
+import com.grammatech.gtirb.auxdatacodec.ShortCodec;
+import com.grammatech.gtirb.auxdatacodec.StringCodec;
+import com.grammatech.gtirb.auxdatacodec.Tuple1Codec;
+import com.grammatech.gtirb.auxdatacodec.Tuple2Codec;
+import com.grammatech.gtirb.auxdatacodec.Tuple3Codec;
+import com.grammatech.gtirb.auxdatacodec.Tuple4Codec;
+import com.grammatech.gtirb.auxdatacodec.Tuple5Codec;
+import com.grammatech.gtirb.auxdatacodec.UuidCodec;
+import com.grammatech.gtirb.auxdatacodec.Variant11Codec;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
 /**
  * This class contains schemas for sanctioned and provisional AuxData tables.

@@ -15,7 +15,9 @@
 package com.grammatech.gtirb.auxdatacodec;
 
 import com.grammatech.gtirb.tuple.Tuple4;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 public class Tuple4Codec<T extends Tuple4<A, B, C, D>, A, B, C, D>
     implements Codec<T> {
