@@ -15,11 +15,14 @@ apply plugin: 'java'
 repositories { mavenCentral() }
 
 sourceSets {
-    main.java.srcDirs = ['.', "${buildDir}/generated/java"]
+    main.java.srcDirs = ['com', "${buildDir}/generated/java"]
+    test.java.srcDirs = ['tests']
 }
 
 dependencies {
     implementation 'com.google.protobuf:protobuf-java:3.11.1'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
 }
 
 compileJava {
@@ -53,4 +56,8 @@ compileJava {
             }
         }
     }
+}
+
+test {
+  useJUnitPlatform()
 }
