@@ -15,7 +15,7 @@ public abstract class Tuple1<A> {
      * modified.
      * @param  first  The first element of the tuple.
      */
-    public Tuple1(A first) { this.first = first; }
+    protected Tuple1(A first) { this.first = first; }
 
     /**
      * Get the first element of the {@link Tuple1}.

@@ -31,7 +31,7 @@ public abstract class Tuple2<A, B> {
      * @param  first  The first element of the tuple.
      * @param  second  The second element of the tuple.
      */
-    public Tuple2(A first, B second) {
+    protected Tuple2(A first, B second) {
         this.first = first;
         this.second = second;
     }

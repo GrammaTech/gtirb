@@ -33,7 +33,7 @@ public abstract class Tuple3<A, B, C> {
      * @param  second  The second element of the tuple.
      * @param  third  The third element of the tuple.
      */
-    public Tuple3(A first, B second, C third) {
+    protected Tuple3(A first, B second, C third) {
         this.first = first;
         this.second = second;
         this.third = third;

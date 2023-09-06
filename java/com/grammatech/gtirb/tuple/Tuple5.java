@@ -37,7 +37,7 @@ public abstract class Tuple5<A, B, C, D, E> {
      * @param  fourth  The fourth element of the tuple.
      * @param  fifth  The fifth element of the tuple.
      */
-    public Tuple5(A first, B second, C third, D fourth, E fifth) {
+    protected Tuple5(A first, B second, C third, D fourth, E fifth) {
         this.first = first;
         this.second = second;
         this.third = third;
