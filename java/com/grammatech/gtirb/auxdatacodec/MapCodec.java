@@ -32,7 +32,8 @@ public class MapCodec<K, V> implements Codec<Map<K, V>> {
     }
 
     public String getTypeName() {
-        return "map<" + kCodec.getTypeName() + "," + vCodec.getTypeName() + ">";
+        return "mapping<" + kCodec.getTypeName() + "," + vCodec.getTypeName() +
+            ">";
     }
 
     public Map<K, V> decode(InputStream in) throws IOException {

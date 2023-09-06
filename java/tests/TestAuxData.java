@@ -218,7 +218,7 @@ public class TestAuxData {
             Arguments.of("sequence<int32_t>",
                          new ListCodec<>(IntegerCodec.INT32, ArrayList::new),
                          ali),
-            Arguments.of("map<UUID,sequence<float>>",
+            Arguments.of("mapping<UUID,sequence<float>>",
                          new MapCodec<>(
                              new UuidCodec(),
                              new ListCodec<>(new FloatCodec(), ArrayList::new),
