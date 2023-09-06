@@ -159,10 +159,10 @@ public abstract class Variant11<A, B, C, D, E, F, G, H, I, J, K> {
      * value is the populated object wrapped in Optional. Otherwise
      * returns Optional.empty().
      */
-    @SuppressWarnings("unchecked")
     public Optional<A> get0() {
         if (this.index == 0) {
-            return Optional.of((A)o);
+            @SuppressWarnings("unchecked") A a = (A)o;
+            return Optional.of(a);
         } else {
             return Optional.empty();
         }
@@ -175,10 +175,10 @@ public abstract class Variant11<A, B, C, D, E, F, G, H, I, J, K> {
      * value is the populated object wrapped in Optional. Otherwise
      * returns Optional.empty().
      */
-    @SuppressWarnings("unchecked")
     public Optional<B> get1() {
         if (this.index == 1) {
-            return Optional.of((B)o);
+            @SuppressWarnings("unchecked") B b = (B)o;
+            return Optional.of(b);
         } else {
             return Optional.empty();
         }
@@ -191,10 +191,10 @@ public abstract class Variant11<A, B, C, D, E, F, G, H, I, J, K> {
      * value is the populated object wrapped in Optional. Otherwise
      * returns Optional.empty().
      */
-    @SuppressWarnings("unchecked")
     public Optional<C> get2() {
         if (this.index == 2) {
-            return Optional.of((C)o);
+            @SuppressWarnings("unchecked") C c = (C)o;
+            return Optional.of(c);
         } else {
             return Optional.empty();
         }
@@ -207,10 +207,10 @@ public abstract class Variant11<A, B, C, D, E, F, G, H, I, J, K> {
      * value is the populated object wrapped in Optional. Otherwise
      * returns Optional.empty().
      */
-    @SuppressWarnings("unchecked")
     public Optional<D> get3() {
         if (this.index == 3) {
-            return Optional.of((D)o);
+            @SuppressWarnings("unchecked") D d = (D)o;
+            return Optional.of(d);
         } else {
             return Optional.empty();
         }
@@ -223,10 +223,11 @@ public abstract class Variant11<A, B, C, D, E, F, G, H, I, J, K> {
      * value is the populated object wrapped in Optional. Otherwise
      * returns Optional.empty().
      */
-    @SuppressWarnings("unchecked")
+
     public Optional<E> get4() {
         if (this.index == 4) {
-            return Optional.of((E)o);
+            @SuppressWarnings("unchecked") E e = (E)o;
+            return Optional.of(e);
         } else {
             return Optional.empty();
         }
@@ -239,10 +240,10 @@ public abstract class Variant11<A, B, C, D, E, F, G, H, I, J, K> {
      * value is the populated object wrapped in Optional. Otherwise
      * returns Optional.empty().
      */
-    @SuppressWarnings("unchecked")
     public Optional<F> get5() {
         if (this.index == 5) {
-            return Optional.of((F)o);
+            @SuppressWarnings("unchecked") F f = (F)o;
+            return Optional.of(f);
         } else {
             return Optional.empty();
         }
@@ -255,10 +256,10 @@ public abstract class Variant11<A, B, C, D, E, F, G, H, I, J, K> {
      * value is the populated object wrapped in Optional. Otherwise
      * returns Optional.empty().
      */
-    @SuppressWarnings("unchecked")
     public Optional<G> get6() {
         if (this.index == 6) {
-            return Optional.of((G)o);
+            @SuppressWarnings("unchecked") G g = (G)o;
+            return Optional.of(g);
         } else {
             return Optional.empty();
         }
@@ -271,10 +272,10 @@ public abstract class Variant11<A, B, C, D, E, F, G, H, I, J, K> {
      * value is the populated object wrapped in Optional. Otherwise
      * returns Optional.empty().
      */
-    @SuppressWarnings("unchecked")
     public Optional<H> get7() {
         if (this.index == 7) {
-            return Optional.of((H)o);
+            @SuppressWarnings("unchecked") H h = (H)o;
+            return Optional.of(h);
         } else {
             return Optional.empty();
         }
@@ -287,10 +288,10 @@ public abstract class Variant11<A, B, C, D, E, F, G, H, I, J, K> {
      * value is the populated object wrapped in Optional. Otherwise
      * returns Optional.empty().
      */
-    @SuppressWarnings("unchecked")
     public Optional<I> get8() {
         if (this.index == 8) {
-            return Optional.of((I)o);
+            @SuppressWarnings("unchecked") I i = (I)o;
+            return Optional.of(i);
         } else {
             return Optional.empty();
         }
@@ -303,10 +304,10 @@ public abstract class Variant11<A, B, C, D, E, F, G, H, I, J, K> {
      * value is the populated object wrapped in Optional. Otherwise
      * returns Optional.empty().
      */
-    @SuppressWarnings("unchecked")
     public Optional<J> get9() {
         if (this.index == 9) {
-            return Optional.of((J)o);
+            @SuppressWarnings("unchecked") J j = (J)o;
+            return Optional.of(j);
         } else {
             return Optional.empty();
         }
@@ -319,10 +320,10 @@ public abstract class Variant11<A, B, C, D, E, F, G, H, I, J, K> {
      * value is the populated object wrapped in Optional. Otherwise
      * returns Optional.empty().
      */
-    @SuppressWarnings("unchecked")
     public Optional<K> get10() {
         if (this.index == 10) {
-            return Optional.of((K)o);
+            @SuppressWarnings("unchecked") K k = (K)o;
+            return Optional.of(k);
         } else {
             return Optional.empty();
         }

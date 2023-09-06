@@ -51,10 +51,10 @@ public abstract class Variant2<A, B> {
      * value is the populated object wrapped in Optional. Otherwise
      * returns Optional.empty().
      */
-    @SuppressWarnings("unchecked")
     public Optional<A> get0() {
         if (this.index == 0) {
-            return Optional.of((A)o);
+            @SuppressWarnings("unchecked") A a = (A)o;
+            return Optional.of(a);
         } else {
             return Optional.empty();
         }
@@ -67,10 +67,10 @@ public abstract class Variant2<A, B> {
      * value is the populated object wrapped in Optional. Otherwise
      * returns Optional.empty().
      */
-    @SuppressWarnings("unchecked")
     public Optional<B> get1() {
         if (this.index == 1) {
-            return Optional.of((B)o);
+            @SuppressWarnings("unchecked") B b = (B)o;
+            return Optional.of(b);
         } else {
             return Optional.empty();
         }
