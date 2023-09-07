@@ -9,26 +9,26 @@ import com.grammatech.gtirb.tuple.Tuple4;
 import com.grammatech.gtirb.tuple.Tuple5;
 import org.junit.jupiter.api.Test;
 
-class FooSingle extends Tuple1<String> {
-    public FooSingle(String s) { super(s); }
+class BarSingle extends Tuple1<String> {
+    public BarSingle(String s) { super(s); }
     public String getString() { return this.get0(); }
 }
 
-class FooPair extends Tuple2<String, Long> {
-    public FooPair(String s, Long l) { super(s, l); }
+class BarPair extends Tuple2<String, Long> {
+    public BarPair(String s, Long l) { super(s, l); }
     public String getString() { return this.get0(); }
     public Long getLong() { return this.get1(); }
 }
 
-class FooTriple extends Tuple3<String, Long, Float> {
-    public FooTriple(String s, Long l, Float f) { super(s, l, f); }
+class BarTriple extends Tuple3<String, Long, Float> {
+    public BarTriple(String s, Long l, Float f) { super(s, l, f); }
     public String getString() { return this.get0(); }
     public Long getLong() { return this.get1(); }
     public Float getFloat() { return this.get2(); }
 }
 
-class FooQuadruple extends Tuple4<String, Long, Float, Boolean> {
-    public FooQuadruple(String s, Long l, Float f, Boolean b) {
+class BarQuadruple extends Tuple4<String, Long, Float, Boolean> {
+    public BarQuadruple(String s, Long l, Float f, Boolean b) {
         super(s, l, f, b);
     }
     public String getString() { return this.get0(); }
@@ -37,8 +37,8 @@ class FooQuadruple extends Tuple4<String, Long, Float, Boolean> {
     public Boolean getBoolean() { return this.get3(); }
 }
 
-class FooQuintuple extends Tuple5<String, Long, Float, Boolean, Integer> {
-    public FooQuintuple(String s, Long l, Float f, Boolean b, Integer i) {
+class BarQuintuple extends Tuple5<String, Long, Float, Boolean, Integer> {
+    public BarQuintuple(String s, Long l, Float f, Boolean b, Integer i) {
         super(s, l, f, b, i);
     }
     public String getString() { return this.get0(); }
@@ -51,81 +51,81 @@ class FooQuintuple extends Tuple5<String, Long, Float, Boolean, Integer> {
 public class TestTuple {
     @Test
     public void testTuple1() {
-        FooSingle f1 = new FooSingle("abc");
+        BarSingle f1 = new BarSingle("abc");
         assertEquals("abc", f1.getString());
-        FooSingle f2 = new FooSingle("abc");
+        BarSingle f2 = new BarSingle("abc");
         assertEquals(f1, f2);
-        FooSingle f3 = new FooSingle("def");
+        BarSingle f3 = new BarSingle("def");
         assertNotEquals(f1, f3);
     }
 
     @Test
     public void testTuple2() {
-        FooPair f1 = new FooPair("abc", 42L);
+        BarPair f1 = new BarPair("abc", 42L);
         assertEquals("abc", f1.getString());
         assertEquals(42L, f1.getLong());
-        FooPair f2 = new FooPair("abc", 42L);
+        BarPair f2 = new BarPair("abc", 42L);
         assertEquals(f1, f2);
-        FooPair f3 = new FooPair("def", 43L);
+        BarPair f3 = new BarPair("def", 43L);
         assertNotEquals(f1, f3);
-        FooPair f4 = new FooPair("abc", 43L);
+        BarPair f4 = new BarPair("abc", 43L);
         assertNotEquals(f1, f4);
     }
 
     @Test
     public void testTuple3() {
-        FooTriple f1 = new FooTriple("abc", 42L, 3.14f);
+        BarTriple f1 = new BarTriple("abc", 42L, 3.14f);
         assertEquals("abc", f1.getString());
         assertEquals(42L, f1.getLong());
         assertEquals(3.14f, f1.getFloat());
-        FooTriple f2 = new FooTriple("abc", 42L, 3.14f);
+        BarTriple f2 = new BarTriple("abc", 42L, 3.14f);
         assertEquals(f1, f2);
-        FooTriple f3 = new FooTriple("def", 42L, 3.14f);
+        BarTriple f3 = new BarTriple("def", 42L, 3.14f);
         assertNotEquals(f1, f3);
-        FooTriple f4 = new FooTriple("abc", 43L, 3.14f);
+        BarTriple f4 = new BarTriple("abc", 43L, 3.14f);
         assertNotEquals(f1, f4);
-        FooTriple f5 = new FooTriple("abc", 42L, 3.15f);
+        BarTriple f5 = new BarTriple("abc", 42L, 3.15f);
         assertNotEquals(f1, f5);
     }
 
     @Test
     public void testTuple4() {
-        FooQuadruple f1 = new FooQuadruple("abc", 42L, 3.14f, true);
+        BarQuadruple f1 = new BarQuadruple("abc", 42L, 3.14f, true);
         assertEquals("abc", f1.getString());
         assertEquals(42L, f1.getLong());
         assertEquals(3.14f, f1.getFloat());
         assertEquals(true, f1.getBoolean());
-        FooQuadruple f2 = new FooQuadruple("abc", 42L, 3.14f, true);
+        BarQuadruple f2 = new BarQuadruple("abc", 42L, 3.14f, true);
         assertEquals(f1, f2);
-        FooQuadruple f3 = new FooQuadruple("def", 42L, 3.14f, true);
+        BarQuadruple f3 = new BarQuadruple("def", 42L, 3.14f, true);
         assertNotEquals(f1, f3);
-        FooQuadruple f4 = new FooQuadruple("abc", 43L, 3.14f, true);
+        BarQuadruple f4 = new BarQuadruple("abc", 43L, 3.14f, true);
         assertNotEquals(f1, f4);
-        FooQuadruple f5 = new FooQuadruple("abc", 42L, 3.15f, true);
+        BarQuadruple f5 = new BarQuadruple("abc", 42L, 3.15f, true);
         assertNotEquals(f1, f5);
-        FooQuadruple f6 = new FooQuadruple("abc", 42L, 3.14f, false);
+        BarQuadruple f6 = new BarQuadruple("abc", 42L, 3.14f, false);
         assertNotEquals(f1, f6);
     }
 
     @Test
     public void testTuple5() {
-        FooQuintuple f1 = new FooQuintuple("abc", 42L, 3.14f, true, 10);
+        BarQuintuple f1 = new BarQuintuple("abc", 42L, 3.14f, true, 10);
         assertEquals("abc", f1.getString());
         assertEquals(42L, f1.getLong());
         assertEquals(3.14f, f1.getFloat());
         assertEquals(true, f1.getBoolean());
         assertEquals(10, f1.getInteger());
-        FooQuintuple f2 = new FooQuintuple("abc", 42L, 3.14f, true, 10);
+        BarQuintuple f2 = new BarQuintuple("abc", 42L, 3.14f, true, 10);
         assertEquals(f1, f2);
-        FooQuintuple f3 = new FooQuintuple("def", 42L, 3.14f, true, 10);
+        BarQuintuple f3 = new BarQuintuple("def", 42L, 3.14f, true, 10);
         assertNotEquals(f1, f3);
-        FooQuintuple f4 = new FooQuintuple("abc", 43L, 3.14f, true, 10);
+        BarQuintuple f4 = new BarQuintuple("abc", 43L, 3.14f, true, 10);
         assertNotEquals(f1, f4);
-        FooQuintuple f5 = new FooQuintuple("abc", 42L, 3.15f, true, 10);
+        BarQuintuple f5 = new BarQuintuple("abc", 42L, 3.15f, true, 10);
         assertNotEquals(f1, f5);
-        FooQuintuple f6 = new FooQuintuple("abc", 42L, 3.14f, false, 10);
+        BarQuintuple f6 = new BarQuintuple("abc", 42L, 3.14f, false, 10);
         assertNotEquals(f1, f6);
-        FooQuintuple f7 = new FooQuintuple("abc", 42L, 3.14f, true, 11);
+        BarQuintuple f7 = new BarQuintuple("abc", 42L, 3.14f, true, 11);
         assertNotEquals(f1, f7);
     }
 }

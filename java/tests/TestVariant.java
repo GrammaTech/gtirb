@@ -11,56 +11,56 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
-class FooVariant2 extends Variant2<Long, Float> {
-    private FooVariant2(Token.T0 tok, Long l) { super(tok, l); }
-    private FooVariant2(Token.T1 tok, Float f) { super(tok, f); }
+class BarVariant2 extends Variant2<Long, Float> {
+    private BarVariant2(Token.T0 tok, Long l) { super(tok, l); }
+    private BarVariant2(Token.T1 tok, Float f) { super(tok, f); }
     public Optional<Long> getLong() { return this.get0(); }
     public Optional<Float> getFloat() { return this.get1(); }
     public void setLong(Long l) { this.set0(l); }
     public void setFloat(Float f) { this.set1(f); }
-    public static FooVariant2 ofLong(Long l) {
-        return new FooVariant2(new Token.T0(), l);
+    public static BarVariant2 ofLong(Long l) {
+        return new BarVariant2(new Token.T0(), l);
     }
-    public static FooVariant2 ofFloat(Float f) {
-        return new FooVariant2(new Token.T1(), f);
+    public static BarVariant2 ofFloat(Float f) {
+        return new BarVariant2(new Token.T1(), f);
     }
 }
 
-class FooVariant3 extends Variant3<Long, Float, Boolean> {
-    private FooVariant3(Token.T0 tok, Long l) { super(tok, l); }
-    private FooVariant3(Token.T1 tok, Float f) { super(tok, f); }
-    private FooVariant3(Token.T2 tok, Boolean b) { super(tok, b); }
+class BarVariant3 extends Variant3<Long, Float, Boolean> {
+    private BarVariant3(Token.T0 tok, Long l) { super(tok, l); }
+    private BarVariant3(Token.T1 tok, Float f) { super(tok, f); }
+    private BarVariant3(Token.T2 tok, Boolean b) { super(tok, b); }
     public Optional<Long> getLong() { return this.get0(); }
     public Optional<Float> getFloat() { return this.get1(); }
     public Optional<Boolean> getBoolean() { return this.get2(); }
     public void setLong(Long l) { this.set0(l); }
     public void setFloat(Float f) { this.set1(f); }
     public void setBoolean(Boolean b) { this.set2(b); }
-    public static FooVariant3 ofLong(Long l) {
-        return new FooVariant3(new Token.T0(), l);
+    public static BarVariant3 ofLong(Long l) {
+        return new BarVariant3(new Token.T0(), l);
     }
-    public static FooVariant3 ofFloat(Float f) {
-        return new FooVariant3(new Token.T1(), f);
+    public static BarVariant3 ofFloat(Float f) {
+        return new BarVariant3(new Token.T1(), f);
     }
-    public static FooVariant3 ofBoolean(Boolean b) {
-        return new FooVariant3(new Token.T2(), b);
+    public static BarVariant3 ofBoolean(Boolean b) {
+        return new BarVariant3(new Token.T2(), b);
     }
 }
 
-class FooVariant11
+class BarVariant11
     extends Variant11<Long, Float, Boolean, Integer, String, Long, Float,
                       Boolean, Integer, String, Offset> {
-    private FooVariant11(Token.T0 tok, Long l) { super(tok, l); }
-    private FooVariant11(Token.T1 tok, Float f) { super(tok, f); }
-    private FooVariant11(Token.T2 tok, Boolean b) { super(tok, b); }
-    private FooVariant11(Token.T3 tok, Integer i) { super(tok, i); }
-    private FooVariant11(Token.T4 tok, String s) { super(tok, s); }
-    private FooVariant11(Token.T5 tok, Long l) { super(tok, l); }
-    private FooVariant11(Token.T6 tok, Float f) { super(tok, f); }
-    private FooVariant11(Token.T7 tok, Boolean b) { super(tok, b); }
-    private FooVariant11(Token.T8 tok, Integer i) { super(tok, i); }
-    private FooVariant11(Token.T9 tok, String s) { super(tok, s); }
-    private FooVariant11(Token.T10 tok, Offset o) { super(tok, o); }
+    private BarVariant11(Token.T0 tok, Long l) { super(tok, l); }
+    private BarVariant11(Token.T1 tok, Float f) { super(tok, f); }
+    private BarVariant11(Token.T2 tok, Boolean b) { super(tok, b); }
+    private BarVariant11(Token.T3 tok, Integer i) { super(tok, i); }
+    private BarVariant11(Token.T4 tok, String s) { super(tok, s); }
+    private BarVariant11(Token.T5 tok, Long l) { super(tok, l); }
+    private BarVariant11(Token.T6 tok, Float f) { super(tok, f); }
+    private BarVariant11(Token.T7 tok, Boolean b) { super(tok, b); }
+    private BarVariant11(Token.T8 tok, Integer i) { super(tok, i); }
+    private BarVariant11(Token.T9 tok, String s) { super(tok, s); }
+    private BarVariant11(Token.T10 tok, Offset o) { super(tok, o); }
     public Optional<Long> getLong1() { return this.get0(); }
     public Optional<Float> getFloat1() { return this.get1(); }
     public Optional<Boolean> getBoolean1() { return this.get2(); }
@@ -83,45 +83,45 @@ class FooVariant11
     public void setInteger2(Integer i) { this.set8(i); }
     public void setString2(String s) { this.set9(s); }
     public void setOffset(Offset o) { this.set10(o); }
-    public static FooVariant11 ofLong1(Long l) {
-        return new FooVariant11(new Token.T0(), l);
+    public static BarVariant11 ofLong1(Long l) {
+        return new BarVariant11(new Token.T0(), l);
     }
-    public static FooVariant11 ofFloat1(Float f) {
-        return new FooVariant11(new Token.T1(), f);
+    public static BarVariant11 ofFloat1(Float f) {
+        return new BarVariant11(new Token.T1(), f);
     }
-    public static FooVariant11 ofBoolean1(Boolean b) {
-        return new FooVariant11(new Token.T2(), b);
+    public static BarVariant11 ofBoolean1(Boolean b) {
+        return new BarVariant11(new Token.T2(), b);
     }
-    public static FooVariant11 ofInteger1(Integer i) {
-        return new FooVariant11(new Token.T3(), i);
+    public static BarVariant11 ofInteger1(Integer i) {
+        return new BarVariant11(new Token.T3(), i);
     }
-    public static FooVariant11 ofString1(String s) {
-        return new FooVariant11(new Token.T4(), s);
+    public static BarVariant11 ofString1(String s) {
+        return new BarVariant11(new Token.T4(), s);
     }
-    public static FooVariant11 ofLong2(Long l) {
-        return new FooVariant11(new Token.T5(), l);
+    public static BarVariant11 ofLong2(Long l) {
+        return new BarVariant11(new Token.T5(), l);
     }
-    public static FooVariant11 ofFloat2(Float f) {
-        return new FooVariant11(new Token.T6(), f);
+    public static BarVariant11 ofFloat2(Float f) {
+        return new BarVariant11(new Token.T6(), f);
     }
-    public static FooVariant11 ofBoolean2(Boolean b) {
-        return new FooVariant11(new Token.T7(), b);
+    public static BarVariant11 ofBoolean2(Boolean b) {
+        return new BarVariant11(new Token.T7(), b);
     }
-    public static FooVariant11 ofInteger2(Integer i) {
-        return new FooVariant11(new Token.T8(), i);
+    public static BarVariant11 ofInteger2(Integer i) {
+        return new BarVariant11(new Token.T8(), i);
     }
-    public static FooVariant11 ofString2(String s) {
-        return new FooVariant11(new Token.T9(), s);
+    public static BarVariant11 ofString2(String s) {
+        return new BarVariant11(new Token.T9(), s);
     }
-    public static FooVariant11 ofOffset(Offset o) {
-        return new FooVariant11(new Token.T10(), o);
+    public static BarVariant11 ofOffset(Offset o) {
+        return new BarVariant11(new Token.T10(), o);
     }
 }
 
 public class TestVariant {
     @Test
     public void testVariant2() {
-        FooVariant2 fv1 = FooVariant2.ofLong(42L);
+        BarVariant2 fv1 = BarVariant2.ofLong(42L);
         assertEquals(Optional.of(42L), fv1.getLong());
         assertEquals(Optional.empty(), fv1.getFloat());
         fv1.setLong(43L);
@@ -131,7 +131,7 @@ public class TestVariant {
         assertEquals(Optional.empty(), fv1.getLong());
         assertEquals(Optional.of(3.14f), fv1.getFloat());
 
-        FooVariant2 fv2 = FooVariant2.ofFloat(3.14f);
+        BarVariant2 fv2 = BarVariant2.ofFloat(3.14f);
         assertEquals(Optional.empty(), fv2.getLong());
         assertEquals(Optional.of(3.14f), fv2.getFloat());
         assertEquals(fv1, fv2);
@@ -139,7 +139,7 @@ public class TestVariant {
 
     @Test
     public void testVariant3() {
-        FooVariant3 fv1 = FooVariant3.ofLong(42L);
+        BarVariant3 fv1 = BarVariant3.ofLong(42L);
         assertEquals(Optional.of(42L), fv1.getLong());
         assertEquals(Optional.empty(), fv1.getFloat());
         assertEquals(Optional.empty(), fv1.getBoolean());
@@ -156,13 +156,13 @@ public class TestVariant {
         assertEquals(Optional.of(3.14f), fv1.getFloat());
         assertEquals(Optional.empty(), fv1.getBoolean());
 
-        FooVariant3 fv2 = FooVariant3.ofFloat(3.14f);
+        BarVariant3 fv2 = BarVariant3.ofFloat(3.14f);
         assertEquals(Optional.empty(), fv2.getLong());
         assertEquals(Optional.of(3.14f), fv2.getFloat());
         assertEquals(Optional.empty(), fv2.getBoolean());
         assertEquals(fv1, fv2);
 
-        FooVariant3 fv3 = FooVariant3.ofBoolean(false);
+        BarVariant3 fv3 = BarVariant3.ofBoolean(false);
         assertEquals(Optional.empty(), fv3.getLong());
         assertEquals(Optional.empty(), fv3.getFloat());
         assertEquals(Optional.of(false), fv3.getBoolean());
@@ -170,7 +170,7 @@ public class TestVariant {
 
     @Test
     public void testVariant11() {
-        FooVariant11 fv1 = FooVariant11.ofLong1(42L);
+        BarVariant11 fv1 = BarVariant11.ofLong1(42L);
         assertEquals(Optional.of(42L), fv1.getLong1());
         assertEquals(Optional.empty(), fv1.getFloat1());
         assertEquals(Optional.empty(), fv1.getBoolean1());
@@ -316,7 +316,7 @@ public class TestVariant {
         assertEquals(Optional.empty(), fv1.getString2());
         assertEquals(Optional.empty(), fv1.getOffset());
 
-        FooVariant11 fv2 = FooVariant11.ofFloat1(3.14f);
+        BarVariant11 fv2 = BarVariant11.ofFloat1(3.14f);
         assertEquals(Optional.empty(), fv2.getLong1());
         assertEquals(Optional.of(3.14f), fv2.getFloat1());
         assertEquals(Optional.empty(), fv2.getBoolean1());
@@ -330,7 +330,7 @@ public class TestVariant {
         assertEquals(Optional.empty(), fv2.getOffset());
         assertEquals(fv1, fv2);
 
-        FooVariant11 fv3 = FooVariant11.ofBoolean1(false);
+        BarVariant11 fv3 = BarVariant11.ofBoolean1(false);
         assertEquals(Optional.empty(), fv3.getLong1());
         assertEquals(Optional.empty(), fv3.getFloat1());
         assertEquals(Optional.of(false), fv3.getBoolean1());
@@ -343,7 +343,7 @@ public class TestVariant {
         assertEquals(Optional.empty(), fv3.getString2());
         assertEquals(Optional.empty(), fv3.getOffset());
 
-        FooVariant11 fv4 = FooVariant11.ofInteger1(47);
+        BarVariant11 fv4 = BarVariant11.ofInteger1(47);
         assertEquals(Optional.empty(), fv4.getLong1());
         assertEquals(Optional.empty(), fv4.getFloat1());
         assertEquals(Optional.empty(), fv4.getBoolean1());
@@ -356,7 +356,7 @@ public class TestVariant {
         assertEquals(Optional.empty(), fv4.getString2());
         assertEquals(Optional.empty(), fv4.getOffset());
 
-        FooVariant11 fv5 = FooVariant11.ofString1("ghi");
+        BarVariant11 fv5 = BarVariant11.ofString1("ghi");
         assertEquals(Optional.empty(), fv5.getLong1());
         assertEquals(Optional.empty(), fv5.getFloat1());
         assertEquals(Optional.empty(), fv5.getBoolean1());
@@ -369,7 +369,7 @@ public class TestVariant {
         assertEquals(Optional.empty(), fv5.getString2());
         assertEquals(Optional.empty(), fv5.getOffset());
 
-        FooVariant11 fv6 = FooVariant11.ofLong2(48L);
+        BarVariant11 fv6 = BarVariant11.ofLong2(48L);
         assertEquals(Optional.empty(), fv6.getLong1());
         assertEquals(Optional.empty(), fv6.getFloat1());
         assertEquals(Optional.empty(), fv6.getBoolean1());
@@ -382,7 +382,7 @@ public class TestVariant {
         assertEquals(Optional.empty(), fv6.getString2());
         assertEquals(Optional.empty(), fv6.getOffset());
 
-        FooVariant11 fv7 = FooVariant11.ofFloat2(3.17f);
+        BarVariant11 fv7 = BarVariant11.ofFloat2(3.17f);
         assertEquals(Optional.empty(), fv7.getLong1());
         assertEquals(Optional.empty(), fv7.getFloat1());
         assertEquals(Optional.empty(), fv7.getBoolean1());
@@ -395,7 +395,7 @@ public class TestVariant {
         assertEquals(Optional.empty(), fv7.getString2());
         assertEquals(Optional.empty(), fv7.getOffset());
 
-        FooVariant11 fv8 = FooVariant11.ofBoolean2(true);
+        BarVariant11 fv8 = BarVariant11.ofBoolean2(true);
         assertEquals(Optional.empty(), fv8.getLong1());
         assertEquals(Optional.empty(), fv8.getFloat1());
         assertEquals(Optional.empty(), fv8.getBoolean1());
@@ -408,7 +408,7 @@ public class TestVariant {
         assertEquals(Optional.empty(), fv8.getString2());
         assertEquals(Optional.empty(), fv8.getOffset());
 
-        FooVariant11 fv9 = FooVariant11.ofInteger2(49);
+        BarVariant11 fv9 = BarVariant11.ofInteger2(49);
         assertEquals(Optional.empty(), fv9.getLong1());
         assertEquals(Optional.empty(), fv9.getFloat1());
         assertEquals(Optional.empty(), fv9.getBoolean1());
@@ -421,7 +421,7 @@ public class TestVariant {
         assertEquals(Optional.empty(), fv9.getString2());
         assertEquals(Optional.empty(), fv9.getOffset());
 
-        FooVariant11 fv10 = FooVariant11.ofString2("jkl");
+        BarVariant11 fv10 = BarVariant11.ofString2("jkl");
         assertEquals(Optional.empty(), fv10.getLong1());
         assertEquals(Optional.empty(), fv10.getFloat1());
         assertEquals(Optional.empty(), fv10.getBoolean1());
@@ -434,8 +434,8 @@ public class TestVariant {
         assertEquals(Optional.of("jkl"), fv10.getString2());
         assertEquals(Optional.empty(), fv10.getOffset());
 
-        FooVariant11 fv11 =
-            FooVariant11.ofOffset(new Offset(new UUID(21, 22), 23));
+        BarVariant11 fv11 =
+            BarVariant11.ofOffset(new Offset(new UUID(21, 22), 23));
         assertEquals(Optional.empty(), fv11.getLong1());
         assertEquals(Optional.empty(), fv11.getFloat1());
         assertEquals(Optional.empty(), fv11.getBoolean1());
