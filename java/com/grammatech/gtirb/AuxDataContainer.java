@@ -201,14 +201,20 @@ public abstract class AuxDataContainer extends Node {
      * @param schema The schema for the AuxData
      * @return An {@link AuxData} object, or empty() if not present.
      */
-    public <T> Optional<T> getAuxData(AuxDataSchema<T> schema)
-        throws IOException {
-        AuxData ad = this.auxDataMap.get(schema.getName());
+    public <T> Optional<T> getAuxData(AuxDataSchema<T> schema) {
+        try {
+            AuxData ad = this.auxDataMap.get(schema.getName());
 
-        if (ad == null) {
+            if (ad == null) {
+                return Optional.empty();
+            } else {
+                return Optional.of(ad.getDecodedData(schema));
+            }
+        } catch (IOException e) {
+            // This can occur when either the serialized content of the AuxData
+            // was corrupt or if the schema we're using is incompatible with it.
+            // In both cases, treat the the AuxData as not available.
             return Optional.empty();
-        } else {
-            return Optional.of(ad.getDecodedData(schema));
         }
     }
 
