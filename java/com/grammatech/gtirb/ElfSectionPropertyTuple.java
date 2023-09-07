@@ -12,19 +12,21 @@ public class ElfSectionPropertyTuple extends Tuple2<Long, Long> {
      * @param type The type of the section.
      * @param flags The flags for the section.
      */
-    ElfSectionPropertyTuple(Long type, Long flags) { super(type, flags); }
+    public ElfSectionPropertyTuple(Long type, Long flags) {
+        super(type, flags);
+    }
 
     /**
      * Get the type of the section.
      *
      * @return The type of the section.
      */
-    Long getType() { return this.get0(); }
+    public Long getType() { return this.get0(); }
 
     /**
      * Get the flags attached to the section.
      *
      * @return The flags for the section.
      */
-    Long getFlags() { return this.get1(); }
+    public Long getFlags() { return this.get1(); }
 }

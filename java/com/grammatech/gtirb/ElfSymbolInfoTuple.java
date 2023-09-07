@@ -5,7 +5,8 @@ import com.grammatech.gtirb.tuple.Tuple5;
 /**
  * A tuple representing information about a {@link Symbol}.
  */
-class ElfSymbolInfoTuple extends Tuple5<Long, String, String, String, Long> {
+public class ElfSymbolInfoTuple
+    extends Tuple5<Long, String, String, String, Long> {
     /**
      * Constructor.
      *
@@ -23,25 +24,25 @@ class ElfSymbolInfoTuple extends Tuple5<Long, String, String, String, Long> {
     /**
      * Get the size.
      */
-    Long getSize() { return this.get0(); }
+    public Long getSize() { return this.get0(); }
 
     /**
      * Get the type.
      */
-    String getType() { return this.get1(); }
+    public String getType() { return this.get1(); }
 
     /**
      * Get the binding type.
      */
-    String getBinding() { return this.get2(); }
+    public String getBinding() { return this.get2(); }
 
     /**
      * Get the visibility level.
      */
-    String getVisibility() { return this.get3(); }
+    public String getVisibility() { return this.get3(); }
 
     /**
      * Get the section index.
      */
-    Long getSecIndex() { return this.get4(); }
+    public Long getSecIndex() { return this.get4(); }
 }
