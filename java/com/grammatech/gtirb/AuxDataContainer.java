@@ -80,14 +80,14 @@ public abstract class AuxDataContainer extends Node {
          *
          * @return the name.
          */
-        String getName() { return this.name; }
+        public String getName() { return this.name; }
 
         /**
          * Get the Type String (schemata).
          *
          * @return the type string.
          */
-        String getTypeName() { return this.typeName; }
+        public String getTypeName() { return this.typeName; }
 
         /**
          * Get the {@link AuxData} bytes.
@@ -97,7 +97,7 @@ public abstract class AuxDataContainer extends Node {
          *
          * @return This AuxData as a byte array.
          */
-        Optional<byte[]> getEncodedData() { return this.encoded; }
+        public Optional<byte[]> getEncodedData() { return this.encoded; }
 
         /**
          * Get the decoded form of the {@link AuxData}.
@@ -105,7 +105,7 @@ public abstract class AuxDataContainer extends Node {
          * @param sch The schema used for decoding this {@link AuxData}.
          * @return The decoded data object for this {@link AuxData}.
          */
-        <T> T getDecodedData(AuxDataSchema<T> sch) throws IOException {
+        public <T> T getDecodedData(AuxDataSchema<T> sch) throws IOException {
             // TODO: Some better way to confirm schema equivalence here.
             // In particular, one could have the correct name and type
             // name but still have an inconsistent type for T. Specifically,
