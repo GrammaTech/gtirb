@@ -14,13 +14,11 @@ public class Variant3Codec<T extends Variant3<A, B, C>, A, B, C>
     private Codec<B> bCodec;
     private Codec<C> cCodec;
 
-    private Variant3AMaker<T, A> aMaker;
-    private Variant3BMaker<T, B> bMaker;
-    private Variant3CMaker<T, C> cMaker;
+    private Variant3Maker<T, A> aMaker;
+    private Variant3Maker<T, B> bMaker;
+    private Variant3Maker<T, C> cMaker;
 
-    public interface Variant3AMaker<T, A> { public T make(A a); }
-    public interface Variant3BMaker<T, B> { public T make(B b); }
-    public interface Variant3CMaker<T, C> { public T make(C c); }
+    public interface Variant3Maker<T, X> { public T make(X a); }
 
     /**
      * Construct a codec for 3-element variants.
@@ -36,9 +34,8 @@ public class Variant3Codec<T extends Variant3<A, B, C>, A, B, C>
      * with the third field populated.
      */
     public Variant3Codec(Codec<A> ac, Codec<B> bc, Codec<C> cc,
-                         Variant3AMaker<T, A> aMaker,
-                         Variant3BMaker<T, B> bMaker,
-                         Variant3CMaker<T, C> cMaker) {
+                         Variant3Maker<T, A> aMaker, Variant3Maker<T, B> bMaker,
+                         Variant3Maker<T, C> cMaker) {
         this.aCodec = ac;
         this.bCodec = bc;
         this.cCodec = cc;

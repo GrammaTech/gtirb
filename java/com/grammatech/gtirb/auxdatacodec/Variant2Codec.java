@@ -12,11 +12,10 @@ public class Variant2Codec<T extends Variant2<A, B>, A, B> implements Codec<T> {
     private Codec<A> aCodec;
     private Codec<B> bCodec;
 
-    private Variant2AMaker<T, A> aMaker;
-    private Variant2BMaker<T, B> bMaker;
+    private Variant2Maker<T, A> aMaker;
+    private Variant2Maker<T, B> bMaker;
 
-    public interface Variant2AMaker<T, A> { public T make(A a); }
-    public interface Variant2BMaker<T, B> { public T make(B b); }
+    public interface Variant2Maker<T, X> { public T make(X x); }
 
     /**
      * Construct a codec for 2-element variants.
@@ -28,8 +27,8 @@ public class Variant2Codec<T extends Variant2<A, B>, A, B> implements Codec<T> {
      * @param bMaker Constructor/factory for constructing a variant
      * with the second field populated.
      */
-    public Variant2Codec(Codec<A> ac, Codec<B> bc, Variant2AMaker<T, A> aMaker,
-                         Variant2BMaker<T, B> bMaker) {
+    public Variant2Codec(Codec<A> ac, Codec<B> bc, Variant2Maker<T, A> aMaker,
+                         Variant2Maker<T, B> bMaker) {
         this.aCodec = ac;
         this.bCodec = bc;
         this.aMaker = aMaker;

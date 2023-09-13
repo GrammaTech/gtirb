@@ -23,29 +23,19 @@ public class Variant11Codec<
     private Codec<J> jCodec;
     private Codec<K> kCodec;
 
-    private Variant11AMaker<T, A> aMaker;
-    private Variant11BMaker<T, B> bMaker;
-    private Variant11CMaker<T, C> cMaker;
-    private Variant11DMaker<T, D> dMaker;
-    private Variant11EMaker<T, E> eMaker;
-    private Variant11FMaker<T, F> fMaker;
-    private Variant11GMaker<T, G> gMaker;
-    private Variant11HMaker<T, H> hMaker;
-    private Variant11IMaker<T, I> iMaker;
-    private Variant11JMaker<T, J> jMaker;
-    private Variant11KMaker<T, K> kMaker;
+    private Variant11Maker<T, A> aMaker;
+    private Variant11Maker<T, B> bMaker;
+    private Variant11Maker<T, C> cMaker;
+    private Variant11Maker<T, D> dMaker;
+    private Variant11Maker<T, E> eMaker;
+    private Variant11Maker<T, F> fMaker;
+    private Variant11Maker<T, G> gMaker;
+    private Variant11Maker<T, H> hMaker;
+    private Variant11Maker<T, I> iMaker;
+    private Variant11Maker<T, J> jMaker;
+    private Variant11Maker<T, K> kMaker;
 
-    public interface Variant11AMaker<T, A> { public T make(A a); }
-    public interface Variant11BMaker<T, B> { public T make(B b); }
-    public interface Variant11CMaker<T, C> { public T make(C c); }
-    public interface Variant11DMaker<T, D> { public T make(D d); }
-    public interface Variant11EMaker<T, E> { public T make(E e); }
-    public interface Variant11FMaker<T, F> { public T make(F f); }
-    public interface Variant11GMaker<T, G> { public T make(G g); }
-    public interface Variant11HMaker<T, H> { public T make(H h); }
-    public interface Variant11IMaker<T, I> { public T make(I i); }
-    public interface Variant11JMaker<T, J> { public T make(J j); }
-    public interface Variant11KMaker<T, K> { public T make(K k); }
+    public interface Variant11Maker<T, X> { public T make(X x); }
 
     /**
      * Construct a codec for 3-element variants.
@@ -87,12 +77,12 @@ public class Variant11Codec<
     public Variant11Codec(
         Codec<A> ac, Codec<B> bc, Codec<C> cc, Codec<D> dc, Codec<E> ec,
         Codec<F> fc, Codec<G> gc, Codec<H> hc, Codec<I> ic, Codec<J> jc,
-        Codec<K> kc, Variant11AMaker<T, A> aMaker, Variant11BMaker<T, B> bMaker,
-        Variant11CMaker<T, C> cMaker, Variant11DMaker<T, D> dMaker,
-        Variant11EMaker<T, E> eMaker, Variant11FMaker<T, F> fMaker,
-        Variant11GMaker<T, G> gMaker, Variant11HMaker<T, H> hMaker,
-        Variant11IMaker<T, I> iMaker, Variant11JMaker<T, J> jMaker,
-        Variant11KMaker<T, K> kMaker) {
+        Codec<K> kc, Variant11Maker<T, A> aMaker, Variant11Maker<T, B> bMaker,
+        Variant11Maker<T, C> cMaker, Variant11Maker<T, D> dMaker,
+        Variant11Maker<T, E> eMaker, Variant11Maker<T, F> fMaker,
+        Variant11Maker<T, G> gMaker, Variant11Maker<T, H> hMaker,
+        Variant11Maker<T, I> iMaker, Variant11Maker<T, J> jMaker,
+        Variant11Maker<T, K> kMaker) {
         this.aCodec = ac;
         this.bCodec = bc;
         this.cCodec = cc;
