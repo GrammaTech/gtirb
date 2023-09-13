@@ -1,4 +1,7 @@
-# 1.11.1 (Unreleased)
+
+# 1.12.1 (Unreleased)
+
+# 1.12.0
 
 * Add elfDynamicInit and elfDynamicFini AuxData definitions
 
