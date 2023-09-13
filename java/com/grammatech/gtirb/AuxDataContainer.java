@@ -265,7 +265,7 @@ public abstract class AuxDataContainer extends Node {
      * Get a view of the {@link AuxData} entries present in this container.
      *
      * @return An unmodifiable view of the map of {@link AuxData} entries in
-     *     this container indexec by name.
+     *     this container indexed by name.
      */
     public Map<String, AuxData> getAuxDataMap() {
         return Collections.unmodifiableMap(this.auxDataMap);
