@@ -90,16 +90,6 @@ public abstract class AuxDataContainer extends Node {
         public String getTypeName() { return this.typeName; }
 
         /**
-         * Get the {@link AuxData} bytes.
-         *
-         * This content is considered stale once a call to {@link
-         * getDecodedData} occurs.
-         *
-         * @return This AuxData as a byte array.
-         */
-        public Optional<byte[]> getEncodedData() { return this.encoded; }
-
-        /**
          * Get the decoded form of the {@link AuxData}.
          *
          * @param sch The schema used for decoding this {@link AuxData}.
