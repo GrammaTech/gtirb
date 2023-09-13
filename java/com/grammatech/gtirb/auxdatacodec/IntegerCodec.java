@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class IntegerCodec implements Codec<Integer> {
 
@@ -35,12 +36,14 @@ public class IntegerCodec implements Codec<Integer> {
                 "Insufficient bytes to read an Integer from.");
         }
         ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         return bb.getInt();
     }
 
     public void encode(OutputStream out, Integer val) throws IOException {
         byte[] b = new byte[4];
         ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.putInt(val);
         out.write(b, 0, 4);
     }

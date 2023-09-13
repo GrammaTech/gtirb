@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class FloatCodec implements Codec<Float> {
 
@@ -30,12 +31,14 @@ public class FloatCodec implements Codec<Float> {
             throw new EOFException("Insufficient bytes to read a Float from.");
         }
         ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         return bb.getFloat();
     }
 
     public void encode(OutputStream out, Float val) throws IOException {
         byte[] b = new byte[4];
         ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.putFloat(val);
         out.write(b, 0, 4);
     }

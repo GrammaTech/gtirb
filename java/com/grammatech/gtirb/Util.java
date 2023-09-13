@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.IllegalArgumentException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.UUID;
 
 /**
@@ -43,6 +44,7 @@ public class Util {
             throw new IllegalArgumentException("b.length() != 16");
         }
         ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         return new UUID(bb.getLong(), bb.getLong());
     }
 
@@ -97,6 +99,7 @@ public class Util {
     public static byte[] uuidToByteArray(UUID uuid) {
         byte[] ba = new byte[16];
         ByteBuffer bb = ByteBuffer.wrap(ba);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.putLong(uuid.getMostSignificantBits());
         bb.putLong(uuid.getLeastSignificantBits());
         return ba;

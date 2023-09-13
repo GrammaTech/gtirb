@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class ShortCodec implements Codec<Short> {
 
@@ -20,12 +21,14 @@ public class ShortCodec implements Codec<Short> {
             throw new EOFException("Insufficient bytes to read a Short from.");
         }
         ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         return bb.getShort();
     }
 
     public void encode(OutputStream out, Short val) throws IOException {
         byte[] b = new byte[2];
         ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.putShort(val);
         out.write(b, 0, 2);
     }

@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class LongCodec implements Codec<Long> {
 
@@ -34,6 +35,7 @@ public class LongCodec implements Codec<Long> {
             throw new EOFException("Insufficient bytes to read a Long from.");
         }
         ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         return bb.getLong();
     }
 
@@ -45,6 +47,7 @@ public class LongCodec implements Codec<Long> {
         throws IOException {
         byte[] b = new byte[8];
         ByteBuffer bb = ByteBuffer.wrap(b);
+        bb.order(ByteOrder.LITTLE_ENDIAN);
         bb.putLong(val);
         out.write(b, 0, 8);
     }
