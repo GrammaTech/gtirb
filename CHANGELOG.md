@@ -1,6 +1,12 @@
 
 # 1.12.1 (Unreleased)
 
+* The Java API has been substantially reworked. Including:
+  * Most of the core API classes now have a more polished interface.
+  * The API for handling AuxData has been completely redesigned.
+  * New testing infrastructure based on JUnit5 has been added.
+  * More extensive test cases have been added.
+
 # 1.12.0
 
 * Add elfDynamicInit and elfDynamicFini AuxData definitions
