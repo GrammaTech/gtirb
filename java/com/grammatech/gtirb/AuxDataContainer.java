@@ -103,7 +103,7 @@ public abstract class AuxDataContainer extends Node {
 
             // If this is not true, there's something seriously wrong with
             // the AuxDataContainer code.
-            assert this.name == sch.getName();
+            assert this.name.equals(sch.getName());
 
             // This could be incorrect if the client is using inconsistent
             // schemas with the same schema name.

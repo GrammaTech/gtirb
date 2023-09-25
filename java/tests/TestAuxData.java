@@ -333,7 +333,7 @@ public class TestAuxData {
 
         // Fetch the AuxData back.
         Optional<Map<UUID, UUID>> oad2 =
-            m1.getAuxData(AuxDataSchemas.functionNames);
+            m2.getAuxData(AuxDataSchemas.functionNames);
         assertTrue(oad2.isPresent());
         assertEquals(func_names, oad2.get());
     }

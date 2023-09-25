@@ -217,8 +217,9 @@ if(GTIRB_ENABLE_TESTS)
   add_test(
     NAME JUnitTests
     COMMAND
-      ${Java_JAVA_EXECUTABLE} -jar ${JUNIT_STANDALONE_JAR} execute --class-path
-      ${CMAKE_CURRENT_BINARY_DIR}:${JAR_FILE_LIST} --scan-class-path
+      ${Java_JAVA_EXECUTABLE} -ea -jar ${JUNIT_STANDALONE_JAR} execute
+      --class-path ${CMAKE_CURRENT_BINARY_DIR}:${JAR_FILE_LIST}
+      --scan-class-path
   )
 
 endif()
