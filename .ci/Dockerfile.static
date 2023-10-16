@@ -9,7 +9,7 @@ RUN export DEBIAN_FRONTEND=noninteractive
 RUN ln -fs /usr/share/zoneinfo/America/New_York /etc/localtime
 RUN apt-get -y update && \
     apt-get -y install autoconf build-essential clang clang-format cmake curl \
-        git libtool unzip wget software-properties-common
+        git libboost${BOOST_VERSION}-dev libtool unzip wget software-properties-common
 
 # Install Protobuf
 RUN curl -L https://github.com/protocolbuffers/protobuf/archive/v3.7.0.tar.gz -o protobuf.tar.gz \
@@ -21,8 +21,3 @@ RUN curl -L https://github.com/protocolbuffers/protobuf/archive/v3.7.0.tar.gz -o
     && make \
     && make install
 RUN ldconfig /usr/local/lib
-
-# Install boost
-RUN add-apt-repository ppa:mhier/libboost-latest && \
-    apt-get -y update && \
-    apt-get -y install libboost${BOOST_VERSION}-dev
