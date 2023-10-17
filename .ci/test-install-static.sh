@@ -11,5 +11,5 @@ cd $workdir
 
 # Compile and run a C++ file that links to libgtirb statically
 cp $builddir/.ci/test-install.cpp ./
-make 'CXXFLAGS=-std=c++17' 'LDLIBS=-lgtirb -lgtirb_proto -lprotobuf' test-install
+make 'CXXFLAGS=-std=c++17' 'LDLIBS=-lgtirb -lgtirb_proto -lprotobuf -lpthread' test-install
 ./test-install
