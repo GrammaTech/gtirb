@@ -273,6 +273,10 @@ class IR(AuxDataContainer):
 
         return itertools.chain.from_iterable(m.cfg_nodes for m in self.modules)
 
+    def modules_named(self, name: str) -> typing.Iterator[Module]:
+        """Find all modules with a given name"""
+        return (m for m in self.modules if m.name == name)
+
     def sections_on(
         self, addrs: typing.Union[int, range]
     ) -> typing.Iterable[Section]:

@@ -127,5 +127,33 @@ class BadProtobufTest(unittest.TestCase):
         self.assertTrue("Error parsing message" in str(context.exception))
 
 
+class IRMethodTests(unittest.TestCase):
+    def test_modules_named(self):
+        """
+        Test the IR.modules_named method
+        """
+        ir = gtirb.IR()
+
+        def add_module(name: str):
+            return gtirb.Module(
+                file_format=gtirb.Module.FileFormat.RAW,
+                isa=gtirb.Module.ISA.ValidButUnsupported,
+                name=name,
+                ir=ir,
+            )
+
+        m1 = add_module("m1")
+        m2 = add_module("m2")
+        m3_a = add_module("m3")
+        m3_b = add_module("m3")
+
+        self.assertEqual(next(ir.modules_named("m1")), m1)
+        self.assertEqual(next(ir.modules_named("m2")), m2)
+        m3s = list(ir.modules_named("m3"))
+        self.assertEqual(len(m3s), 2)
+        self.assertIn(m3_a, m3s)
+        self.assertIn(m3_b, m3s)
+
+
 if __name__ == "__main__":
     unittest.main()

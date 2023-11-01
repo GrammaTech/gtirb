@@ -7,6 +7,7 @@
   * New testing infrastructure based on JUnit5 has been added.
   * More extensive test cases have been added.
 * Add elfStackExec and elfStackSize AuxData definitions
+* Add `IR.modules_named` helper method to Python API.
 
 # 1.12.0
 
