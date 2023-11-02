@@ -94,6 +94,20 @@ struct ElfDynamicFini {
   typedef gtirb::UUID Type;
 };
 
+/// \brief Schema class for stack executable flag specified by PT_GNU_STACK
+/// segment in ELF files.
+struct ElfStackExec {
+  static constexpr const char* Name = "elfStackExec";
+  typedef bool Type;
+};
+
+/// \brief Schema class for the size of the PT_GNU_STACK segment in ELF files,
+/// which may influence the runtime stack size in certain environments.
+struct ElfStackSize {
+  static constexpr const char* Name = "elfStackSize";
+  typedef uint64_t Type;
+};
+
 } // namespace schema
 
 namespace provisional_schema {

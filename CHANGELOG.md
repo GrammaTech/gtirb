@@ -6,6 +6,7 @@
   * The API for handling AuxData has been completely redesigned.
   * New testing infrastructure based on JUnit5 has been added.
   * More extensive test cases have been added.
+* Add elfStackExec and elfStackSize AuxData definitions
 
 # 1.12.0
 

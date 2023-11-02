@@ -49,6 +49,19 @@ public class AuxDataSchemas {
         new AuxDataSchema<>("elfDynamicFini", new UuidCodec());
 
     /**
+     * Stack executable flag specified by PT_GNU_STACK in ELF files.
+     */
+    public final static AuxDataSchema<Boolean> elfStackExec =
+        new AuxDataSchema<>("elfStackExec", new BoolCodec());
+
+    /**
+     * The size of the PT_GNU_STACK segment in ELF files, which may influence
+     * the runtime stack size in certain environments.
+     */
+    public final static AuxDataSchema<Long> elfStackSize =
+        new AuxDataSchema<>("elfStackSize", LongCodec.UINT64);
+
+    /**
      * This table identifies all of the {@link CodeBlock}s that belong to each
      * function.
      */

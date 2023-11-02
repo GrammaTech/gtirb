@@ -94,6 +94,8 @@ The following are the sanctioned AuxData table schemata.
 |-------------------------------------------|----------------------------------------------------|
 | [`"elfDynamicInit"`](#elfDynamicInit)     | ```gtirb::UUID```                                  |
 | [`"elfDynamicFini"`](#elfDynamicFini)     | ```gtirb::UUID```                                  |
+| [`"elfStackExec"`](#elfStackExec)         | ```bool```                                         |
+| [`"elfStackSize"`](#elfStackSize)         | ```uint64_t```                                     |
 | [`"functionBlocks"`](#functionblocks)     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
 | [`"functionEntries"`](#functionentries)   | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
 | [`"functionNames"`](#functionnames)       | ```std::map<gtirb::UUID, gtirb::UUID>```           |
@@ -123,6 +125,24 @@ The following are the sanctioned AuxData table schemata.
 | Value    |  CodeBlock UUID                                    |
 | AttachedTo | gtirb::Module |
 | Note     | The CodeBlock to which a DT_FINI entry in an ELF file's .dynamic section refers. |
+
+### elfStackExec
+
+| <!-- --> | <!-- -->                                           |
+|----------|----------------------------------------------------|
+| Label    | ```"elfStackExec"```                               |
+| Type     | ```bool```                                         |
+| Value    | Stack executable flag specified by PT_GNU_STACK segment in ELF files. |
+| AttachedTo | gtirb::Module |
+
+### elfStackSize
+
+| <!-- --> | <!-- -->                                           |
+|----------|----------------------------------------------------|
+| Label    | ```"elfStackSize"```                               |
+| Type     | ```uint64_t```                                     |
+| Value    | The size of the PT_GNU_STACK segment in ELF files, which may influence the runtime stack size in certain environments. |
+| AttachedTo | gtirb::Module |
 
 ### functionBlocks
 
