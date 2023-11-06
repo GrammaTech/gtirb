@@ -1,5 +1,6 @@
 import io
 import os
+import pathlib
 import tempfile
 import unittest
 
@@ -76,6 +77,19 @@ class IRTest(unittest.TestCase):
             self.ir.modules[0].aux_data["key"].data,
             new_ir.modules[0].aux_data["key"].data,
         )
+
+    def test_load_pathlib(self):
+        """
+        Ensure `load_protobuf` and `save_protobuf` support path-like objects
+        """
+        ir_path = pathlib.Path(IR_FILE)
+        new_ir = gtirb.IR.load_protobuf(ir_path)
+        self.assertTrue(self.ir.deep_eq(new_ir))
+        self.assertNotEqual(
+            self.ir.modules[0].aux_data["key"].data,
+            new_ir.modules[0].aux_data["key"].data,
+        )
+        new_ir.save_protobuf(ir_path)
 
 
 class NotGTIRBTest(unittest.TestCase):

@@ -10,6 +10,7 @@
 """
 
 import itertools
+import os
 import typing
 from uuid import UUID
 
@@ -171,7 +172,9 @@ class IR(AuxDataContainer):
         return IR._from_protobuf(ir, None)
 
     @staticmethod
-    def load_protobuf(file_name: str) -> "IR":
+    def load_protobuf(
+        file_name: typing.Union[str, "os.PathLike[str]"]
+    ) -> "IR":
         """Load IR from a Protobuf file at the specified path.
 
         :param file_name: The path to the Protobuf file.
@@ -193,7 +196,9 @@ class IR(AuxDataContainer):
         protobuf_file.write(PROTOBUF_VERSION.to_bytes(1, byteorder="little"))
         protobuf_file.write(self._to_protobuf().SerializeToString())
 
-    def save_protobuf(self, file_name: str) -> None:
+    def save_protobuf(
+        self, file_name: typing.Union[str, "os.PathLike[str]"]
+    ) -> None:
         """Save ``self`` to a Protobuf file at the specified path.
 
         :param file_name: The file path at which to
