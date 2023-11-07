@@ -152,6 +152,22 @@ public class IR extends AuxDataContainer {
     }
 
     /**
+     * Find modules by name.
+     *
+     * @return A list of all {@link Module} in this {@link IR} that have a
+     * matching name.
+     */
+    public List<Module> findModules(String name) {
+        List<Module> modulesNamed = new ArrayList<Module>();
+        for (Module module : this.modules) {
+            if (name.equals(module.getName())) {
+                modulesNamed.add(module);
+            }
+        }
+        return modulesNamed;
+    }
+
+    /**
      * Add a module to this {@link IR}.
      *
      * @param module  {@link Module} to add.

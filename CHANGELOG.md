@@ -8,6 +8,7 @@
   * More extensive test cases have been added.
 * Add elfStackExec and elfStackSize AuxData definitions
 * Add `IR.modules_named` helper method to Python API.
+* Add `IR.findModules(String name)` helper method to Java API.
 
 # 1.12.0
 

@@ -163,4 +163,35 @@ public class TestIrSanity {
         assertTrue(mod0.getIr().isEmpty());
         assertTrue(mod2.getIr().isEmpty());
     }
+
+    @Test
+    void testIrFindModules() throws Exception {
+        IR ir = new IR();
+
+        // test addModules (list)
+        List<Module> modules = new ArrayList<Module>();
+        modules.add(new Module(
+            "/opt/testModules/testModules-1.0.0/testModule0/bin/mod",
+            0x8FFFFFFF00000201L, 0x0L, FileFormat.ELF, ISA.X64, "mod0"));
+        modules.add(new Module(
+            "/opt/testModules/testModules-1.0.0/testModule1/bin/mod",
+            0x8FFFFFFF00000401L, 0x0L, FileFormat.ELF, ISA.X64, "mod1"));
+        modules.add(new Module(
+            "/opt/testModules/testModules-1.0.0/testModule1/bin/mod-dup",
+            0x8FFFFFFF00000401L, 0x0L, FileFormat.ELF, ISA.X64, "mod1"));
+        ir.addModules(modules);
+        assertTrue(ir.getModules().equals(modules));
+
+        List<Module> mod0_modules = ir.findModules("mod0");
+        assertEquals(1, mod0_modules.size());
+        for (Module module : mod0_modules) {
+            assertEquals("mod0", module.getName());
+        }
+
+        List<Module> mod1_modules = ir.findModules("mod1");
+        assertEquals(2, mod1_modules.size());
+        for (Module module : mod1_modules) {
+            assertEquals("mod1", module.getName());
+        }
+    }
 }
