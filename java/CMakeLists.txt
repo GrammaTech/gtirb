@@ -53,25 +53,11 @@ configure_file(
   @ONLY
 )
 
-file(
-  COPY ${CMAKE_CURRENT_SOURCE_DIR}/com/grammatech/gtirb/
-  DESTINATION ${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb
-  FILES_MATCHING
-  PATTERN "*.java"
-)
-
-# ---------------------------------------------------------------------------
-# Creating a version file to report version information
-# ---------------------------------------------------------------------------
-configure_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/Version.java.in
-  ${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb/Version.java @ONLY
-)
-
 set(GTIRB_API_JAVAS
     auxdatacodec/BoolCodec
     auxdatacodec/ByteCodec
     auxdatacodec/Codec
+    auxdatacodec/FloatCodec
     auxdatacodec/IntegerCodec
     auxdatacodec/ListCodec
     auxdatacodec/LongCodec
@@ -129,8 +115,26 @@ set(GTIRB_API_JAVAS
     TreeListUtils
     TypeTableEntry
     Util
-    Version
 )
+
+foreach(GTIRB_API_JAVA ${GTIRB_API_JAVAS})
+  configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/com/grammatech/gtirb/${GTIRB_API_JAVA}.java
+    ${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb/${GTIRB_API_JAVA}.java
+    COPYONLY
+  )
+endforeach()
+
+# ---------------------------------------------------------------------------
+# Creating a version file to report version information
+# ---------------------------------------------------------------------------
+configure_file(
+  ${CMAKE_CURRENT_SOURCE_DIR}/Version.java.in
+  ${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb/Version.java @ONLY
+)
+
+# Append generated Version.java
+list(APPEND GTIRB_API_JAVAS Version)
 
 foreach(GTIRB_API_JAVA ${GTIRB_API_JAVAS})
   list(
@@ -210,7 +214,8 @@ if(GTIRB_ENABLE_TESTS)
         ${Java_JAVAC_EXECUTABLE} -cp ${JAR_FILE_LIST}:${JUNIT_STANDALONE_JAR} -d
         ${CMAKE_CURRENT_BINARY_DIR}
         ${CMAKE_CURRENT_BINARY_DIR}/tests/${GTIRB_JAVA_TEST}.java
-      COMMENT "Building ${GTIRB_JAVA_TEST}"
+      COMMENT "Building ${GTIRB_JAVA_TEST}" DEPENDS
+              ${CMAKE_CURRENT_BINARY_DIR}/tests/${GTIRB_JAVA_TEST}.java
     )
   endforeach()
 
