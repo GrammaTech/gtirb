@@ -1,5 +1,5 @@
 
-# 1.12.1 (Unreleased)
+# 2.0.0
 
 * The Java API has been substantially reworked. Including:
   * Most of the core API classes now have a more polished interface.
