@@ -470,11 +470,9 @@ build-ubuntu20-packages:
   script:
     - pip3 install setuptools wheel --upgrade
     - cd build
-    - CPACK_GTIRB_STABLE_PKG_NAME=OFF
-    - '[[ ! $CI_COMMIT_REF_NAME =~ ^release-.* ]] || CPACK_GTIRB_STABLE_PKG_NAME=ON'
-    - cpack -G "DEB" -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-lib;
-    - cpack -G "DEB" -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-dev;
-    - cpack -G "DEB" -D CPACK_GTIRB_STABLE_PKG_NAME=$CPACK_GTIRB_STABLE_PKG_NAME -D CPACK_GTIRB_PACKAGE=debian-debug;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-lib;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-dev;
+    - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-debug;
 
 .setup-test-apt-repo: &setup-test-apt-repo
   stage: test-setup
