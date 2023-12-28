@@ -158,11 +158,14 @@ sudo apt-get update
 sudo apt-get install gtirb-pprinter ddisasm
 ```
 
-**Warning**:  There is a problem with the packages in the stable repository
-that will cause conflicts if you try `apt-get upgrade`.  In this case,
+**Warning**:  Stable versions gtirb-2.0.0, gtirb-pprinter-2.1.0, ddisasm-1.8.0
+and OLDER rely on metapackages which cause conflicts if you try `apt-get upgrade`
+(see https://github.com/GrammaTech/gtirb/issues/63).  In this case,
 uninstall and reinstall the packages you got from the GTIRB repository.  You
 may need to use `dpkg --remove` to remove the metapackages (e.g. `ddisasm`)
 before removing the concrete versioned packages (e.g. `ddisasm-1.5.1`).
+NEWER stable versions do not longer rely on metapackages and can be upgraded
+without problems.
 
 # Building
 
