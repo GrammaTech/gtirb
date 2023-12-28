@@ -19,7 +19,7 @@ if("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-lib")
     )
   else()
     message(
-      SEND_ERROR "Uknown / missing value for CPACK_DEBIAN_PACKAGE_RELEASE."
+      SEND_ERROR "Unknown / missing value for CPACK_DEBIAN_PACKAGE_RELEASE."
     )
   endif()
 elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-dev")
