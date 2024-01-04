@@ -94,6 +94,13 @@ struct ElfDynamicFini {
   typedef gtirb::UUID Type;
 };
 
+/// \brief Schema class for ELF file's dynamic entry DT_SONAME.
+/// It contains a SONAME as string
+struct ElfSoname {
+  static constexpr const char* Name = "elfSoname";
+  typedef std::string Type;
+};
+
 /// \brief Schema class for stack executable flag specified by PT_GNU_STACK
 /// segment in ELF files.
 struct ElfStackExec {

@@ -94,6 +94,7 @@ The following are the sanctioned AuxData table schemata.
 |-------------------------------------------|----------------------------------------------------|
 | [`"elfDynamicInit"`](#elfDynamicInit)     | ```gtirb::UUID```                                  |
 | [`"elfDynamicFini"`](#elfDynamicFini)     | ```gtirb::UUID```                                  |
+| [`"elfSoname"`](#elfSoname)               | ```std::string```                                  |
 | [`"elfStackExec"`](#elfStackExec)         | ```bool```                                         |
 | [`"elfStackSize"`](#elfStackSize)         | ```uint64_t```                                     |
 | [`"functionBlocks"`](#functionblocks)     | ```std::map<gtirb::UUID, std::set<gtirb::UUID>>``` |
@@ -125,6 +126,16 @@ The following are the sanctioned AuxData table schemata.
 | Value    |  CodeBlock UUID                                    |
 | AttachedTo | gtirb::Module |
 | Note     | The CodeBlock to which a DT_FINI entry in an ELF file's .dynamic section refers. |
+
+### elfSoname
+
+| <!-- --> | <!-- -->                                           |
+|----------|----------------------------------------------------|
+| Label    | ```"elfSoname"```                                  |
+| Type     | ```std::string```                                  |
+| Value    | The SONAME of a library.                           |
+| AttachedTo | gtirb::Module |
+| Note     | The string value which the DT_SONAME entry in an ELF file's .dynamic section contains. |
 
 ### elfStackExec
 

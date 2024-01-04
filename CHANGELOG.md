@@ -1,6 +1,8 @@
 
 # 2.0.1 (Unreleased)
 
+* Add elfSoname AuxData definition
+
 # 2.0.0
 
 * The Java API has been substantially reworked. Including:

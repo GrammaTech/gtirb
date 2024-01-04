@@ -49,6 +49,13 @@ public class AuxDataSchemas {
         new AuxDataSchema<>("elfDynamicFini", new UuidCodec());
 
     /**
+     * The string value which the DT_SONAME entry in an ELF file's .dynamic
+     * section contains.
+     */
+    public final static AuxDataSchema<string> elfSoname =
+        new AuxDataSchema<>("elfSoname", new StringCodec());
+
+    /**
      * Stack executable flag specified by PT_GNU_STACK in ELF files.
      */
     public final static AuxDataSchema<Boolean> elfStackExec =
