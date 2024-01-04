@@ -1,5 +1,5 @@
 
-# 2.0.1 (Unreleased)
+# 2.1.0 (Unreleased)
 
 * Add elfSoname AuxData definition
 
