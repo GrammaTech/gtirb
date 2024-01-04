@@ -52,7 +52,7 @@ public class AuxDataSchemas {
      * The string value which the DT_SONAME entry in an ELF file's .dynamic
      * section contains.
      */
-    public final static AuxDataSchema<string> elfSoname =
+    public final static AuxDataSchema<String> elfSoname =
         new AuxDataSchema<>("elfSoname", new StringCodec());
 
     /**
