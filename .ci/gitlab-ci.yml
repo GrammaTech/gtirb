@@ -495,7 +495,7 @@ build-ubuntu20-packages:
   script:
     - echo -e "\ndeb [trusted=yes] file:$(pwd)/apt-repo ./\n" >> /etc/apt/sources.list
     - cat /etc/apt/sources.list
-    - 'TEST_PKG_NAME=$(dpkg --info apt-repo/libgtirb-dev*.deb | sed -n "s/Package: //p")'
+    - 'TEST_PKG_NAME=$(dpkg --info apt-repo/libgtirb-dev_*.deb | sed -n "s/Package: //p")'
     - apt-get update -y && apt-get install -y --allow-unauthenticated $TEST_PKG_NAME
     - cp .ci/test-install.cpp ./
     - g++ test-install.cpp -std=c++17 -o test-install -lgtirb -lstdc++
@@ -505,7 +505,7 @@ build-ubuntu20-packages:
   stage: test-packages2
   script:
     - echo -e "\ndeb [trusted=yes] file:$(pwd)/apt-repo ./\n" >> /etc/apt/sources.list
-    - 'TEST_PKG_NAME=$(dpkg --info apt-repo/libgtirb*.deb | sed -n "s/Package: //p")'
+    - 'TEST_PKG_NAME=$(dpkg --info apt-repo/libgtirb_*.deb | sed -n "s/Package: //p")'
     - apt-get update -y && apt-get install -y --allow-unauthenticated $TEST_PKG_NAME
     - ./test-install
 
