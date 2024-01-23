@@ -164,7 +164,7 @@ and OLDER rely on metapackages which cause conflicts if you try `apt-get upgrade
 uninstall and reinstall the packages you got from the GTIRB repository.  You
 may need to use `dpkg --remove` to remove the metapackages (e.g. `ddisasm`)
 before removing the concrete versioned packages (e.g. `ddisasm-1.5.1`).
-NEWER stable versions do not longer rely on metapackages and can be upgraded
+NEWER stable versions no longer rely on metapackages and can be upgraded
 without problems.
 
 # Building
