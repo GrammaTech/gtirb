@@ -1,6 +1,9 @@
 
 # 2.1.0 (Unreleased)
 
+* Stop generating debian metapackages and packages with the version attached
+  to the package name. Updates in the apt-repository now support multiple
+  package versions and upgrading `gtirb` with `apt-get upgrade`.
 * Add elfSoname AuxData definition
 
 # 2.0.0
