@@ -219,10 +219,19 @@ AddressLess::operator()<DataBlock>(const DataBlock* B1,
 /// objects that are either \ref CodeBlock or \ref DataBlock objects) in
 /// address order.
 struct GTIRB_EXPORT_API BlockAddressLess {
-  bool operator()(const Node* N1, const Node* N2) const {
-    return operator()(*N1, *N2);
+  bool operator()(const Node* N1, const Node* N2) const;
+  bool operator()(const Node& N1, const Node& N2) const {
+    return operator()(&N1, &N2);
   }
-  bool operator()(const Node& N1, const Node& N2) const;
+};
+
+/// \class BlockOffsetPairLess
+///
+/// \brief A comparison function object for comparing blocks in a ByteInterval
+/// in offset order.
+struct GTIRB_EXPORT_API BlockOffsetPairLess {
+  bool operator()(std::pair<uint64_t, const Node*> B1,
+                  std::pair<uint64_t, const Node*> B2) const;
 };
 
 /// \class ArbitraryLess

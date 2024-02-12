@@ -20,6 +20,7 @@
 #include <gtirb/Node.hpp>
 #include <gtirb/Observer.hpp>
 #include <gtirb/SymbolicExpression.hpp>
+#include <gtirb/Utility.hpp>
 #include <array>
 #include <boost/endian/conversion.hpp>
 #include <boost/icl/interval_map.hpp>
@@ -30,6 +31,7 @@
 #include <boost/iterator/iterator_traits.hpp>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/multi_index/hashed_index.hpp>
+#include <boost/multi_index/identity.hpp>
 #include <boost/multi_index/key_extractors.hpp>
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/ordered_index.hpp>
@@ -77,6 +79,10 @@ public:
   /// \return indication of whether the observer accepts the change.
   virtual ChangeStatus sizeChange(CodeBlock* B, uint64_t OldSize,
                                   uint64_t NewSize) = 0;
+  /// \brief Notify the parent when the CodeBlock's decode mode changes.
+  ///
+  /// Called after the CodeBlock updates its internal state.
+  virtual void decodeModeChange(CodeBlock* B) = 0;
 };
 
 ///
@@ -173,8 +179,32 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
     NodeType& operator()(const Block* B) const { return *B->Node; }
   };
 
-  struct OffsetLess {
-    bool operator()(const Block* b1, const Block* b2) const;
+  /// \class BlockOffsetLess
+  ///
+  /// \brief Provides a comparison for Block using the common functionality
+  ///        in Utility.hpp by adapting from the internal Block type a pair of
+  ///        offset and node.
+  struct GTIRB_EXPORT_API BlockOffsetLess {
+    bool operator()(const Block* B1, const Block* B2) const {
+      return BlockOffsetPairLess()({B1->Offset, B1->Node},
+                                   {B2->Offset, B2->Node});
+    }
+    bool operator()(const Block& B1, const Block& B2) const {
+      return operator()(&B1, &B2);
+    }
+  };
+
+  /// \class OffsetCmp
+  ///
+  /// \brief A comparison object that allows searching in the block set by
+  ///        offset.
+  struct OffsetCmp {
+    bool operator()(uint64_t Offset, const Block& B) const {
+      return Offset < B.Offset;
+    }
+    bool operator()(const Block& B, uint64_t Offset) const {
+      return B.Offset < Offset;
+    }
   };
 
   struct by_offset {};
@@ -183,15 +213,14 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
       Block, boost::multi_index::indexed_by<
                  boost::multi_index::ordered_non_unique<
                      boost::multi_index::tag<by_offset>,
-                     boost::multi_index::const_mem_fun<Block, uint64_t,
-                                                       &Block::getOffset>>,
+                     boost::multi_index::identity<Block>, BlockOffsetLess>,
                  boost::multi_index::hashed_unique<
                      boost::multi_index::tag<by_pointer>,
                      boost::multi_index::const_mem_fun<Block, Node*,
                                                        &Block::getNode>>>>;
   using BlockIntMap =
       boost::icl::interval_map<uint64_t,
-                               std::multiset<const Block*, OffsetLess>>;
+                               std::multiset<const Block*, BlockOffsetLess>>;
   using SymbolicExpressionMap = std::map<uint64_t, SymbolicExpression>;
 
   /// \brief Get the \ref Block that corresponds to a \ref Node.
@@ -206,7 +235,22 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
   class CodeBlockObserverImpl;
   class DataBlockObserverImpl;
 
+  /// \brief Updates the interval map for a node by removing and re-inserting
+  ///        the interval. Must be called when either the block's offset or
+  ///        size changes.
+  /// \param N         The Block that needs updating
+  /// \param OldSize   The previous size of the block. If specified this will
+  ///                  cause the entry to be removed from the map.
+  /// \param NewSize   The new size of the block. If specified this will cause
+  ///                  the entry to be added to the map.
+  void updateIntervalMap(Node* N, std::optional<uint64_t> OldSize,
+                         std::optional<uint64_t> NewSize);
+  /// \brief Updates the block's sorted index. Must be called whenever a
+  ///        block's sort order would change.
+  void updateBlockSortOrder(Node* N);
+
   ChangeStatus sizeChange(Node* N, uint64_t OldSize, uint64_t NewSize);
+  void decodeModeChange(CodeBlock* B);
 
 public:
   /// \brief Create an unitialized ByteInterval object.
@@ -318,27 +362,23 @@ public:
   using block_range = boost::iterator_range<block_iterator>;
   /// \brief Sub-range of blocks overlapping an address or range of addreses.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using block_subrange = boost::iterator_range<boost::transform_iterator<
       BlockToNode<Node>, BlockIntMap::codomain_type::iterator>>;
   /// \brief Const iterator over \ref Block objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using const_block_iterator = boost::transform_iterator<
       BlockToNode<const Node>,
       BlockSet::index<by_offset>::type::const_iterator>;
   /// \brief Const range of \ref Block objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using const_block_range = boost::iterator_range<const_block_iterator>;
   /// \brief Const sub-range of blocks overlapping an address or range of
   /// addreses.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using const_block_subrange = boost::iterator_range<boost::transform_iterator<
       BlockToNode<const Node>, BlockIntMap::codomain_type::const_iterator>>;
 
@@ -425,7 +465,7 @@ public:
   /// \return A range of \ref Node objects, which are either \ref DataBlock
   /// objects or \ref CodeBlock objects, that are at the offset \p Off.
   block_range findBlocksAtOffset(uint64_t Off) {
-    auto Pair = Blocks.get<by_offset>().equal_range(Off);
+    auto Pair = Blocks.get<by_offset>().equal_range(Off, OffsetCmp());
     return boost::make_iterator_range(block_iterator(Pair.first),
                                       block_iterator(Pair.second));
   }
@@ -439,8 +479,8 @@ public:
   /// objects or \ref CodeBlock objects, that are between the offsets.
   block_range findBlocksAtOffset(uint64_t Low, uint64_t High) {
     auto& Index = Blocks.get<by_offset>();
-    auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.lower_bound(std::max(Low, High));
+    auto LowIt = Index.lower_bound(Low, OffsetCmp());
+    auto HighIt = Index.lower_bound(std::max(Low, High), OffsetCmp());
     return boost::make_iterator_range(block_iterator(LowIt),
                                       block_iterator(HighIt));
   }
@@ -482,7 +522,7 @@ public:
   /// \return A range of \ref Node objects, which are either \ref DataBlock
   /// objects or \ref CodeBlock objects, that are at the offset \p Off.
   const_block_range findBlocksAtOffset(uint64_t Off) const {
-    auto Pair = Blocks.get<by_offset>().equal_range(Off);
+    auto Pair = Blocks.get<by_offset>().equal_range(Off, OffsetCmp());
     return boost::make_iterator_range(const_block_iterator(Pair.first),
                                       const_block_iterator(Pair.second));
   }
@@ -496,8 +536,8 @@ public:
   /// objects or \ref CodeBlock objects, that are between the offsets.
   const_block_range findBlocksAtOffset(uint64_t Low, uint64_t High) const {
     auto& Index = Blocks.get<by_offset>();
-    auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.lower_bound(std::max(Low, High));
+    auto LowIt = Index.lower_bound(Low, OffsetCmp());
+    auto HighIt = Index.lower_bound(std::max(Low, High), OffsetCmp());
     return boost::make_iterator_range(const_block_iterator(LowIt),
                                       const_block_iterator(HighIt));
   }
@@ -534,22 +574,19 @@ public:
 
   /// \brief Iterator over \ref CodeBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using code_block_iterator = boost::transform_iterator<
       BlockToNode<CodeBlock>,
       boost::filter_iterator<BlockKindEquals<Node::Kind::CodeBlock>,
                              BlockSet::index<by_offset>::type::iterator>>;
   /// \brief Range of \ref CodeBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using code_block_range = boost::iterator_range<code_block_iterator>;
   /// \brief Sub-range of code blocks overlapping an address or range of
   /// addreses.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using code_block_subrange = boost::iterator_range<boost::transform_iterator<
       BlockToNode<CodeBlock>,
       boost::filter_iterator<
@@ -557,23 +594,20 @@ public:
           boost::indirect_iterator<BlockIntMap::codomain_type::iterator>>>>;
   /// \brief Const iterator over \ref CodeBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using const_code_block_iterator = boost::transform_iterator<
       BlockToNode<const CodeBlock>,
       boost::filter_iterator<BlockKindEquals<Node::Kind::CodeBlock>,
                              BlockSet::index<by_offset>::type::const_iterator>>;
   /// \brief Const range of \ref CodeBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using const_code_block_range =
       boost::iterator_range<const_code_block_iterator>;
   /// \brief Const sub-range of code blocks overlapping an address or range of
   /// addreses.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using const_code_block_subrange =
       boost::iterator_range<boost::transform_iterator<
           BlockToNode<const CodeBlock>,
@@ -678,7 +712,7 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that are at the offset \p Off.
   code_block_range findCodeBlocksAtOffset(uint64_t Off) {
-    auto Pair = Blocks.get<by_offset>().equal_range(Off);
+    auto Pair = Blocks.get<by_offset>().equal_range(Off, OffsetCmp());
     return boost::make_iterator_range(
         code_block_iterator(
             code_block_iterator::base_type(Pair.first, Pair.second)),
@@ -694,8 +728,8 @@ public:
   /// \return A range of \ref CodeBlock objects that are between the offsets.
   code_block_range findCodeBlocksAtOffset(uint64_t Low, uint64_t High) {
     auto& Index = Blocks.get<by_offset>();
-    auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.lower_bound(std::max(Low, High));
+    auto LowIt = Index.lower_bound(Low, OffsetCmp());
+    auto HighIt = Index.lower_bound(std::max(Low, High), OffsetCmp());
     return boost::make_iterator_range(
         code_block_iterator(code_block_iterator::base_type(LowIt, HighIt)),
         code_block_iterator(code_block_iterator::base_type(HighIt, HighIt)));
@@ -735,7 +769,7 @@ public:
   ///
   /// \return A range of \ref CodeBlock objects that are at the offset \p Off.
   const_code_block_range findCodeBlocksAtOffset(uint64_t Off) const {
-    auto Pair = Blocks.get<by_offset>().equal_range(Off);
+    auto Pair = Blocks.get<by_offset>().equal_range(Off, OffsetCmp());
     return boost::make_iterator_range(
         const_code_block_iterator(
             const_code_block_iterator::base_type(Pair.first, Pair.second)),
@@ -752,8 +786,8 @@ public:
   const_code_block_range findCodeBlocksAtOffset(uint64_t Low,
                                                 uint64_t High) const {
     auto& Index = Blocks.get<by_offset>();
-    auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.lower_bound(std::max(Low, High));
+    auto LowIt = Index.lower_bound(Low, OffsetCmp());
+    auto HighIt = Index.lower_bound(std::max(Low, High), OffsetCmp());
     return boost::make_iterator_range(
         const_code_block_iterator(
             const_code_block_iterator::base_type(LowIt, HighIt)),
@@ -791,22 +825,19 @@ public:
 
   /// \brief Iterator over \ref DataBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using data_block_iterator = boost::transform_iterator<
       BlockToNode<DataBlock>,
       boost::filter_iterator<BlockKindEquals<Node::Kind::DataBlock>,
                              BlockSet::index<by_offset>::type::iterator>>;
   /// \brief Range of \ref DataBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using data_block_range = boost::iterator_range<data_block_iterator>;
   /// \brief Sub-range of data blocks overlapping an address or range of
   /// addreses.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using data_block_subrange = boost::iterator_range<boost::transform_iterator<
       BlockToNode<DataBlock>,
       boost::filter_iterator<
@@ -814,23 +845,20 @@ public:
           boost::indirect_iterator<BlockIntMap::codomain_type::iterator>>>>;
   /// \brief Const iterator over \ref DataBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using const_data_block_iterator = boost::transform_iterator<
       BlockToNode<const DataBlock>,
       boost::filter_iterator<BlockKindEquals<Node::Kind::DataBlock>,
                              BlockSet::index<by_offset>::type::const_iterator>>;
   /// \brief Const range of \ref DataBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using const_data_block_range =
       boost::iterator_range<const_data_block_iterator>;
   /// \brief Const sub-range of data blocks overlapping an address or range of
   /// addreses.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, thier order is not specified.
+  /// Blocks are yielded in offset order, ascending.
   using const_data_block_subrange =
       boost::iterator_range<boost::transform_iterator<
           BlockToNode<const DataBlock>,
@@ -935,7 +963,7 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that are at the offset \p Off.
   data_block_range findDataBlocksAtOffset(uint64_t Off) {
-    auto Pair = Blocks.get<by_offset>().equal_range(Off);
+    auto Pair = Blocks.get<by_offset>().equal_range(Off, OffsetCmp());
     return boost::make_iterator_range(
         data_block_iterator(
             data_block_iterator::base_type(Pair.first, Pair.second)),
@@ -951,8 +979,8 @@ public:
   /// \return A range of \ref DataBlock objects that are between the offsets.
   data_block_range findDataBlocksAtOffset(uint64_t Low, uint64_t High) {
     auto& Index = Blocks.get<by_offset>();
-    auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.lower_bound(std::max(Low, High));
+    auto LowIt = Index.lower_bound(Low, OffsetCmp());
+    auto HighIt = Index.lower_bound(std::max(Low, High), OffsetCmp());
     return boost::make_iterator_range(
         data_block_iterator(data_block_iterator::base_type(LowIt, HighIt)),
         data_block_iterator(data_block_iterator::base_type(HighIt, HighIt)));
@@ -992,7 +1020,7 @@ public:
   ///
   /// \return A range of \ref DataBlock objects that are at the offset \p Off.
   const_data_block_range findDataBlocksAtOffset(uint64_t Off) const {
-    auto Pair = Blocks.get<by_offset>().equal_range(Off);
+    auto Pair = Blocks.get<by_offset>().equal_range(Off, OffsetCmp());
     return boost::make_iterator_range(
         const_data_block_iterator(
             const_data_block_iterator::base_type(Pair.first, Pair.second)),
@@ -1009,8 +1037,8 @@ public:
   const_data_block_range findDataBlocksAtOffset(uint64_t Low,
                                                 uint64_t High) const {
     auto& Index = Blocks.get<by_offset>();
-    auto LowIt = Index.lower_bound(Low);
-    auto HighIt = Index.lower_bound(std::max(Low, High));
+    auto LowIt = Index.lower_bound(Low, OffsetCmp());
+    auto HighIt = Index.lower_bound(std::max(Low, High), OffsetCmp());
     return boost::make_iterator_range(
         const_data_block_iterator(
             const_data_block_iterator::base_type(LowIt, HighIt)),
@@ -2265,6 +2293,7 @@ private:
   friend class DataBlock; // Friend to enable DataBlock::getAddress.
   friend class Module;    // Allow Module::fromProtobuf to deserialize symbolic
                           // expressions.
+  friend struct BlockOffsetLess;
   friend class SerializationTestHarness; // Testing support.
 };
 

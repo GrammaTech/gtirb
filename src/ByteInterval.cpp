@@ -33,6 +33,8 @@ public:
   ChangeStatus sizeChange(CodeBlock* B, uint64_t OldSize,
                           uint64_t NewSize) override;
 
+  void decodeModeChange(CodeBlock* B) override;
+
 private:
   ByteInterval* BI;
 };
@@ -47,13 +49,6 @@ public:
 private:
   ByteInterval* BI;
 };
-
-bool ByteInterval::OffsetLess::operator()(const Block* B1,
-                                          const Block* B2) const {
-  if (B1->Offset != B2->Offset)
-    return B1->Offset < B2->Offset;
-  return BlockAddressLess()(B1->Node, B2->Node);
-}
 
 ByteInterval::ByteInterval(Context& C) : ByteInterval(C, std::nullopt, 0, 0) {}
 
@@ -344,11 +339,9 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
     B->setParent(this, getObserver(B, CBO.get(), DBO.get()));
   }
 
-  // Update our own indices, part 1.
+  // Remove the block from the interval map at the old offset.
   if (IsMove) {
-    [[maybe_unused]] ChangeStatus ResizeStatus = sizeChange(B, B->getSize(), 0);
-    assert(ResizeStatus != ChangeStatus::Rejected &&
-           "recovering from rejected size change is unimplemented");
+    updateIntervalMap(B, B->getSize(), std::nullopt);
   }
 
   // Actually modify the offset.
@@ -361,10 +354,8 @@ ChangeStatus ByteInterval::addBlock(uint64_t Off, BlockType* B) {
     Begin = Blocks.emplace(Off, B).first;
   }
 
-  // Update our own indices, part 2.
-  [[maybe_unused]] ChangeStatus ResizeStatus = sizeChange(B, 0, B->getSize());
-  assert(ResizeStatus != ChangeStatus::Rejected &&
-         "recovering from rejected size change is unimplemented");
+  // Add the block to the interval map at the new offset.
+  updateIntervalMap(B, std::nullopt, B->getSize());
 
   // Only fire events if we have an observer.
   if (!Observer) {
@@ -409,27 +400,48 @@ ChangeStatus ByteInterval::CodeBlockObserverImpl::sizeChange(CodeBlock* B,
   return BI->sizeChange(B, OldSize, NewSize);
 }
 
+void ByteInterval::CodeBlockObserverImpl::decodeModeChange(CodeBlock* B) {
+  BI->decodeModeChange(B);
+}
+
 ChangeStatus ByteInterval::DataBlockObserverImpl::sizeChange(DataBlock* B,
                                                              uint64_t OldSize,
                                                              uint64_t NewSize) {
   return BI->sizeChange(B, OldSize, NewSize);
 }
 
-ChangeStatus ByteInterval::sizeChange(Node* N, uint64_t OldSize,
-                                      uint64_t NewSize) {
+void ByteInterval::updateIntervalMap(Node* N, std::optional<uint64_t> OldSize,
+                                     std::optional<uint64_t> NewSize) {
   auto& Index = Blocks.get<by_pointer>();
   auto Iter = Index.find(N);
   assert(Iter != Index.end() && "block observed by non-owner");
-  BlockOffsets.subtract(
-      std::make_pair(ByteInterval::BlockIntMap::interval_type::right_open(
-                         Iter->Offset, Iter->Offset + OldSize),
-                     ByteInterval::BlockIntMap::codomain_type({&*Iter})));
-  BlockOffsets.add(
-      std::make_pair(ByteInterval::BlockIntMap::interval_type::right_open(
-                         Iter->Offset, Iter->Offset + NewSize),
-                     ByteInterval::BlockIntMap::codomain_type({&*Iter})));
+  if (OldSize)
+    BlockOffsets.subtract(
+        std::make_pair(ByteInterval::BlockIntMap::interval_type::right_open(
+                           Iter->Offset, Iter->Offset + *OldSize),
+                       ByteInterval::BlockIntMap::codomain_type({&*Iter})));
+  if (NewSize)
+    BlockOffsets.add(
+        std::make_pair(ByteInterval::BlockIntMap::interval_type::right_open(
+                           Iter->Offset, Iter->Offset + *NewSize),
+                       ByteInterval::BlockIntMap::codomain_type({&*Iter})));
+}
+
+void ByteInterval::updateBlockSortOrder(Node* N) {
+  auto& Index = Blocks.get<by_pointer>();
+  auto Iter = Index.find(N);
+  assert(Iter != Index.end() && "block observed by non-owner");
+  Blocks.get<by_pointer>().modify(Iter, [](auto&) {});
+}
+
+ChangeStatus ByteInterval::sizeChange(Node* N, uint64_t OldSize,
+                                      uint64_t NewSize) {
+  updateIntervalMap(N, OldSize, NewSize);
+  updateBlockSortOrder(N);
   return ChangeStatus::Accepted;
 }
+
+void ByteInterval::decodeModeChange(CodeBlock* B) { updateBlockSortOrder(B); }
 
 boost::endian::order gtirb::ByteInterval::getBoostEndianOrder() const {
   if (auto* S = getSection()) {

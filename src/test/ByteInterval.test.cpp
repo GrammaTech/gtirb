@@ -19,6 +19,7 @@
 #include <gtirb/Symbol.hpp>
 #include <gtirb/proto/ByteInterval.pb.h>
 #include <gtest/gtest.h>
+#include <iostream>
 #include <sstream>
 
 using namespace gtirb;
@@ -1411,5 +1412,73 @@ TEST(Unit_ByteInterval, moveBlockIndices) {
   {
     auto Range = BI->findBlocksOn(Addr{5});
     EXPECT_EQ(std::distance(Range.begin(), Range.end()), 2);
+  }
+}
+
+TEST(Unit_ByteInterval, iterationOrder) {
+  auto* BI = ByteInterval::Create(Ctx, Addr{0}, 10);
+  auto* B1Or2A = BI->addBlock<CodeBlock>(Ctx, 0, 0, DecodeMode::Default);
+  auto* B1Or2B = BI->addBlock<CodeBlock>(Ctx, 0, 0, DecodeMode::Default);
+  auto* B3 = BI->addBlock<CodeBlock>(Ctx, 0, 0, DecodeMode::Thumb);
+  auto* B4 = BI->addBlock<DataBlock>(Ctx, 0, 0);
+  auto* B5 = BI->addBlock<CodeBlock>(Ctx, 0, 1);
+
+  // We can't control what UUID the blocks are given, but they are part of the
+  // sort key. Pick an expectation dynamically based on how they compare.
+  if (B1Or2A->getUUID() < B1Or2B->getUUID()) {
+    std::vector<Node*> ExpectedOrder = {B1Or2A, B1Or2B, B3, B4, B5};
+    EXPECT_EQ(pointers(BI->blocks()), ExpectedOrder);
+  } else {
+    std::vector<Node*> ExpectedOrder = {B1Or2B, B1Or2A, B3, B4, B5};
+    EXPECT_EQ(pointers(BI->blocks()), ExpectedOrder);
+  }
+}
+
+TEST(Unit_ByteInterval, iterationOrderMoveBlock) {
+  auto* BI = ByteInterval::Create(Ctx, Addr{0}, 10);
+  auto* B1 = BI->addBlock<DataBlock>(Ctx, 0, 2);
+  auto* B2 = BI->addBlock<CodeBlock>(Ctx, 2, 0);
+  {
+    std::vector<Node*> ExpectedOrder = {B1, B2};
+    EXPECT_EQ(pointers(BI->blocks()), ExpectedOrder);
+  }
+
+  BI->addBlock(0, B2);
+  {
+    std::vector<Node*> ExpectedOrder = {B2, B1};
+    EXPECT_EQ(pointers(BI->blocks()), ExpectedOrder);
+  }
+}
+
+TEST(Unit_ByteInterval, iterationOrderSetSize) {
+  auto* BI = ByteInterval::Create(Ctx, Addr{0}, 10);
+  auto* B1 = BI->addBlock<DataBlock>(Ctx, 0, 0);
+  auto* B2 = BI->addBlock<CodeBlock>(Ctx, 0, 2);
+  {
+    std::vector<Node*> ExpectedOrder = {B1, B2};
+    EXPECT_EQ(pointers(BI->blocks()), ExpectedOrder);
+  }
+
+  B1->setSize(50);
+  {
+    std::vector<Node*> ExpectedOrder = {B2, B1};
+    EXPECT_EQ(pointers(BI->blocks()), ExpectedOrder);
+  }
+}
+
+TEST(Unit_ByteInterval, iterationOrderSetDecodeMode) {
+  auto* BI = ByteInterval::Create(Ctx, Addr{0}, 10);
+  auto* B1 = BI->addBlock<CodeBlock>(Ctx, 0, 0, DecodeMode::Default);
+  auto* B2 = BI->addBlock<CodeBlock>(Ctx, 0, 0, DecodeMode::Thumb);
+  {
+    std::vector<Node*> ExpectedOrder = {B1, B2};
+    EXPECT_EQ(pointers(BI->blocks()), ExpectedOrder);
+  }
+
+  B1->setDecodeMode(DecodeMode::Thumb);
+  B2->setDecodeMode(DecodeMode::Default);
+  {
+    std::vector<Node*> ExpectedOrder = {B2, B1};
+    EXPECT_EQ(pointers(BI->blocks()), ExpectedOrder);
   }
 }

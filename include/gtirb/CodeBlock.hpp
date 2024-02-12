@@ -121,7 +121,11 @@ public:
   ///
   /// This field is used in some ISAs where it is used to
   /// differentiate between sub-ISAs; ARM and Thumb, for example.
-  void setDecodeMode(gtirb::DecodeMode DM) { this->DecodeMode = DM; }
+  void setDecodeMode(gtirb::DecodeMode DM) {
+    DecodeMode = DM;
+    if (Observer)
+      Observer->decodeModeChange(this);
+  }
 
   /// \brief Iterator over bytes in this block.
   ///

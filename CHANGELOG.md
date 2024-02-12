@@ -6,6 +6,9 @@
   package versions and upgrading `gtirb` with `apt-get upgrade`.
 * Fix performance issue when checking references of ProxyBlocks in Python API.
 * Add elfSoname AuxData definition
+* ByteInterval's blocks' sort order is now thoroughly defined: offset, size,
+  kind, decode mode, and UUID. Adjusting these properties during iteration may
+  cause blocks to be skipped or visited twice.
 
 # 2.0.0
 

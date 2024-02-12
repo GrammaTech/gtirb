@@ -24,6 +24,14 @@ using namespace gtirb;
 
 static Context Ctx;
 
+// Transforms a range of references into a range of pointers.
+template <typename RangeTy> auto pointers(const RangeTy& Range) {
+  auto GetPointer = [](auto& arg) { return &arg; };
+  return boost::make_iterator_range(
+      boost::make_transform_iterator(Range.begin(), GetPointer),
+      boost::make_transform_iterator(Range.end(), GetPointer));
+}
+
 TEST(Unit_Section, compilationIteratorTypes) {
   static_assert(std::is_same_v<Section::block_iterator::reference, Node&>);
   static_assert(
@@ -731,4 +739,22 @@ TEST(Unit_Section, findDataBlocksAt) {
   ASSERT_EQ(std::distance(ConstBlockRange.begin(), ConstBlockRange.end()), 2);
   EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 0), CB21);
   EXPECT_EQ(&*std::next(ConstBlockRange.begin(), 1), CB11);
+}
+
+TEST(Unit_Section, testIterationOrder) {
+  auto* S = Section::Create(Ctx, "test");
+  auto* BI1 = S->addByteInterval(Ctx, Addr(0));
+  auto* CB11 = BI1->addBlock<CodeBlock>(Ctx, 0, 0);
+  auto* CB12 = BI1->addBlock<CodeBlock>(Ctx, 0, 1);
+  auto* BI2 = S->addByteInterval(Ctx, Addr(0));
+  auto* CB21 = BI2->addBlock<DataBlock>(Ctx, 0, 0);
+  auto* CB22 = BI2->addBlock<DataBlock>(Ctx, 0, 1);
+  auto* BI3 = S->addByteInterval(Ctx, Addr(1));
+  auto* CB31 = BI3->addBlock<DataBlock>(Ctx, 0, 0);
+  auto* CB32 = BI3->addBlock<DataBlock>(Ctx, 0, 1);
+
+  {
+    std::vector<Node*> ExpectedOrder = {CB11, CB21, CB12, CB22, CB31, CB32};
+    EXPECT_EQ(pointers(S->blocks()), ExpectedOrder);
+  }
 }
