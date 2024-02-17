@@ -4,6 +4,7 @@
 * Stop generating debian metapackages and packages with the version attached
   to the package name. Updates in the apt-repository now support multiple
   package versions and upgrading `gtirb` with `apt-get upgrade`.
+* Fix performance issue when checking references of ProxyBlocks in Python API.
 
 # 2.0.0
 

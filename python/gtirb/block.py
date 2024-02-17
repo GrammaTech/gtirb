@@ -22,10 +22,21 @@ class Block(Node):
     """
 
     @property
+    def module(self) -> typing.Optional["Module"]:
+        """Get the module this node ultimately belongs to."""
+
+        raise NotImplementedError  # pragma: no cover
+
+    @property
     def references(self) -> typing.Iterator["Symbol"]:
         """Get all the symbols that refer to this block."""
 
-        raise NotImplementedError  # pragma: no cover
+        if not self.module:
+            return
+
+        symbol_set = self.module._symbol_referent_index.get(self)
+        if symbol_set:
+            yield from symbol_set
 
     def _add_to_uuid_cache(self, cache: typing.Dict[UUID, Node]) -> None:
         """Update the UUID cache when this node is added."""
@@ -116,15 +127,6 @@ class ByteBlock(Block):
         if self.byte_interval is None or self.byte_interval.address is None:
             return None
         return self.byte_interval.address + self.offset
-
-    @property
-    def references(self) -> typing.Iterator["Symbol"]:
-        if not self.module:
-            return
-
-        symbol_set = self.module._symbol_referent_index.get(self)
-        if symbol_set:
-            yield from symbol_set
 
     @property
     def section(self) -> typing.Optional["Section"]:
@@ -402,12 +404,6 @@ class ProxyBlock(CfgNode):
             self._module.proxies.discard(self)
         if value is not None:
             value.proxies.add(self)
-
-    @property
-    def references(self) -> typing.Iterator["Symbol"]:
-        if self.module is None:
-            return iter(())
-        return (s for s in self.module.symbols if s.referent == self)
 
     @property
     def incoming_edges(self) -> typing.Iterator["Edge"]:
