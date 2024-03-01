@@ -264,9 +264,7 @@ ChangeStatus ByteInterval::removeBlock(BlockType* B) {
              "recovering from rejected removal is not implemented yet");
     }
 
-    [[maybe_unused]] ChangeStatus Status = sizeChange(B, B->getSize(), 0);
-    assert(Status != ChangeStatus::Rejected &&
-           "recovering from rejected removal is not implemented yet");
+    updateIntervalMap(B, B->getSize(), std::nullopt);
     Index.erase(Iter);
     B->setParent(nullptr, nullptr);
     return ChangeStatus::Accepted;

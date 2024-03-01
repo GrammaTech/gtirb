@@ -19,7 +19,6 @@
 #include <gtirb/Symbol.hpp>
 #include <gtirb/proto/ByteInterval.pb.h>
 #include <gtest/gtest.h>
-#include <iostream>
 #include <sstream>
 
 using namespace gtirb;

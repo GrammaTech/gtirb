@@ -747,14 +747,14 @@ TEST(Unit_Section, testIterationOrder) {
   auto* CB11 = BI1->addBlock<CodeBlock>(Ctx, 0, 0);
   auto* CB12 = BI1->addBlock<CodeBlock>(Ctx, 0, 1);
   auto* BI2 = S->addByteInterval(Ctx, Addr(0));
-  auto* CB21 = BI2->addBlock<DataBlock>(Ctx, 0, 0);
-  auto* CB22 = BI2->addBlock<DataBlock>(Ctx, 0, 1);
+  auto* DB21 = BI2->addBlock<DataBlock>(Ctx, 0, 0);
+  auto* DB22 = BI2->addBlock<DataBlock>(Ctx, 0, 1);
   auto* BI3 = S->addByteInterval(Ctx, Addr(1));
-  auto* CB31 = BI3->addBlock<DataBlock>(Ctx, 0, 0);
-  auto* CB32 = BI3->addBlock<DataBlock>(Ctx, 0, 1);
+  auto* DB31 = BI3->addBlock<DataBlock>(Ctx, 0, 0);
+  auto* DB32 = BI3->addBlock<DataBlock>(Ctx, 0, 1);
 
   {
-    std::vector<Node*> ExpectedOrder = {CB11, CB21, CB12, CB22, CB31, CB32};
+    std::vector<Node*> ExpectedOrder = {CB11, DB21, CB12, DB22, DB31, DB32};
     EXPECT_EQ(pointers(S->blocks()), ExpectedOrder);
   }
 }

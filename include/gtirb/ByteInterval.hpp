@@ -200,7 +200,7 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
   ///
   /// \brief A comparison object that allows searching in the block set by
   ///        offset.
-  struct OffsetCmp {
+  struct GTIRB_EXPORT_API OffsetCmp {
     bool operator()(uint64_t Offset, const Block& B) const {
       return Offset < B.Offset;
     }
