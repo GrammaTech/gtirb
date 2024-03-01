@@ -16,6 +16,7 @@
 #ifndef GTIRB_BYTE_INTERVAL_H
 #define GTIRB_BYTE_INTERVAL_H
 
+#include <gtirb/DecodeMode.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/Observer.hpp>
@@ -82,7 +83,8 @@ public:
   /// \brief Notify the parent when the CodeBlock's decode mode changes.
   ///
   /// Called after the CodeBlock updates its internal state.
-  virtual void decodeModeChange(CodeBlock* B) = 0;
+  virtual ChangeStatus decodeModeChange(CodeBlock* B, DecodeMode OldMode,
+                                        DecodeMode NewMode) = 0;
 };
 
 ///
@@ -250,7 +252,8 @@ class GTIRB_EXPORT_API ByteInterval : public Node {
   void updateBlockSortOrder(Node* N);
 
   ChangeStatus sizeChange(Node* N, uint64_t OldSize, uint64_t NewSize);
-  void decodeModeChange(CodeBlock* B);
+  ChangeStatus decodeModeChange(CodeBlock* B, DecodeMode OldMode,
+                                DecodeMode NewMode);
 
 public:
   /// \brief Create an unitialized ByteInterval object.

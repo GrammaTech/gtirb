@@ -18,6 +18,7 @@
 #include <gtirb/Addr.hpp>
 #include <gtirb/ByteInterval.hpp>
 #include <gtirb/CfgNode.hpp>
+#include <gtirb/DecodeMode.hpp>
 #include <gtirb/Export.hpp>
 #include <gtirb/Node.hpp>
 #include <gtirb/proto/CodeBlock.pb.h>
@@ -38,14 +39,6 @@ template <class T> class ErrorOr;
 namespace proto {
 class CodeBlock;
 } // namespace proto
-
-/// \enum DecodeMode
-///
-/// \brief Variations on decoding a particular ISA
-enum class DecodeMode : uint8_t {
-  Default = proto::All_Default, ///< Default decode mode for all ISAs
-  Thumb = proto::ARM_Thumb,     ///< Thumb decode mode for ARM32
-};
 
 /// \class CodeBlock
 ///
@@ -122,9 +115,16 @@ public:
   /// This field is used in some ISAs where it is used to
   /// differentiate between sub-ISAs; ARM and Thumb, for example.
   void setDecodeMode(gtirb::DecodeMode DM) {
-    DecodeMode = DM;
-    if (Observer)
-      Observer->decodeModeChange(this);
+    if (Observer) {
+      std::swap(DecodeMode, DM);
+      [[maybe_unused]] ChangeStatus Status =
+          Observer->decodeModeChange(this, DM, DecodeMode);
+      assert(
+          Status != ChangeStatus::Rejected &&
+          "recovering from rejected decode mode change is not implemented yet");
+    } else {
+      DecodeMode = DM;
+    }
   }
 
   /// \brief Iterator over bytes in this block.

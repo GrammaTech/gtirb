@@ -33,7 +33,8 @@ public:
   ChangeStatus sizeChange(CodeBlock* B, uint64_t OldSize,
                           uint64_t NewSize) override;
 
-  void decodeModeChange(CodeBlock* B) override;
+  ChangeStatus decodeModeChange(CodeBlock* B, DecodeMode OldMode,
+                                DecodeMode NewMode) override;
 
 private:
   ByteInterval* BI;
@@ -400,8 +401,9 @@ ChangeStatus ByteInterval::CodeBlockObserverImpl::sizeChange(CodeBlock* B,
   return BI->sizeChange(B, OldSize, NewSize);
 }
 
-void ByteInterval::CodeBlockObserverImpl::decodeModeChange(CodeBlock* B) {
-  BI->decodeModeChange(B);
+ChangeStatus ByteInterval::CodeBlockObserverImpl::decodeModeChange(
+    CodeBlock* B, DecodeMode OldMode, DecodeMode NewMode) {
+  return BI->decodeModeChange(B, OldMode, NewMode);
 }
 
 ChangeStatus ByteInterval::DataBlockObserverImpl::sizeChange(DataBlock* B,
@@ -441,7 +443,11 @@ ChangeStatus ByteInterval::sizeChange(Node* N, uint64_t OldSize,
   return ChangeStatus::Accepted;
 }
 
-void ByteInterval::decodeModeChange(CodeBlock* B) { updateBlockSortOrder(B); }
+ChangeStatus ByteInterval::decodeModeChange(CodeBlock* B, DecodeMode,
+                                            DecodeMode) {
+  updateBlockSortOrder(B);
+  return ChangeStatus::Accepted;
+}
 
 boost::endian::order gtirb::ByteInterval::getBoostEndianOrder() const {
   if (auto* S = getSection()) {
