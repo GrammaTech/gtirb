@@ -15,7 +15,9 @@ from .util import (
     SetWrapper,
     _IndexedAttribute,
     _nodes_at_interval_tree,
+    _nodes_at_interval_tree_offset,
     _nodes_on_interval_tree,
+    _nodes_on_interval_tree_offset,
     _offset_interval,
     get_desired_range,
 )
@@ -513,6 +515,88 @@ class ByteInterval(Node):
             b for b in self.byte_blocks_at(addrs) if isinstance(b, DataBlock)
         )
 
+    def byte_blocks_on_offset(
+        self, offsets: typing.Union[int, range]
+    ) -> typing.Iterable[ByteBlock]:
+        """
+        Finds all the byte blocks that overlap an offset or range of offsets.
+
+        :param offsets: Either a ``range`` object or a single offset.
+        """
+
+        return _nodes_on_interval_tree_offset(self._interval_tree, offsets)
+
+    def byte_blocks_at_offset(
+        self, offsets: typing.Union[int, range]
+    ) -> typing.Iterable[ByteBlock]:
+        """
+        Finds all the byte blocks that begin at an offset or range of offsets.
+
+        :param offsets: Either a ``range`` object or a single offset.
+        """
+
+        return _nodes_at_interval_tree_offset(self._interval_tree, offsets)
+
+    def code_blocks_on_offset(
+        self, offsets: typing.Union[int, range]
+    ) -> typing.Iterable[CodeBlock]:
+        """
+        Finds all the code blocks that overlap an offset or range of offsets.
+
+        :param offsets: Either a ``range`` object or a single offset.
+        """
+
+        return (
+            b
+            for b in self.byte_blocks_on_offset(offsets)
+            if isinstance(b, CodeBlock)
+        )
+
+    def code_blocks_at_offset(
+        self, offsets: typing.Union[int, range]
+    ) -> typing.Iterable[CodeBlock]:
+        """
+        Finds all the code blocks that begin at an offset or range of offsets.
+
+        :param offsets: Either a ``range`` object or a single offset.
+        """
+
+        return (
+            b
+            for b in self.byte_blocks_at_offset(offsets)
+            if isinstance(b, CodeBlock)
+        )
+
+    def data_blocks_on_offset(
+        self, offsets: typing.Union[int, range]
+    ) -> typing.Iterable[DataBlock]:
+        """
+        Finds all the data blocks that overlap an offset or range of offsets.
+
+        :param offsets: Either a ``range`` object or a single offset.
+        """
+
+        return (
+            b
+            for b in self.byte_blocks_on_offset(offsets)
+            if isinstance(b, DataBlock)
+        )
+
+    def data_blocks_at_offset(
+        self, offsets: typing.Union[int, range]
+    ) -> typing.Iterable[DataBlock]:
+        """
+        Finds all the data blocks that begin at an offset or range of offsets.
+
+        :param offsets: Either a ``range`` object or a single offset.
+        """
+
+        return (
+            b
+            for b in self.byte_blocks_at_offset(offsets)
+            if isinstance(b, DataBlock)
+        )
+
     def symbolic_expressions_at(
         self, addrs: typing.Union[int, range]
     ) -> typing.Iterable[SymbolicExpressionElement]:
@@ -534,6 +618,27 @@ class ByteInterval(Node):
             inclusive=(True, False),
         ):
             if self.address + i in addrs:
+                yield (self, i, self.symbolic_expressions[i])
+
+    def symbolic_expressions_at_offset(
+        self, offsets: typing.Union[int, range]
+    ) -> typing.Iterable[SymbolicExpressionElement]:
+        """
+        Finds all the symbolic expressions that begin at an offset or range of
+        offsets.
+
+        :param addrs: Either a ``range`` object or a single offset.
+        :returns: Yields ``(interval, offset, symexpr)`` tuples for every
+            symbolic expression in the range.
+        """
+
+        offsets = get_desired_range(offsets)
+        for i in self._symbolic_expressions._data.irange(
+            offsets.start,
+            offsets.stop,
+            inclusive=(True, False),
+        ):
+            if i in offsets:
                 yield (self, i, self.symbolic_expressions[i])
 
     def _add_to_uuid_cache(self, cache: typing.Dict[UUID, Node]) -> None:

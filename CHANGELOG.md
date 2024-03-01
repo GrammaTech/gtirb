@@ -9,6 +9,7 @@
 * ByteInterval's blocks' sort order is now thoroughly defined: offset, size,
   kind, decode mode, and UUID. Adjusting these properties during iteration may
   cause blocks to be skipped or visited twice.
+* Added ByteInterval methods to the Python API to look up blocks by offset on.
 
 # 2.0.0
 

@@ -449,15 +449,20 @@ def _offset_interval(
     )
 
 
-def _nodes_on_interval_tree(
-    tree: "intervaltree.IntervalTree[int, AddrRangeT]",
+def _nodes_on_interval_tree_impl(
+    tree: "intervaltree.IntervalTree[int, T]",
     addrs: typing.Union[int, range],
+    *,
+    interval_getter: typing.Callable[
+        [T], typing.Optional["intervaltree.Interval[int, T]"]
+    ],
     adjustment: int = 0,
-) -> typing.Iterable[AddrRangeT]:
+) -> typing.Iterable[T]:
     """
     Implements nodes_on for an IntervalTree.
     :param tree: The IntervalTree to search.
     :param addrs: The address or addresses to locate nodes on.
+    :param interval_getter: Get the node's interval.
     :param adjustment: An adjustment to be applied to the search range before
            consulting the interval tree.
     """
@@ -467,21 +472,86 @@ def _nodes_on_interval_tree(
         desired_range.start + adjustment, desired_range.stop + adjustment
     ):
         node = interval.data
-        if node.address is None:
+        node_interval = interval_getter(node)
+        if node_interval is None:
             continue
 
         # We explicitly exclude zero-sized blocks to match the existing
         # nodes_on function and prior behavior of callers before they switched
         # to using an interval tree.
-        if not node.size:
+        if not node_interval.length() - 1:
             continue
 
         # Our interval tree ranges are closed, so we need to make sure not to
         # return items the caller didn't request.
-        if node.address + node.size <= desired_range.start:
+        if node_interval.end - 1 <= desired_range.start:
             continue
 
         yield node
+
+
+def _nodes_on_interval_tree(
+    tree: "intervaltree.IntervalTree[int, AddrRangeT]",
+    addrs: typing.Union[int, range],
+    adjustment: int = 0,
+) -> typing.Iterable[AddrRangeT]:
+    """
+    Implements nodes_on for an IntervalTree by address.
+    :param tree: The IntervalTree to search.
+    :param addrs: The address or addresses to locate nodes on.
+    :param adjustment: An adjustment to be applied to the search range before
+           consulting the interval tree.
+    """
+
+    return _nodes_on_interval_tree_impl(
+        tree, addrs, interval_getter=_address_interval, adjustment=adjustment
+    )
+
+
+def _nodes_on_interval_tree_offset(
+    tree: "intervaltree.IntervalTree[int, OffsetRangeT]",
+    addrs: typing.Union[int, range],
+) -> typing.Iterable[OffsetRangeT]:
+    """
+    Implements nodes_on for an IntervalTree by offset.
+    :param tree: The IntervalTree to search.
+    :param addrs: The address or addresses to locate nodes on.
+    """
+
+    return _nodes_on_interval_tree_impl(
+        tree, addrs, interval_getter=_offset_interval
+    )
+
+
+def _nodes_at_interval_tree_impl(
+    tree: "intervaltree.IntervalTree[int, T]",
+    addrs: typing.Union[int, range],
+    *,
+    bounds_getter: typing.Callable[
+        [T], typing.Optional["intervaltree.Interval[int, T]"]
+    ],
+    adjustment: int = 0,
+) -> typing.Iterable[T]:
+    """
+    Implements nodes_at for an IntervalTree.
+    :param tree: The IntervalTree to search.
+    :param addrs: The address or addresses to locate nodes at.
+    :param adjustment: An adjustment to be applied to the search range before
+           consulting the interval tree.
+    """
+
+    desired_range = get_desired_range(addrs)
+    for interval in tree.overlap(
+        desired_range.start + adjustment, desired_range.stop + adjustment
+    ):
+        bounds = bounds_getter(interval.data)
+        if not bounds:
+            continue
+
+        # Check that it's actually in our desired range, which may have a
+        # step value that excludes it. This is a constant time operation.
+        if bounds.begin in desired_range:
+            yield interval.data
 
 
 def _nodes_at_interval_tree(
@@ -497,14 +567,24 @@ def _nodes_at_interval_tree(
            consulting the interval tree.
     """
 
-    desired_range = get_desired_range(addrs)
-    for interval in tree.overlap(
-        desired_range.start + adjustment, desired_range.stop + adjustment
-    ):
-        # Check that it's actually in our desired range, which may have a
-        # step value that excludes it. This is a constant time operation.
-        if interval.data.address in desired_range:
-            yield interval.data
+    return _nodes_at_interval_tree_impl(
+        tree, addrs, bounds_getter=_address_interval, adjustment=adjustment
+    )
+
+
+def _nodes_at_interval_tree_offset(
+    tree: "intervaltree.IntervalTree[int, OffsetRangeT]",
+    offsets: typing.Union[int, range],
+) -> typing.Iterable[OffsetRangeT]:
+    """
+    Implements nodes_at for an IntervalTree by offset.
+    :param tree: The IntervalTree to search.
+    :param offsets: The offset or offsets to locate nodes at.
+    """
+
+    return _nodes_at_interval_tree_impl(
+        tree, offsets, bounds_getter=_offset_interval
+    )
 
 
 def symbolic_expressions_at(
