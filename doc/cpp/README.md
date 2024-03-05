@@ -68,3 +68,23 @@ then you must provide `-lgtirb_proto` on your command line as well as `-lgtirb`.
 See [api-walkthrough.cpp](../api-walkthrough_8cpp-example.html) (in
 the repository at `gtirb/doc/examples/api-walkthrough.cpp`) for a
 basic introduction to using the GTIRB API in C++.
+
+## Iteration Order
+
+### Blocks
+
+Iterating over blocks on a ByteInterval will yield them in order of offset,
+size, kind, decode mode, and UUID. Iterating over blocks on other containers,
+such as Section or Module, will yield them in order of address, size, kind,
+decode mode, and UUID.
+
+### Sections and ByteIntervals
+
+Iterating over Sections or ByteIntervals will yield them in order of address,
+size, and UUID.
+
+### Iterator Invalidation
+
+Altering a property that affects sort order will not cause iterators to be
+invalidated. However, it may cause objects to be visited more than once or
+to be skipped completely.
