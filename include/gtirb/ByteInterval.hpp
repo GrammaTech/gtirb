@@ -353,35 +353,40 @@ public:
 
   /// \brief Iterator over \ref Block objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, their order is not specified.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
+
   using block_iterator =
       boost::transform_iterator<BlockToNode<Node>,
                                 BlockSet::index<by_offset>::type::iterator>;
   /// \brief Range of \ref Block objects.
   ///
-  /// Blocks are yielded in offset order, ascending. If two blocks have the
-  /// same offset, their order is not specified.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using block_range = boost::iterator_range<block_iterator>;
   /// \brief Sub-range of blocks overlapping an address or range of addreses.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using block_subrange = boost::iterator_range<boost::transform_iterator<
       BlockToNode<Node>, BlockIntMap::codomain_type::iterator>>;
   /// \brief Const iterator over \ref Block objects.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using const_block_iterator = boost::transform_iterator<
       BlockToNode<const Node>,
       BlockSet::index<by_offset>::type::const_iterator>;
   /// \brief Const range of \ref Block objects.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using const_block_range = boost::iterator_range<const_block_iterator>;
   /// \brief Const sub-range of blocks overlapping an address or range of
   /// addreses.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using const_block_subrange = boost::iterator_range<boost::transform_iterator<
       BlockToNode<const Node>, BlockIntMap::codomain_type::const_iterator>>;
 
@@ -577,19 +582,22 @@ public:
 
   /// \brief Iterator over \ref CodeBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using code_block_iterator = boost::transform_iterator<
       BlockToNode<CodeBlock>,
       boost::filter_iterator<BlockKindEquals<Node::Kind::CodeBlock>,
                              BlockSet::index<by_offset>::type::iterator>>;
   /// \brief Range of \ref CodeBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using code_block_range = boost::iterator_range<code_block_iterator>;
   /// \brief Sub-range of code blocks overlapping an address or range of
   /// addreses.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using code_block_subrange = boost::iterator_range<boost::transform_iterator<
       BlockToNode<CodeBlock>,
       boost::filter_iterator<
@@ -597,20 +605,23 @@ public:
           boost::indirect_iterator<BlockIntMap::codomain_type::iterator>>>>;
   /// \brief Const iterator over \ref CodeBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using const_code_block_iterator = boost::transform_iterator<
       BlockToNode<const CodeBlock>,
       boost::filter_iterator<BlockKindEquals<Node::Kind::CodeBlock>,
                              BlockSet::index<by_offset>::type::const_iterator>>;
   /// \brief Const range of \ref CodeBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using const_code_block_range =
       boost::iterator_range<const_code_block_iterator>;
   /// \brief Const sub-range of code blocks overlapping an address or range of
   /// addreses.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using const_code_block_subrange =
       boost::iterator_range<boost::transform_iterator<
           BlockToNode<const CodeBlock>,
@@ -828,19 +839,22 @@ public:
 
   /// \brief Iterator over \ref DataBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using data_block_iterator = boost::transform_iterator<
       BlockToNode<DataBlock>,
       boost::filter_iterator<BlockKindEquals<Node::Kind::DataBlock>,
                              BlockSet::index<by_offset>::type::iterator>>;
   /// \brief Range of \ref DataBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using data_block_range = boost::iterator_range<data_block_iterator>;
   /// \brief Sub-range of data blocks overlapping an address or range of
   /// addreses.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using data_block_subrange = boost::iterator_range<boost::transform_iterator<
       BlockToNode<DataBlock>,
       boost::filter_iterator<
@@ -848,20 +862,23 @@ public:
           boost::indirect_iterator<BlockIntMap::codomain_type::iterator>>>>;
   /// \brief Const iterator over \ref DataBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using const_data_block_iterator = boost::transform_iterator<
       BlockToNode<const DataBlock>,
       boost::filter_iterator<BlockKindEquals<Node::Kind::DataBlock>,
                              BlockSet::index<by_offset>::type::const_iterator>>;
   /// \brief Const range of \ref DataBlock objects.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using const_data_block_range =
       boost::iterator_range<const_data_block_iterator>;
   /// \brief Const sub-range of data blocks overlapping an address or range of
   /// addreses.
   ///
-  /// Blocks are yielded in offset order, ascending.
+  /// Blocks are yielded in offset order, ascending. For more details, see
+  /// \ref iteration_order "the documentation on iteration order".
   using const_data_block_subrange =
       boost::iterator_range<boost::transform_iterator<
           BlockToNode<const DataBlock>,

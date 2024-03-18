@@ -13,6 +13,7 @@
 //
 //===----------------------------------------------------------------------===//
 #include "SerializationTestHarness.hpp"
+#include "TestHelpers.hpp"
 #include <gtirb/Context.hpp>
 #include <gtirb/Section.hpp>
 #include <gtirb/proto/Section.pb.h>
@@ -23,14 +24,6 @@
 using namespace gtirb;
 
 static Context Ctx;
-
-// Transforms a range of references into a range of pointers.
-template <typename RangeTy> auto pointers(const RangeTy& Range) {
-  auto GetPointer = [](auto& arg) { return &arg; };
-  return boost::make_iterator_range(
-      boost::make_transform_iterator(Range.begin(), GetPointer),
-      boost::make_transform_iterator(Range.end(), GetPointer));
-}
 
 TEST(Unit_Section, compilationIteratorTypes) {
   static_assert(std::is_same_v<Section::block_iterator::reference, Node&>);

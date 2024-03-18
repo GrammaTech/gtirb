@@ -70,6 +70,7 @@ the repository at `gtirb/doc/examples/api-walkthrough.cpp`) for a
 basic introduction to using the GTIRB API in C++.
 
 ## Iteration Order
+\anchor iteration_order
 
 ### Blocks
 
