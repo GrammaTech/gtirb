@@ -205,7 +205,8 @@ void IR::save(std::ostream& Out) const {
 }
 
 ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
-  constexpr size_t magic_len = std::string::traits_type::length(GTIRB_MAGIC_CHARS);
+  constexpr size_t magic_len =
+      std::string::traits_type::length(GTIRB_MAGIC_CHARS);
   std::array<char, magic_len> magic;
   In.read(magic.data(), magic_len);
   if (memcmp(magic.data(), GTIRB_MAGIC_CHARS, magic_len) != 0) {

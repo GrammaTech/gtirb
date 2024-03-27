@@ -133,10 +133,10 @@ public:
     assert(Adjustment + Size >= Size && "Adjustment + Size must not overflow");
 
     size_t SizeToAllocate = Size;
-    //#if LLVM_ADDRESS_SANITIZER_BUILD
-    //    // Add trailing bytes as a "red zone" under ASan.
-    //    SizeToAllocate += RedZoneSize;
-    //#endif
+    // #if LLVM_ADDRESS_SANITIZER_BUILD
+    //     // Add trailing bytes as a "red zone" under ASan.
+    //     SizeToAllocate += RedZoneSize;
+    // #endif
 
     // Check if we have enough space.
     if (Adjustment + SizeToAllocate <= size_t(End - CurPtr)) {
@@ -343,8 +343,9 @@ private:
 } // namespace gtirb
 
 template <size_t SlabSize, size_t SizeThreshold>
-void* operator new(size_t Size,
-                   gtirb::BumpPtrAllocatorImpl<SlabSize, SizeThreshold>& Allocator) {
+void* operator new(
+    size_t Size,
+    gtirb::BumpPtrAllocatorImpl<SlabSize, SizeThreshold>& Allocator) {
   struct S {
     char c;
     union {
@@ -359,6 +360,7 @@ void* operator new(size_t Size,
 }
 
 template <size_t SlabSize, size_t SizeThreshold>
-void operator delete(void*, gtirb::BumpPtrAllocatorImpl<SlabSize, SizeThreshold>&) {}
+void operator delete(void*,
+                     gtirb::BumpPtrAllocatorImpl<SlabSize, SizeThreshold>&) {}
 
 #endif // GTIRB_ALLOCATOR_H
