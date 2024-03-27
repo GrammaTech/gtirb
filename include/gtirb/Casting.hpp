@@ -24,6 +24,7 @@
 #include <cassert>
 #include <type_traits>
 
+namespace gtirb {
 /// \file Casting.hpp
 /// \ingroup casting
 /// \brief The various casting and type checking operations that apply
@@ -508,5 +509,6 @@ template <class X, class Y>
 dyn_cast_or_null(Y* Val) {
   return (Val && isa<X>(Val)) ? cast<X>(Val) : nullptr;
 }
+}// namespace gtirb
 
 #endif // GTIRB_CASTING_H

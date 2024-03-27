@@ -30,6 +30,7 @@
 #include <utility>
 #include <vector>
 
+namespace gtirb {
 /// Returns the next power of two (in 64-bits) that is strictly greater than A.
 /// Returns zero on overflow.
 inline uint64_t NextPowerOf2(uint64_t A) {
@@ -339,10 +340,11 @@ private:
     }
   }
 };
+} // namespace gtirb
 
 template <size_t SlabSize, size_t SizeThreshold>
 void* operator new(size_t Size,
-                   BumpPtrAllocatorImpl<SlabSize, SizeThreshold>& Allocator) {
+                   gtirb::BumpPtrAllocatorImpl<SlabSize, SizeThreshold>& Allocator) {
   struct S {
     char c;
     union {
@@ -353,10 +355,10 @@ void* operator new(size_t Size,
     } x;
   };
   return Allocator.Allocate(
-      Size, std::min((size_t)NextPowerOf2(Size), offsetof(S, x)));
+      Size, std::min((size_t)gtirb::NextPowerOf2(Size), offsetof(S, x)));
 }
 
 template <size_t SlabSize, size_t SizeThreshold>
-void operator delete(void*, BumpPtrAllocatorImpl<SlabSize, SizeThreshold>&) {}
+void operator delete(void*, gtirb::BumpPtrAllocatorImpl<SlabSize, SizeThreshold>&) {}
 
 #endif // GTIRB_ALLOCATOR_H
