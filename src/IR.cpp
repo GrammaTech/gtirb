@@ -205,10 +205,10 @@ void IR::save(std::ostream& Out) const {
 }
 
 ErrorOr<IR*> IR::load(Context& C, std::istream& In) {
-  size_t magic_len = strlen(GTIRB_MAGIC_CHARS);
-  std::unique_ptr<char[]> magic(new char[magic_len]);
-  In.read(magic.get(), magic_len);
-  if (memcmp(magic.get(), GTIRB_MAGIC_CHARS, magic_len) != 0) {
+  constexpr size_t magic_len = std::string::traits_type::length(GTIRB_MAGIC_CHARS);
+  std::array<char, magic_len> magic;
+  In.read(magic.data(), magic_len);
+  if (memcmp(magic.data(), GTIRB_MAGIC_CHARS, magic_len) != 0) {
     return {load_error::NotGTIRB, "GTIRB magic signature not found"};
   }
 
@@ -245,15 +245,23 @@ void IR::saveJSON(std::ostream& Out) const {
   MessageType Message;
   this->toProtobuf(&Message);
   std::string S;
-  google::protobuf::util::MessageToJsonString(Message, &S);
-  Out << S;
+  auto status = google::protobuf::util::MessageToJsonString(Message, &S);
+  if (!status.ok()) {
+    Out << status.message().data();
+    return;
+  } else {
+    Out << S;
+  }
 }
 
 ErrorOr<IR*> IR::loadJSON(Context& C, std::istream& In) {
   MessageType Message;
   std::string S;
-  google::protobuf::util::JsonStringToMessage(
+  auto status = google::protobuf::util::JsonStringToMessage(
       std::string(std::istreambuf_iterator<char>(In), {}), &Message);
-
-  return IR::fromProtobuf(C, Message);
+  if (!status.ok()) {
+    return {load_error::CorruptFile, status.message().data()};
+  } else {
+    return IR::fromProtobuf(C, Message);
+  }
 }

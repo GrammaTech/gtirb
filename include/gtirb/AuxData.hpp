@@ -29,6 +29,7 @@
 #include <unordered_map>
 #include <variant>
 #include <vector>
+#include <set>
 
 /// \file AuxData.hpp
 /// \ingroup AUXDATA_GROUP
