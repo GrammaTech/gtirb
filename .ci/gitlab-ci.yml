@@ -193,16 +193,20 @@ test-capstone-example:
     - make -j
     - '[[ -f bin/ex-jumps ]]'
 
-coverage:
+generate-coverage:
   stage: build
   needs: [check-format]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
-  # TODO: The documentation states:
-  # > If there is more than one matched line in the job output, the last line is used
-  # https://docs.gitlab.com/ee/ci/yaml/index.html#coverage
-  # We output two coverage values here that will match: CPP and Python.
-  # Only the latter, Python, will be displayed by GitLab in the MR UI.
-  coverage: '/^TOTAL.*\s+(\d+\%)$/'
+  artifacts:
+    # Upload coverage reports and source for report-coverage-* jobs to use.
+    paths:
+      - build/**/*.gcno
+      - build/**/*.gcda
+      - build/python/.coverage
+      - build/**/*.py
+      - build/**/*.h
+      - build/**/*.cc
+      - build/**/*.cpp
   script:
     - mkdir build
     - cd build
@@ -211,9 +215,31 @@ coverage:
     - cmake --build .
     - pip3 install -e python
     - ctest --output-on-failure
+
+# > If there is more than one matched line in the job output, the last line is used
+# https://docs.gitlab.com/ee/ci/yaml/index.html#coverage
+# We output the two coverage numbers in separate jobs(report-coverage-*) so
+# that both can be reported to GitLab.
+report-coverage-cpp:
+  stage: build
+  needs: [generate-coverage]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'
+  script:
+    - pip install gcovr
+    - cd build
     - gcovr --exclude=googletest-src --exclude=doc --exclude=..*/proto --exclude=..*/test --root ..
-    - cd python
+
+report-coverage-py:
+  stage: build
+  needs: [generate-coverage]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'
+  script:
+    - pip install coverage
+    - cd build/python
     - coverage report --omit=gtirb/proto/* --show-missing
+
 
 test-default-install:
   stage: test-packages1
