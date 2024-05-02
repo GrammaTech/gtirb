@@ -197,6 +197,12 @@ coverage:
   stage: build
   needs: [check-format]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  # TODO: The documentation states:
+  # > If there is more than one matched line in the job output, the last line is used
+  # https://docs.gitlab.com/ee/ci/yaml/index.html#coverage
+  # We output two coverage values here that will match: CPP and Python.
+  # Only the latter, Python, will be displayed by GitLab in the MR UI.
+  coverage: '/^TOTAL.*\s+(\d+\%)$/'
   script:
     - mkdir build
     - cd build
