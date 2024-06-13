@@ -1,5 +1,7 @@
 
-# 2.1.0 (Unreleased)
+# 2.1.1 (Unreleased)
+
+# 2.1.0
 
 * Stop generating debian metapackages and packages with the version attached
   to the package name. Updates in the apt-repository now support multiple
