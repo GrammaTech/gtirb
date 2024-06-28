@@ -342,6 +342,17 @@ private:
 };
 } // namespace gtirb
 
+#ifndef GTIRB_WRAP_UTILS_IN_NAMESPACE
+
+using gtirb::NextPowerOf2;
+using gtirb::isPowerOf2_64;
+using gtirb::alignAddr;
+using gtirb::alignmentAdjustment;
+using gtirb::BumpPtrAllocator;
+using gtirb::SpecificBumpPtrAllocator;
+
+#endif // GTIRB_WRAP_UTILS_IN_NAMESPACE
+
 template <size_t SlabSize, size_t SizeThreshold>
 void* operator new(
     size_t Size,

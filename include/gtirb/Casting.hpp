@@ -511,4 +511,15 @@ dyn_cast_or_null(Y* Val) {
 }
 } // namespace gtirb
 
+
+#ifndef GTIRB_WRAP_UTILS_IN_NAMESPACE
+
+using gtirb::isa;
+using gtirb::cast;
+using gtirb::cast_or_null;
+using gtirb::dyn_cast;
+using gtirb::dyn_cast_or_null;
+
+#endif // GTIRB_WRAP_UTILS_IN_NAMESPACE
+
 #endif // GTIRB_CASTING_H
