@@ -110,6 +110,16 @@ option(
   OFF
 )
 
+option(
+  GTIRB_WRAP_UTILS_IN_NAMESPACE
+  "Whether to wrap common utils into gtirb namespace to prevent symbol conflicts. Disabled by default for backward compatibility"
+  OFF 
+)
+
+if(GTIRB_WRAP_UTILS_IN_NAMESPACE)
+  add_definitions(-DGTIRB_WRAP_UTILS_IN_NAMESPACE)
+endif()
+
 # Determine whether or not the APIs are REALLY built or not.
 # === C++ ===
 set(CXX_API ${GTIRB_CXX_API})

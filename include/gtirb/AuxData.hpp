@@ -23,6 +23,7 @@
 #include <iostream>
 #include <list>
 #include <map>
+#include <set>
 #include <string>
 #include <type_traits>
 #include <typeinfo>
@@ -504,8 +505,8 @@ template <class... Args> struct auxdata_traits<std::variant<Args...>> {
     std::visit(
         [&res_code, &FBR](auto&& arg) mutable {
           typename std::remove_reference<decltype(arg)>::type Val;
-          res_code = auxdata_traits<typename std::remove_reference<decltype(
-              arg)>::type>::fromBytes(Val, FBR);
+          res_code = auxdata_traits<typename std::remove_reference<
+              decltype(arg)>::type>::fromBytes(Val, FBR);
           if (!res_code)
             return;
           arg = Val;
