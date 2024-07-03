@@ -30,11 +30,8 @@ public:
 size_t AllocTest::CtorCount = 0;
 size_t AllocTest::DtorCount = 0;
 
-#ifndef GTIRB_WRAP_UTILS_IN_NAMESPACE
+using namespace::gtirb;
 using Allocator = SpecificBumpPtrAllocator<AllocTest>;
-#else
-using Allocator = gtirb::SpecificBumpPtrAllocator<AllocTest>;
-#endif
 
 inline void* operator new(size_t, Allocator& A) { return A.Allocate(); }
 inline void operator delete(void*, Allocator&) {}
