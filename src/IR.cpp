@@ -248,7 +248,7 @@ void IR::saveJSON(std::ostream& Out) const {
   std::string S;
   auto status = google::protobuf::util::MessageToJsonString(Message, &S);
   if (!status.ok()) {
-    Out << status.message().data();
+    Out << status;
     return;
   } else {
     Out << S;
@@ -261,7 +261,7 @@ ErrorOr<IR*> IR::loadJSON(Context& C, std::istream& In) {
   auto status = google::protobuf::util::JsonStringToMessage(
       std::string(std::istreambuf_iterator<char>(In), {}), &Message);
   if (!status.ok()) {
-    return {load_error::CorruptFile, status.message().data()};
+    return {load_error::CorruptFile, status.ToString()};
   } else {
     return IR::fromProtobuf(C, Message);
   }
