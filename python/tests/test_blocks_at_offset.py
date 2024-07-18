@@ -10,28 +10,32 @@ class BlocksAtOffsetTests(unittest.TestCase):
     def test_blocks_at_offset_simple(self):
         ir, m, s, bi = create_interval_etc(address=None, size=4)
 
+        # Ensure we always have a couple blocks in the index beyond what we
+        # are querying so that we don't just rebuild the tree from scratch
+        # every time.
         code_block = gtirb.CodeBlock(offset=0, size=1, byte_interval=bi)
         code_block2 = gtirb.CodeBlock(offset=1, size=1, byte_interval=bi)
+        code_block3 = gtirb.CodeBlock(offset=2, size=1, byte_interval=bi)
 
         found = set(bi.byte_blocks_at_offset(0))
         self.assertEqual(found, {code_block})
 
         # Change the offset to verify we update the index
-        code_block.offset = 2
+        code_block.offset = 3
         found = set(bi.byte_blocks_at_offset(0))
         self.assertEqual(found, set())
 
-        found = set(bi.byte_blocks_at_offset(2))
+        found = set(bi.byte_blocks_at_offset(3))
         self.assertEqual(found, {code_block})
 
         # Discard the block to verify we update the index
         bi.blocks.discard(code_block)
-        found = set(bi.byte_blocks_at_offset(2))
+        found = set(bi.byte_blocks_at_offset(3))
         self.assertEqual(found, set())
 
         # Now add it back to verify we update the index
         bi.blocks.add(code_block)
-        found = set(bi.byte_blocks_at_offset(2))
+        found = set(bi.byte_blocks_at_offset(3))
         self.assertEqual(found, {code_block})
 
     def test_blocks_at_offset_overlapping(self):

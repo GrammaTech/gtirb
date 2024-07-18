@@ -3,10 +3,9 @@ import typing
 from enum import Enum
 from uuid import UUID
 
-from intervaltree import IntervalTree
-
 from .block import ByteBlock, CodeBlock, DataBlock
 from .byteinterval import ByteInterval, SymbolicExpressionElement
+from .lazyintervaltree import LazyIntervalTree
 from .node import Node, _NodeMessage
 from .proto import Section_pb2
 from .util import (
@@ -102,24 +101,27 @@ class Section(Node):
         """
 
         super().__init__(uuid)
-        self._interval_index: "IntervalTree[int,ByteInterval]" = IntervalTree()
         self._module: typing.Optional["Module"] = None
         self.name = name
-        self.byte_intervals = Section._ByteIntervalSet(self, byte_intervals)
+
+        # Both byte_intervals and _interval_index must exist before adding any
+        # intervals.
+        self.byte_intervals = Section._ByteIntervalSet(self)
+        self._interval_index = LazyIntervalTree[int, ByteInterval](
+            self.byte_intervals, _address_interval
+        )
+        self.byte_intervals.update(byte_intervals)
+
         self.flags = set(flags)
 
         # Use the property setter to ensure correct invariants.
         self.module = module
 
     def _index_add(self, byte_interval: ByteInterval) -> None:
-        address_interval = _address_interval(byte_interval)
-        if address_interval:
-            self._interval_index.add(address_interval)
+        self._interval_index.add(byte_interval)
 
     def _index_discard(self, byte_interval: ByteInterval) -> None:
-        address_interval = _address_interval(byte_interval)
-        if address_interval:
-            self._interval_index.discard(address_interval)
+        self._interval_index.discard(byte_interval)
 
     @classmethod
     def _decode_protobuf(
@@ -233,8 +235,9 @@ class Section(Node):
         size, so it will be ``None`` in that case.
         """
 
-        if 0 < len(self._interval_index) == len(self.byte_intervals):
-            return self._interval_index.begin()
+        index = self._interval_index.get()
+        if 0 < len(index) == len(self.byte_intervals):
+            return index.begin()
 
         return None
 
@@ -251,8 +254,9 @@ class Section(Node):
         it has no address or size, so it will be ``None`` in that case.
         """
 
-        if 0 < len(self._interval_index) == len(self.byte_intervals):
-            return self._interval_index.span() - 1
+        index = self._interval_index.get()
+        if 0 < len(index) == len(self.byte_intervals):
+            return index.span() - 1
 
         return None
 
@@ -265,7 +269,7 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return _nodes_on_interval_tree(self._interval_index, addrs)
+        return _nodes_on_interval_tree(self._interval_index.get(), addrs)
 
     def byte_intervals_at(
         self, addrs: typing.Union[int, range]
@@ -276,7 +280,7 @@ class Section(Node):
         :param addrs: Either a ``range`` object or a single address.
         """
 
-        return _nodes_at_interval_tree(self._interval_index, addrs)
+        return _nodes_at_interval_tree(self._interval_index.get(), addrs)
 
     def byte_blocks_on(
         self, addrs: typing.Union[int, range]

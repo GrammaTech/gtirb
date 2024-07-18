@@ -1,11 +1,10 @@
-import itertools
 import typing
 from uuid import UUID
 
-from intervaltree import IntervalTree
 from sortedcontainers import SortedDict
 
 from .block import ByteBlock, CodeBlock, DataBlock
+from .lazyintervaltree import LazyIntervalTree
 from .node import Node, _NodeMessage
 from .proto import ByteInterval_pb2, SymbolicExpression_pb2
 from .symbolicexpression import SymAddrAddr, SymAddrConst, SymbolicExpression
@@ -162,15 +161,19 @@ class ByteInterval(Node):
             raise ValueError("initialized_size must be <= size!")
 
         super().__init__(uuid=uuid)
-        self._interval_tree: "IntervalTree[int, ByteBlock]" = IntervalTree()
         self._section: typing.Optional["Section"] = None
         self.address = address
         self.size = size
         self.contents = bytearray(contents)
         self.initialized_size = initialized_size
-        self.blocks: SetWrapper[ByteBlock] = ByteInterval._BlockSet(
-            self, blocks
+
+        # Both blocks and _interval_tree must exist before adding any blocks.
+        self.blocks: SetWrapper[ByteBlock] = ByteInterval._BlockSet(self)
+        self._interval_tree = LazyIntervalTree[int, ByteBlock](
+            self.blocks, _offset_interval
         )
+        self.blocks.update(blocks)
+
         self._symbolic_expressions = ByteInterval._SymbolicExprDict(
             self, symbolic_expressions
         )
@@ -186,20 +189,14 @@ class ByteInterval(Node):
         old_blocks: typing.Collection[ByteBlock],
         new_blocks: typing.Collection[ByteBlock],
     ) -> None:
-        if len(old_blocks) < len(new_blocks):
-            self._interval_tree = IntervalTree(
-                _offset_interval(block)
-                for block in itertools.chain(old_blocks, new_blocks)
-            )
-        else:
-            for block in new_blocks:
-                self._index_add(block)
+        for block in new_blocks:
+            self._interval_tree.add(block)
 
     def _index_add(self, block: ByteBlock) -> None:
-        self._interval_tree.add(_offset_interval(block))
+        self._interval_tree.add(block)
 
     def _index_discard(self, block: ByteBlock) -> None:
-        self._interval_tree.discard(_offset_interval(block))
+        self._interval_tree.discard(block)
 
     @property
     def initialized_size(self) -> int:
@@ -444,7 +441,7 @@ class ByteInterval(Node):
             return ()
 
         return _nodes_on_interval_tree(
-            self._interval_tree, addrs, -self.address
+            self._interval_tree.get(), addrs, -self.address
         )
 
     def byte_blocks_at(
@@ -460,7 +457,7 @@ class ByteInterval(Node):
             return ()
 
         return _nodes_at_interval_tree(
-            self._interval_tree, addrs, -self.address
+            self._interval_tree.get(), addrs, -self.address
         )
 
     def code_blocks_on(
@@ -524,7 +521,9 @@ class ByteInterval(Node):
         :param offsets: Either a ``range`` object or a single offset.
         """
 
-        return _nodes_on_interval_tree_offset(self._interval_tree, offsets)
+        return _nodes_on_interval_tree_offset(
+            self._interval_tree.get(), offsets
+        )
 
     def byte_blocks_at_offset(
         self, offsets: typing.Union[int, range]
@@ -535,7 +534,9 @@ class ByteInterval(Node):
         :param offsets: Either a ``range`` object or a single offset.
         """
 
-        return _nodes_at_interval_tree_offset(self._interval_tree, offsets)
+        return _nodes_at_interval_tree_offset(
+            self._interval_tree.get(), offsets
+        )
 
     def code_blocks_on_offset(
         self, offsets: typing.Union[int, range]

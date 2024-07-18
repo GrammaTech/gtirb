@@ -1,7 +1,7 @@
 from typing import Generic, TypeVar
 
-PointT = TypeVar("PointT")
-DataT = TypeVar("DataT")
+PointT = TypeVar("PointT", covariant=True)
+DataT = TypeVar("DataT", covariant=True)
 
 class Interval(Generic[PointT, DataT]):
     begin: PointT
