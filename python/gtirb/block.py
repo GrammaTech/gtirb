@@ -131,23 +131,26 @@ class ByteBlock(Block):
     @property
     def section(self) -> typing.Optional["Section"]:
         """Get the section this node ultimately belongs to."""
-        if self.byte_interval is None:
+        byte_interval = self.byte_interval
+        if byte_interval is None:
             return None
-        return self.byte_interval.section
+        return byte_interval.section
 
     @property
     def module(self) -> typing.Optional["Module"]:
         """Get the module this node ultimately belongs to."""
-        if self.section is None:
+        section = self.section
+        if section is None:
             return None
-        return self.section.module
+        return section.module
 
     @property
     def ir(self) -> typing.Optional["IR"]:
         """Get the IR this node ultimately belongs to."""
-        if self.module is None:
+        module = self.module
+        if module is None:
             return None
-        return self.module.ir
+        return module.ir
 
     def contains_offset(self, offset: int) -> bool:
         """Indicate if the provided offset is within this block."""
@@ -330,15 +333,17 @@ class CodeBlock(ByteBlock, CfgNode):
 
     @property
     def incoming_edges(self) -> typing.Iterator["Edge"]:
-        if self.ir is None:
+        ir = self.ir
+        if ir is None:
             return iter(())
-        return self.ir.cfg.in_edges(self)
+        return ir.cfg.in_edges(self)
 
     @property
     def outgoing_edges(self) -> typing.Iterator["Edge"]:
-        if self.ir is None:
+        ir = self.ir
+        if ir is None:
             return iter(())
-        return self.ir.cfg.out_edges(self)
+        return ir.cfg.out_edges(self)
 
 
 class ProxyBlock(CfgNode):
@@ -407,19 +412,22 @@ class ProxyBlock(CfgNode):
 
     @property
     def incoming_edges(self) -> typing.Iterator["Edge"]:
-        if self.ir is None:
+        ir = self.ir
+        if ir is None:
             return iter(())
-        return self.ir.cfg.in_edges(self)
+        return ir.cfg.in_edges(self)
 
     @property
     def outgoing_edges(self) -> typing.Iterator["Edge"]:
-        if self.ir is None:
+        ir = self.ir
+        if ir is None:
             return iter(())
-        return self.ir.cfg.out_edges(self)
+        return ir.cfg.out_edges(self)
 
     @property
     def ir(self) -> typing.Optional["IR"]:
         """Get the IR this node ultimately belongs to."""
-        if self.module is None:
+        module = self.module
+        if module is None:
             return None
-        return self.module.ir
+        return module.ir
