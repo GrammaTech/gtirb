@@ -202,7 +202,7 @@ generate-coverage:
     paths:
       - build/**/*.gcno
       - build/**/*.gcda
-      - build/python/.coverage
+      - build/python/.coverage*
       - build/**/*.py
       - build/**/*.h
       - build/**/*.cc
@@ -243,8 +243,8 @@ report-coverage-py:
   script:
     - pip install coverage
     - cd build/python
-    - coverage xml '--omit=gtirb/proto/*'
-    - coverage report '--omit=gtirb/proto/*' --show-missing
+    - coverage xml
+    - coverage report
 
 
 test-default-install:
