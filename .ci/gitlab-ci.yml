@@ -235,10 +235,16 @@ report-coverage-py:
   needs: [generate-coverage]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: build/python/coverage.xml
   script:
     - pip install coverage
     - cd build/python
-    - coverage report --omit=gtirb/proto/* --show-missing
+    - coverage xml '--omit=gtirb/proto/*'
+    - coverage report '--omit=gtirb/proto/*' --show-missing
 
 
 test-default-install:
