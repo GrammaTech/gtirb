@@ -1,0 +1,10 @@
+[run]
+branch = True
+relative_files = True
+source =
+    gtirb
+omit =
+    gtirb/proto/*
+
+[report]
+show_missing = True

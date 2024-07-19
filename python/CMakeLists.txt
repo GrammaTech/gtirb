@@ -23,7 +23,12 @@ endif()
 
 # Create a PEP 561 py.typed to let clients find the inline type annotations.
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gtirb/py.typed "")
-configure_file(setup.py.in setup.py @ONLY)
+
+configure_file(setup.py setup.py COPYONLY)
+configure_file(.coveragerc .coveragerc COPYONLY)
+configure_file(README.md README COPYONLY)
+# Copy the license from the top-level of the source repo.
+configure_file(${CMAKE_SOURCE_DIR}/LICENSE.txt LICENSE COPYONLY)
 
 # ---------------------------------------------------------------------------
 # Building the gtirb protobuf files into python
