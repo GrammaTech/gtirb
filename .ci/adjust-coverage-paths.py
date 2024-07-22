@@ -42,7 +42,7 @@ args = parser.parse_args()
 
 if args.source_dir is None:
     parser.error("either --source-dir or CI_PROJECT_DIR is required")
-args.source_dir = args.source_dir.resolve()
+args.source_dir = Path(args.source_dir).resolve()
 
 if args.build_dir is None:
     args.build_dir = args.coverage.parent
