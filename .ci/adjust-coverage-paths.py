@@ -42,14 +42,19 @@ args = parser.parse_args()
 
 if args.source_dir is None:
     parser.error("either --source-dir or CI_PROJECT_DIR is required")
+args.source_dir = args.source_dir.resolve()
+
 if args.build_dir is None:
-    args.build_dir = args.coverage.parent.resolve()
+    args.build_dir = args.coverage.parent
+args.build_dir = args.build_dir.resolve()
 
 et = ElementTree.parse(args.coverage)
 for source in et.iter("source"):
     if source.text:
         relpath = Path(source.text).relative_to(args.build_dir)
-        source.text = str(Path(args.source_dir, relpath))
+        fixed = str(Path(args.source_dir, relpath))
+        print("mapping", source.text, "to", fixed)
+        source.text = fixed
 
 if args.output:
     et.write(args.output)
