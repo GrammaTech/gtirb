@@ -244,6 +244,7 @@ report-coverage-py:
     - pip install coverage
     - cd build/python
     - coverage xml
+    - ../../.ci/adjust-coverage-paths.py --in-place coverage.xml
     - coverage report
 
 
