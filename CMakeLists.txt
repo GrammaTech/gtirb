@@ -113,7 +113,7 @@ option(
 option(
   GTIRB_WRAP_UTILS_IN_NAMESPACE
   "Whether to wrap common utils into gtirb namespace to prevent symbol conflicts. Disabled by default for backward compatibility"
-  OFF 
+  OFF
 )
 
 if(GTIRB_WRAP_UTILS_IN_NAMESPACE)

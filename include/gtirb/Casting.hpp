@@ -312,7 +312,7 @@ struct isa_impl_wrap<To, FromTy, FromTy> {
 //
 //  if (isa<Type>(myVal)) { ... }
 //
-template <class X, class Y> [[nodiscard]] inline bool isa(const Y& Val) {
+template <class X, class Y>[[nodiscard]] inline bool isa(const Y& Val) {
   return isa_impl_wrap<X, const Y,
                        typename simplify_type<const Y>::SimpleType>::doit(Val);
 }
@@ -511,14 +511,13 @@ dyn_cast_or_null(Y* Val) {
 }
 } // namespace gtirb
 
-
 #ifndef GTIRB_WRAP_UTILS_IN_NAMESPACE
 
-using gtirb::isa;
 using gtirb::cast;
 using gtirb::cast_or_null;
 using gtirb::dyn_cast;
 using gtirb::dyn_cast_or_null;
+using gtirb::isa;
 
 #endif // GTIRB_WRAP_UTILS_IN_NAMESPACE
 

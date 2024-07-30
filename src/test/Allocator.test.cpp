@@ -30,7 +30,7 @@ public:
 size_t AllocTest::CtorCount = 0;
 size_t AllocTest::DtorCount = 0;
 
-using namespace::gtirb;
+using namespace ::gtirb;
 using Allocator = SpecificBumpPtrAllocator<AllocTest>;
 
 inline void* operator new(size_t, Allocator& A) { return A.Allocate(); }

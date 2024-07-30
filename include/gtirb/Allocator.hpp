@@ -344,11 +344,11 @@ private:
 
 #ifndef GTIRB_WRAP_UTILS_IN_NAMESPACE
 
-using gtirb::NextPowerOf2;
-using gtirb::isPowerOf2_64;
 using gtirb::alignAddr;
 using gtirb::alignmentAdjustment;
 using gtirb::BumpPtrAllocator;
+using gtirb::isPowerOf2_64;
+using gtirb::NextPowerOf2;
 using gtirb::SpecificBumpPtrAllocator;
 
 #endif // GTIRB_WRAP_UTILS_IN_NAMESPACE
