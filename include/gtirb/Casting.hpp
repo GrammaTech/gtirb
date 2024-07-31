@@ -72,6 +72,9 @@ namespace gtirb {
 /// void f(Node *N) { if (isa<Block>(N) { ... } }
 /// \endcode
 ///
+/// (Deprecated) Available in the global namespace when
+/// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
+///
 ///
 /// \subsection CAST cast<Ty>
 ///
@@ -93,6 +96,8 @@ namespace gtirb {
 /// void f(Node * N) { auto *B = cast<Block>(N); }
 /// \endcode
 ///
+/// (Deprecated) Available in the global namespace when
+/// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
 ///
 /// \subsection CAST_OR_NULL cast_or_null<Ty>
 ///
@@ -114,6 +119,8 @@ namespace gtirb {
 ///  void f(Node *N) { auto *B = cast_or_null<Block>(N); }
 /// \endcode
 ///
+/// (Deprecated) Available in the global namespace when
+/// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
 ///
 /// \subsection  DYN_CAST dyn_cast<Ty>
 ///
@@ -135,6 +142,8 @@ namespace gtirb {
 /// void f(Node * N) { auto *B = dyn_cast<Block>(N); }
 /// \endcode
 ///
+/// (Deprecated) Available in the global namespace when
+/// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
 ///
 /// \subsection DYN_CAST_OR_NULL dyn_cast_or_null<Ty>
 ///
@@ -155,6 +164,10 @@ namespace gtirb {
 /// \code
 /// void f(Node *N) { auto *B = dyn_cast_or_null<Block>(N); }
 /// \endcode
+///
+/// (Deprecated) Available in the global namespace when
+/// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
+///
 /// @{ @}
 
 /// \fn isa(const Y& Val)

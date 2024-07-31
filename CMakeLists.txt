@@ -118,6 +118,11 @@ option(
 
 if(GTIRB_WRAP_UTILS_IN_NAMESPACE)
   add_definitions(-DGTIRB_WRAP_UTILS_IN_NAMESPACE)
+else()
+  message(
+    DEPRECATION,
+    "Using utility functions without gtirb namespace is deprecated; enable GTIRB_WRAP_UTILS_IN_NAMESPACE to suppress this warning."
+  )
 endif()
 
 # Determine whether or not the APIs are REALLY built or not.

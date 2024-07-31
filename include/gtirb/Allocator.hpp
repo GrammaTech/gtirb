@@ -33,6 +33,9 @@
 namespace gtirb {
 /// Returns the next power of two (in 64-bits) that is strictly greater than A.
 /// Returns zero on overflow.
+///
+/// (Deprecated) Available in the global namespace when
+/// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
 inline uint64_t NextPowerOf2(uint64_t A) {
   A |= (A >> 1);
   A |= (A >> 2);
@@ -44,6 +47,9 @@ inline uint64_t NextPowerOf2(uint64_t A) {
 }
 
 /// Return true if the argument is a power of two > 0 (64 bit edition.)
+///
+/// (Deprecated) Available in the global namespace when
+/// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
 constexpr inline bool isPowerOf2_64(uint64_t Value) {
   return Value && !(Value & (Value - 1));
 }
@@ -52,6 +58,9 @@ constexpr inline bool isPowerOf2_64(uint64_t Value) {
 ///
 /// Alignment should be a power of two.  This method rounds up, so
 /// alignAddr(7, 4) == 8 and alignAddr(8, 4) == 8.
+///
+/// (Deprecated) Available in the global namespace when
+/// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
 inline uintptr_t alignAddr(const void* Addr, size_t Alignment) {
   assert(Alignment && isPowerOf2_64((uint64_t)Alignment) &&
          "Alignment is not a power of two!");
@@ -63,6 +72,9 @@ inline uintptr_t alignAddr(const void* Addr, size_t Alignment) {
 
 /// Returns the necessary adjustment for aligning \c Ptr to \c Alignment
 /// bytes, rounding up.
+///
+/// (Deprecated) Available in the global namespace when
+/// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
 inline size_t alignmentAdjustment(const void* Ptr, size_t Alignment) {
   return alignAddr(Ptr, Alignment) - (uintptr_t)Ptr;
 }
@@ -274,6 +286,9 @@ private:
 
 /// The standard BumpPtrAllocator which just uses the default template
 /// parameters.
+///
+/// (Deprecated) Available in the global namespace when
+/// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
 typedef BumpPtrAllocatorImpl<> BumpPtrAllocator;
 
 /// A BumpPtrAllocator that allows only elements of a specific type to be
@@ -281,6 +296,9 @@ typedef BumpPtrAllocatorImpl<> BumpPtrAllocator;
 ///
 /// This allows calling the destructor in DestroyAll() and when the allocator is
 /// destroyed.
+///
+/// (Deprecated) Available in the global namespace when
+/// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
 template <typename T> class SpecificBumpPtrAllocator {
   BumpPtrAllocator Allocator;
 

@@ -1,5 +1,13 @@
 
-# 2.1.1 (Unreleased)
+# 2.2.0 (Unreleased)
+
+* Move the following utility functions into the `gtirb` namespace:
+  `alignAddr`, `alignmentAdjustment`, `BumpPtrAllocator`, `isPowerOf2_64`,
+  `SpecificBumpPtrAllocator`, `cast`, `cast_or_null`, `dyn_cast`,
+  `dyn_cast_or_null`, `isa`. For backwards compatibility, these functions
+  remain available in the global namespace unless the new
+  `GTIRB_WRAP_UTILS_IN_NAMESPACE` CMake option, disabled by default, is
+  enabled. The previous global declarations are now deprecated.
 
 # 2.1.0
 
