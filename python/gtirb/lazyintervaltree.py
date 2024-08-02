@@ -18,12 +18,12 @@ from typing import (
     Iterator,
     List,
     Optional,
-    Protocol,
     Tuple,
     TypeVar,
 )
 
 from intervaltree import Interval, IntervalTree
+from typing_extensions import Protocol
 
 _K = TypeVar("_K")
 _Kco = TypeVar("_Kco", covariant=True)
@@ -43,7 +43,7 @@ class IntervalBuilder(Protocol[_Kco, _V]):
     If no interval is available for a particular value, returns None instead.
     """
 
-    def __call__(self, value: _V, /) -> Optional["Interval[_Kco, _V]"]:
+    def __call__(self, node: _V) -> Optional["Interval[_Kco, _V]"]:
         ...
 
 
