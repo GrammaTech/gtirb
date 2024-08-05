@@ -145,21 +145,11 @@ public:
     assert(Adjustment + Size >= Size && "Adjustment + Size must not overflow");
 
     size_t SizeToAllocate = Size;
-    // #if LLVM_ADDRESS_SANITIZER_BUILD
-    //     // Add trailing bytes as a "red zone" under ASan.
-    //     SizeToAllocate += RedZoneSize;
-    // #endif
 
     // Check if we have enough space.
     if (Adjustment + SizeToAllocate <= size_t(End - CurPtr)) {
       char* AlignedPtr = CurPtr + Adjustment;
       CurPtr = AlignedPtr + SizeToAllocate;
-      // Update the allocation point of this memory block in MemorySanitizer.
-      // Without this, MemorySanitizer messages for values originated from here
-      // will point to the allocation of the entire slab.
-      //      __msan_allocated_memory(AlignedPtr, Size);
-      // Similarly, tell ASan about this space.
-      //      __asan_unpoison_memory_region(AlignedPtr, Size);
       return AlignedPtr;
     }
 
@@ -167,16 +157,11 @@ public:
     size_t PaddedSize = SizeToAllocate + Alignment - 1;
     if (PaddedSize > SizeThreshold) {
       void* NewSlab = std::malloc(PaddedSize);
-      // We own the new slab and don't want anyone reading anyting other than
-      // pieces returned from this method.  So poison the whole slab.
-      //      __asan_poison_memory_region(NewSlab, PaddedSize);
       CustomSizedSlabs.push_back(std::make_pair(NewSlab, PaddedSize));
 
       uintptr_t AlignedAddr = alignAddr(NewSlab, Alignment);
       assert(AlignedAddr + Size <= (uintptr_t)NewSlab + PaddedSize);
       char* AlignedPtr = (char*)AlignedAddr;
-      //      __msan_allocated_memory(AlignedPtr, Size);
-      //      __asan_unpoison_memory_region(AlignedPtr, Size);
       return AlignedPtr;
     }
 
@@ -187,8 +172,6 @@ public:
            "Unable to allocate memory!");
     char* AlignedPtr = (char*)AlignedAddr;
     CurPtr = AlignedPtr + SizeToAllocate;
-    //    __msan_allocated_memory(AlignedPtr, Size);
-    //    __asan_unpoison_memory_region(AlignedPtr, Size);
     return AlignedPtr;
   }
 
@@ -200,9 +183,7 @@ public:
   // Bump pointer allocators are expected to never free their storage; and
   // clients expect pointers to remain valid for non-dereferencing uses even
   // after deallocation.
-  void Deallocate(const void*, size_t) {
-    //    __asan_poison_memory_region(Ptr, Size);
-  }
+  void Deallocate(const void*, size_t) {}
 
   size_t GetNumSlabs() const { return Slabs.size() + CustomSizedSlabs.size(); }
 
@@ -257,9 +238,6 @@ private:
     size_t AllocatedSlabSize = computeSlabSize(Slabs.size());
 
     void* NewSlab = std::malloc(AllocatedSlabSize);
-    // We own the new slab and don't want anyone reading anything other than
-    // pieces returned from this method.  So poison the whole slab.
-    //    __asan_poison_memory_region(NewSlab, AllocatedSlabSize);
 
     Slabs.push_back(NewSlab);
     CurPtr = (char*)(NewSlab);
