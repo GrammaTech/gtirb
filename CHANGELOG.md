@@ -5,9 +5,8 @@
   `alignAddr`, `alignmentAdjustment`, `BumpPtrAllocator`, `isPowerOf2_64`,
   `SpecificBumpPtrAllocator`, `cast`, `cast_or_null`, `dyn_cast`,
   `dyn_cast_or_null`, `isa`. For backwards compatibility, these functions
-  remain available in the global namespace unless the new
-  `GTIRB_WRAP_UTILS_IN_NAMESPACE` CMake option, disabled by default, is
-  enabled. The previous global declarations are now deprecated.
+  remain available, but deprecated, in the global namespace unless
+  `GTIRB_WRAP_UTILS_IN_NAMESPACE` is defined.
 
 # 2.1.0
 

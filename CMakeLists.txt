@@ -110,24 +110,12 @@ option(
   OFF
 )
 
-option(
-  GTIRB_WRAP_UTILS_IN_NAMESPACE
-  "Whether to wrap common utils into gtirb namespace to prevent symbol conflicts. Disabled by default for backward compatibility"
-  OFF
-)
-
-if(GTIRB_WRAP_UTILS_IN_NAMESPACE)
-  add_definitions(-DGTIRB_WRAP_UTILS_IN_NAMESPACE)
-else()
-  message(
-    DEPRECATION,
-    "Using utility functions without gtirb namespace is deprecated; enable GTIRB_WRAP_UTILS_IN_NAMESPACE to suppress this warning."
-  )
-endif()
-
 # Determine whether or not the APIs are REALLY built or not.
 # === C++ ===
 set(CXX_API ${GTIRB_CXX_API})
+
+# Disable using GTIRB utilities from the global namespace
+add_definitions(-DGTIRB_WRAP_UTILS_IN_NAMESPACE)
 
 # === Python ===
 set(PY_API ${GTIRB_PY_API})
