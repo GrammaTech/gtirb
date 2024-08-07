@@ -65,6 +65,9 @@ endif()
 
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_H} ${${PROJECT_NAME}_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "gtirb/test")
+target_compile_definitions(
+  ${PROJECT_NAME} PRIVATE GTIRB_WRAP_UTILS_IN_NAMESPACE
+)
 
 target_link_libraries(
   ${PROJECT_NAME} ${SYSLIBS} ${Boost_LIBRARIES} gtest gtest_main gtirb
@@ -84,6 +87,9 @@ set(${PROJECT_NAME}_SRC PrepTestGTIRB.cpp)
 
 add_executable(${PROJECT_NAME} ${${PROJECT_NAME}_H} ${${PROJECT_NAME}_SRC})
 set_target_properties(${PROJECT_NAME} PROPERTIES FOLDER "gtirb/test")
+target_compile_definitions(
+  ${PROJECT_NAME} PRIVATE GTIRB_WRAP_UTILS_IN_NAMESPACE
+)
 
 target_link_libraries(${PROJECT_NAME} ${SYSLIBS} ${Boost_LIBRARIES} gtirb)
 
@@ -110,6 +116,31 @@ set(${PROJECT_NAME}_SRC AuxDataSchemaRegistration.test.cpp)
 
 # Add this test to ctest
 gtirb_add_executable_gtest()
+target_compile_definitions(
+  ${PROJECT_NAME} PRIVATE GTIRB_WRAP_UTILS_IN_NAMESPACE
+)
+
+target_link_libraries(
+  ${PROJECT_NAME} ${SYSLIBS} ${Boost_LIBRARIES} gtest gtest_main gtirb
+)
+
+# testgtirb_deprecated_utils
+#
+# This separate test executable does NOT define GTIRB_WRAP_UTILS_IN_NAMESPACE
+set(PROJECT_NAME testgtirb_deprecated_utils)
+
+set(${PROJECT_NAME}_SRC UtilsUsingGtirbNamespace.test.cpp
+                        UtilsDeprecatedGlobals.test.cpp
+)
+
+gtirb_add_executable_gtest()
+
+if((CMAKE_CXX_COMPILER_ID STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL
+                                              Clang)
+)
+  # Disable deprecation warnings
+  target_compile_options(${PROJECT_NAME} PRIVATE -Wno-deprecated-declarations)
+endif()
 
 target_link_libraries(
   ${PROJECT_NAME} ${SYSLIBS} ${Boost_LIBRARIES} gtest gtest_main gtirb

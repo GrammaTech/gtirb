@@ -144,6 +144,7 @@ target_link_libraries(
 )
 target_compile_definitions(
   ${PROJECT_NAME} PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS
+  GTIRB_WRAP_UTILS_IN_NAMESPACE
 )
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROTOBUF_INCLUDE_DIRS}")
 

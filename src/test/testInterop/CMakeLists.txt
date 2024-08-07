@@ -8,6 +8,9 @@ set_target_properties(test_variants PROPERTIES FOLDER "gtirb/test/testInterop")
 target_link_libraries(test_floats gtirb)
 target_link_libraries(test_variants gtirb)
 
+target_compile_definitions(test_floats PRIVATE GTIRB_WRAP_UTILS_IN_NAMESPACE)
+target_compile_definitions(test_variants PRIVATE GTIRB_WRAP_UTILS_IN_NAMESPACE)
+
 set(${PROJECT_NAME}_SCRIPTS test_floats.py test_variants.py)
 set(test_floats ${CMAKE_BINARY_DIR}/bin/test_floats)
 

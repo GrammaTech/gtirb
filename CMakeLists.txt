@@ -114,9 +114,6 @@ option(
 # === C++ ===
 set(CXX_API ${GTIRB_CXX_API})
 
-# Disable using GTIRB utilities from the global namespace
-add_definitions(-DGTIRB_WRAP_UTILS_IN_NAMESPACE)
-
 # === Python ===
 set(PY_API ${GTIRB_PY_API})
 if(GTIRB_PY_API)
