@@ -24,6 +24,14 @@
 #include <cassert>
 #include <type_traits>
 
+#ifndef GTIRB_WRAP_UTILS_IN_NAMESPACE
+#define GTIRB_DEPRECATED_UTILS                                                 \
+  [[deprecated("Define GTIRB_WRAP_UTILS_IN_NAMESPACE and access via the "      \
+               "gtirb namespace to suppress this error.")]]
+#else
+#define GTIRB_DEPRECATED_UTILS
+#endif
+
 namespace gtirb {
 /// \file Casting.hpp
 /// \ingroup casting
@@ -325,7 +333,8 @@ struct isa_impl_wrap<To, FromTy, FromTy> {
 //
 //  if (isa<Type>(myVal)) { ... }
 //
-template <class X, class Y>[[nodiscard]] inline bool isa(const Y& Val) {
+template <class X, class Y>
+GTIRB_DEPRECATED_UTILS [[nodiscard]] inline bool isa(const Y& Val) {
   return isa_impl_wrap<X, const Y,
                        typename simplify_type<const Y>::SimpleType>::doit(Val);
 }
@@ -417,23 +426,25 @@ template <class X> struct is_simple_type {
 //  cast<Instruction>(myVal)->getParent()
 //
 template <class X, class Y>
-inline typename std::enable_if<!is_simple_type<Y>::value,
-                               typename cast_retty<X, const Y>::ret_type>::type
-cast(const Y& Val) {
+GTIRB_DEPRECATED_UTILS inline
+    typename std::enable_if<!is_simple_type<Y>::value,
+                            typename cast_retty<X, const Y>::ret_type>::type
+    cast(const Y& Val) {
   assert(isa<X>(Val) && "cast<Ty>() argument of incompatible type!");
   return cast_convert_val<
       X, const Y, typename simplify_type<const Y>::SimpleType>::doit(Val);
 }
 
 template <class X, class Y>
-inline typename cast_retty<X, Y>::ret_type cast(Y& Val) {
+GTIRB_DEPRECATED_UTILS inline typename cast_retty<X, Y>::ret_type cast(Y& Val) {
   assert(isa<X>(Val) && "cast<Ty>() argument of incompatible type!");
   return cast_convert_val<X, Y, typename simplify_type<Y>::SimpleType>::doit(
       Val);
 }
 
 template <class X, class Y>
-inline typename cast_retty<X, Y*>::ret_type cast(Y* Val) {
+GTIRB_DEPRECATED_UTILS inline typename cast_retty<X, Y*>::ret_type
+cast(Y* Val) {
   assert(isa<X>(Val) && "cast<Ty>() argument of incompatible type!");
   return cast_convert_val<X, Y*, typename simplify_type<Y*>::SimpleType>::doit(
       Val);
@@ -443,7 +454,7 @@ inline typename cast_retty<X, Y*>::ret_type cast(Y* Val) {
 // accepted.
 //
 template <class X, class Y>
-[[nodiscard]] inline
+GTIRB_DEPRECATED_UTILS [[nodiscard]] inline
     typename std::enable_if<!is_simple_type<Y>::value,
                             typename cast_retty<X, const Y>::ret_type>::type
     cast_or_null(const Y& Val) {
@@ -454,7 +465,7 @@ template <class X, class Y>
 }
 
 template <class X, class Y>
-[[nodiscard]] inline
+GTIRB_DEPRECATED_UTILS [[nodiscard]] inline
     typename std::enable_if<!is_simple_type<Y>::value,
                             typename cast_retty<X, Y>::ret_type>::type
     cast_or_null(Y& Val) {
@@ -465,7 +476,8 @@ template <class X, class Y>
 }
 
 template <class X, class Y>
-[[nodiscard]] inline typename cast_retty<X, Y*>::ret_type cast_or_null(Y* Val) {
+GTIRB_DEPRECATED_UTILS [[nodiscard]] inline typename cast_retty<X, Y*>::ret_type
+cast_or_null(Y* Val) {
   if (!Val)
     return nullptr;
   assert(isa<X>(Val) && "cast_or_null<Ty>() argument of incompatible type!");
@@ -481,7 +493,7 @@ template <class X, class Y>
 //
 
 template <class X, class Y>
-[[nodiscard]] inline
+GTIRB_DEPRECATED_UTILS [[nodiscard]] inline
     typename std::enable_if<!is_simple_type<Y>::value,
                             typename cast_retty<X, const Y>::ret_type>::type
     dyn_cast(const Y& Val) {
@@ -489,12 +501,14 @@ template <class X, class Y>
 }
 
 template <class X, class Y>
-[[nodiscard]] inline typename cast_retty<X, Y>::ret_type dyn_cast(Y& Val) {
+GTIRB_DEPRECATED_UTILS [[nodiscard]] inline typename cast_retty<X, Y>::ret_type
+dyn_cast(Y& Val) {
   return isa<X>(Val) ? cast<X>(Val) : nullptr;
 }
 
 template <class X, class Y>
-[[nodiscard]] inline typename cast_retty<X, Y*>::ret_type dyn_cast(Y* Val) {
+GTIRB_DEPRECATED_UTILS [[nodiscard]] inline typename cast_retty<X, Y*>::ret_type
+dyn_cast(Y* Val) {
   return isa<X>(Val) ? cast<X>(Val) : nullptr;
 }
 
@@ -502,7 +516,7 @@ template <class X, class Y>
 // value is accepted.
 //
 template <class X, class Y>
-[[nodiscard]] inline
+GTIRB_DEPRECATED_UTILS [[nodiscard]] inline
     typename std::enable_if<!is_simple_type<Y>::value,
                             typename cast_retty<X, const Y>::ret_type>::type
     dyn_cast_or_null(const Y& Val) {
@@ -510,7 +524,7 @@ template <class X, class Y>
 }
 
 template <class X, class Y>
-[[nodiscard]] inline
+GTIRB_DEPRECATED_UTILS [[nodiscard]] inline
     typename std::enable_if<!is_simple_type<Y>::value,
                             typename cast_retty<X, Y>::ret_type>::type
     dyn_cast_or_null(Y& Val) {
@@ -518,7 +532,7 @@ template <class X, class Y>
 }
 
 template <class X, class Y>
-[[nodiscard]] inline typename cast_retty<X, Y*>::ret_type
+GTIRB_DEPRECATED_UTILS [[nodiscard]] inline typename cast_retty<X, Y*>::ret_type
 dyn_cast_or_null(Y* Val) {
   return (Val && isa<X>(Val)) ? cast<X>(Val) : nullptr;
 }

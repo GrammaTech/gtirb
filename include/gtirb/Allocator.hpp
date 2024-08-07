@@ -30,13 +30,21 @@
 #include <utility>
 #include <vector>
 
+#ifndef GTIRB_WRAP_UTILS_IN_NAMESPACE
+#define GTIRB_DEPRECATED_UTILS                                                 \
+  [[deprecated("Define GTIRB_WRAP_UTILS_IN_NAMESPACE and access via the "      \
+               "gtirb namespace to suppress this error.")]]
+#else
+#define GTIRB_DEPRECATED_UTILS
+#endif
+
 namespace gtirb {
 /// Returns the next power of two (in 64-bits) that is strictly greater than A.
 /// Returns zero on overflow.
 ///
 /// (Deprecated) Available in the global namespace when
 /// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
-inline uint64_t NextPowerOf2(uint64_t A) {
+GTIRB_DEPRECATED_UTILS inline uint64_t NextPowerOf2(uint64_t A) {
   A |= (A >> 1);
   A |= (A >> 2);
   A |= (A >> 4);
@@ -50,7 +58,7 @@ inline uint64_t NextPowerOf2(uint64_t A) {
 ///
 /// (Deprecated) Available in the global namespace when
 /// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
-constexpr inline bool isPowerOf2_64(uint64_t Value) {
+GTIRB_DEPRECATED_UTILS constexpr inline bool isPowerOf2_64(uint64_t Value) {
   return Value && !(Value & (Value - 1));
 }
 
@@ -61,7 +69,8 @@ constexpr inline bool isPowerOf2_64(uint64_t Value) {
 ///
 /// (Deprecated) Available in the global namespace when
 /// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
-inline uintptr_t alignAddr(const void* Addr, size_t Alignment) {
+GTIRB_DEPRECATED_UTILS inline uintptr_t alignAddr(const void* Addr,
+                                                  size_t Alignment) {
   assert(Alignment && isPowerOf2_64((uint64_t)Alignment) &&
          "Alignment is not a power of two!");
 
@@ -75,7 +84,8 @@ inline uintptr_t alignAddr(const void* Addr, size_t Alignment) {
 ///
 /// (Deprecated) Available in the global namespace when
 /// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
-inline size_t alignmentAdjustment(const void* Ptr, size_t Alignment) {
+GTIRB_DEPRECATED_UTILS inline size_t alignmentAdjustment(const void* Ptr,
+                                                         size_t Alignment) {
   return alignAddr(Ptr, Alignment) - (uintptr_t)Ptr;
 }
 
@@ -90,7 +100,7 @@ inline size_t alignmentAdjustment(const void* Ptr, size_t Alignment) {
 /// Note that this also has a threshold for forcing allocations above a certain
 /// size into their own slab.
 template <size_t SlabSize = 4096, size_t SizeThreshold = SlabSize>
-class BumpPtrAllocatorImpl {
+class GTIRB_DEPRECATED_UTILS BumpPtrAllocatorImpl {
 public:
   static_assert(SizeThreshold <= SlabSize,
                 "The SizeThreshold must be at most the SlabSize to ensure "
@@ -277,7 +287,7 @@ typedef BumpPtrAllocatorImpl<> BumpPtrAllocator;
 ///
 /// (Deprecated) Available in the global namespace when
 /// GTIRB_WRAP_UTILS_IN_NAMESPACE is enabled.
-template <typename T> class SpecificBumpPtrAllocator {
+template <typename T> class GTIRB_DEPRECATED_UTILS SpecificBumpPtrAllocator {
   BumpPtrAllocator Allocator;
 
 public:
