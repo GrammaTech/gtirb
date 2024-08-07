@@ -39,6 +39,7 @@
 #endif
 
 namespace gtirb {
+namespace allocator {
 /// Returns the next power of two (in 64-bits) that is strictly greater than A.
 /// Returns zero on overflow.
 ///
@@ -346,23 +347,35 @@ private:
     }
   }
 };
+} // namespace allocator
+
+#ifdef GTIRB_WRAP_UTILS_IN_NAMESPACE
+
+using allocator::alignAddr;
+using allocator::alignmentAdjustment;
+using allocator::BumpPtrAllocator;
+using allocator::isPowerOf2_64;
+using allocator::NextPowerOf2;
+using allocator::SpecificBumpPtrAllocator;
+
+#endif // GTIRB_WRAP_UTILS_IN_NAMESPACE
+
 } // namespace gtirb
 
 #ifndef GTIRB_WRAP_UTILS_IN_NAMESPACE
 
-using gtirb::alignAddr;
-using gtirb::alignmentAdjustment;
-using gtirb::BumpPtrAllocator;
-using gtirb::isPowerOf2_64;
-using gtirb::NextPowerOf2;
-using gtirb::SpecificBumpPtrAllocator;
+using gtirb::allocator::alignAddr;
+using gtirb::allocator::alignmentAdjustment;
+using gtirb::allocator::BumpPtrAllocator;
+using gtirb::allocator::isPowerOf2_64;
+using gtirb::allocator::NextPowerOf2;
+using gtirb::allocator::SpecificBumpPtrAllocator;
 
 #endif // GTIRB_WRAP_UTILS_IN_NAMESPACE
 
 template <size_t SlabSize, size_t SizeThreshold>
-void* operator new(
-    size_t Size,
-    gtirb::BumpPtrAllocatorImpl<SlabSize, SizeThreshold>& Allocator) {
+void* operator new(size_t Size, gtirb::allocator::BumpPtrAllocatorImpl<
+                                    SlabSize, SizeThreshold>& Allocator) {
   struct S {
     char c;
     union {
@@ -373,11 +386,12 @@ void* operator new(
     } x;
   };
   return Allocator.Allocate(
-      Size, std::min((size_t)gtirb::NextPowerOf2(Size), offsetof(S, x)));
+      Size,
+      std::min((size_t)gtirb::allocator::NextPowerOf2(Size), offsetof(S, x)));
 }
 
 template <size_t SlabSize, size_t SizeThreshold>
-void operator delete(void*,
-                     gtirb::BumpPtrAllocatorImpl<SlabSize, SizeThreshold>&) {}
+void operator delete(
+    void*, gtirb::allocator::BumpPtrAllocatorImpl<SlabSize, SizeThreshold>&) {}
 
 #endif // GTIRB_ALLOCATOR_H

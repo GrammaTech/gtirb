@@ -33,6 +33,7 @@
 #endif
 
 namespace gtirb {
+namespace casting {
 /// \file Casting.hpp
 /// \ingroup casting
 /// \brief The various casting and type checking operations that apply
@@ -536,15 +537,27 @@ GTIRB_DEPRECATED_UTILS [[nodiscard]] inline typename cast_retty<X, Y*>::ret_type
 dyn_cast_or_null(Y* Val) {
   return (Val && isa<X>(Val)) ? cast<X>(Val) : nullptr;
 }
+} // namespace casting
+
+#ifdef GTIRB_WRAP_UTILS_IN_NAMESPACE
+
+using casting::cast;
+using casting::cast_or_null;
+using casting::dyn_cast;
+using casting::dyn_cast_or_null;
+using casting::isa;
+
+#endif // GTIRB_WRAP_UTILS_IN_NAMESPACE
+
 } // namespace gtirb
 
 #ifndef GTIRB_WRAP_UTILS_IN_NAMESPACE
 
-using gtirb::cast;
-using gtirb::cast_or_null;
-using gtirb::dyn_cast;
-using gtirb::dyn_cast_or_null;
-using gtirb::isa;
+using gtirb::casting::cast;
+using gtirb::casting::cast_or_null;
+using gtirb::casting::dyn_cast;
+using gtirb::casting::dyn_cast_or_null;
+using gtirb::casting::isa;
 
 #endif // GTIRB_WRAP_UTILS_IN_NAMESPACE
 
