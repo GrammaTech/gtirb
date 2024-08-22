@@ -22,3 +22,6 @@ GTIRB_WRAP_UTILS_IN_NAMESPACE is defined.
 */
 using namespace gtirb;
 TEST(Unit_IR, namespacedNextPowerOfTwo) { EXPECT_EQ(NextPowerOf2(5), 8U); }
+TEST(Unit_IR, explicitNamespacedNextPowerOfTwo) {
+  EXPECT_EQ(gtirb::NextPowerOf2(5), 8U);
+}
