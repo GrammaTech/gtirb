@@ -122,7 +122,7 @@ The latest unstable version of the Python API can be installed from a
 prebuilt wheel:
 
 ```sh
-pip install https://download.grammatech.com/gtirb/files/python/gtirb-unstable-py3-none-any.whl
+pip install https://download.grammatech.com/gtirb/files/python/gtirb-0.dev-py3-none-any.whl
 ```
 
 It is critical that the choice of a `stable` or `unstable` package matches the
