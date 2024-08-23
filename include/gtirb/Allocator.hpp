@@ -30,6 +30,8 @@
 #include <utility>
 #include <vector>
 
+// Hide the GTIRB_DEPRECATED_UTILS macro from docs
+#ifndef GTIRB_DOXYGEN
 #ifndef GTIRB_WRAP_UTILS_IN_NAMESPACE
 #define GTIRB_DEPRECATED_UTILS                                                 \
   [[deprecated("Define GTIRB_WRAP_UTILS_IN_NAMESPACE and access via the "      \
@@ -37,9 +39,16 @@
 #else
 #define GTIRB_DEPRECATED_UTILS
 #endif
+#endif
 
 namespace gtirb {
+
+// We want clients to use the names in the gtirb namespace, so we exclude
+// the allocator namespace when generating documentation.
+#ifndef GTIRB_DOXYGEN
 namespace allocator {
+#endif
+
 /// Returns the next power of two (in 64-bits) that is strictly greater than A.
 /// Returns zero on overflow.
 ///
@@ -347,7 +356,11 @@ private:
     }
   }
 };
+
+// Exclude allocator namespace from generated documentation.
+#ifndef GTIRB_DOXYGEN
 } // namespace allocator
+#endif
 
 #ifdef GTIRB_WRAP_UTILS_IN_NAMESPACE
 
