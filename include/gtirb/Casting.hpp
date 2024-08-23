@@ -24,8 +24,7 @@
 #include <cassert>
 #include <type_traits>
 
-// Hide the GTIRB_DEPRECATED_UTILS macro from docs
-#ifndef GTIRB_DOXYGEN
+/// @cond INTERNAL
 #ifndef GTIRB_WRAP_UTILS_IN_NAMESPACE
 #define GTIRB_DEPRECATED_UTILS                                                 \
   [[deprecated("Define GTIRB_WRAP_UTILS_IN_NAMESPACE and access via the "      \
@@ -33,15 +32,15 @@
 #else
 #define GTIRB_DEPRECATED_UTILS
 #endif
-#endif
+/// @endcond
 
 namespace gtirb {
 
 // We want clients to use the names in the gtirb namespace, so we exclude
 // the allocator namespace when generating documentation.
-#ifndef GTIRB_DOXYGEN
+/// @cond INTERNAL
 namespace casting {
-#endif
+/// @endcond
 
 /// \file Casting.hpp
 /// \ingroup casting
@@ -547,10 +546,9 @@ dyn_cast_or_null(Y* Val) {
   return (Val && isa<X>(Val)) ? cast<X>(Val) : nullptr;
 }
 
-// Exclude allocator namespace from generated documentation.
-#ifndef GTIRB_DOXYGEN
+/// @cond INTERNAL
 } // namespace casting
-#endif
+/// @endcond
 
 #ifdef GTIRB_WRAP_UTILS_IN_NAMESPACE
 
