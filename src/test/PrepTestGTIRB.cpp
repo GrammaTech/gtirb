@@ -33,7 +33,7 @@ int main(int argc, char* argv[]) {
   }
 
   std::ofstream GtirbFile;
-  GtirbFile.open(GtirbFilename, std::ifstream::out);
+  GtirbFile.open(GtirbFilename, std::ifstream::out | std::ifstream::binary);
 
   if (!GtirbFile) {
     std::cerr << "*\n* Failed to create GTIRB file: " << GtirbFilename

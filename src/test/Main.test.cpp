@@ -21,7 +21,7 @@ const gtirb::IR* getTestIr() { return TestIr; }
 
 static void loadTestIr(std::string Filename) {
   std::ifstream GtirbFile;
-  GtirbFile.open(Filename, std::ifstream::in);
+  GtirbFile.open(Filename, std::ifstream::in | std::ifstream::binary);
 
   if (GtirbFile) {
     auto MaybeTestIr = gtirb::IR::load(Ctx, GtirbFile);
