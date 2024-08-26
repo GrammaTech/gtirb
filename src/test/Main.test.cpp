@@ -50,22 +50,6 @@ int main(int argc, char** argv) {
                   "will fail!\n*\n";
   } else {
     loadTestIr(GtirbFilename);
-
-    // Sometimes the Windows file system has delays. If we didn't
-    // get anything the first time, wait a little and try again.
-    if (!TestIr) {
-      error_msgs << "*\n* Failed to load pre-build GTIRB file (1st try): "
-                 << GtirbFilename << "\n";
-      error_msgs << "* Will retry after short wait\n*\n";
-      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-      loadTestIr(GtirbFilename);
-    }
-
-    if (!TestIr) {
-      error_msgs << "*\n* Failed to load pre-built GTIRB file: "
-                 << GtirbFilename << "\n";
-      error_msgs << "* Cross-process tests will fail!\n*\n";
-    }
   }
 
   ::testing::InitGoogleTest(&argc, argv);
