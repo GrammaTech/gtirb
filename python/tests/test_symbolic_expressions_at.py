@@ -1,7 +1,8 @@
 import unittest
 
-import gtirb
 from helpers import SearchScope, create_interval_etc, parameterize_one
+
+import gtirb
 
 
 class SymbolicExpressionsAtTests(unittest.TestCase):

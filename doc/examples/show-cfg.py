@@ -17,9 +17,10 @@
 #    $ ./doc/examples/show-cfg.py /tmp/hello.gtirb
 import sys
 
-import gtirb
 import matplotlib.pyplot as plt
 import networkx as nx
+
+import gtirb
 
 if len(sys.argv) < 2:
     print(f"Usage: {sys.argv[0]} /path/to/file.gtirb")

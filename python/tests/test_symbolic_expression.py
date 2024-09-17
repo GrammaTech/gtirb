@@ -1,8 +1,9 @@
 import io
 import unittest
 
-import gtirb
 from helpers import create_interval_etc
+
+import gtirb
 
 
 class SymbolicExpressionAttributes(unittest.TestCase):

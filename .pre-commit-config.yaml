@@ -38,7 +38,7 @@ repos:
       - id: cmake-format
         exclude: build
   - repo: https://github.com/timothycrosley/isort
-    rev: 4.3.19
+    rev: 5.13.2
     hooks:
       - id: isort
         files: \.py$

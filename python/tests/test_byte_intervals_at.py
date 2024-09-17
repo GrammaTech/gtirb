@@ -1,7 +1,8 @@
 import unittest
 
-import gtirb
 from helpers import SearchScope, parameterize_one
+
+import gtirb
 
 
 class ByteIntervalsAtTests(unittest.TestCase):

@@ -22,8 +22,8 @@ from .util import (
 
 if typing.TYPE_CHECKING:  # pragma: no cover
     # Ignore flake8 "imported but unused" errors.
-    from .ir import IR  # noqa: F401
     from .block import Block  # noqa: F401
+    from .ir import IR  # noqa: F401
 
 
 _T = typing.TypeVar("_T", bound=typing.Union[ProxyBlock, Section, Symbol])

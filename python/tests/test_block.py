@@ -1,7 +1,8 @@
 import unittest
 
-import gtirb
 from helpers import create_interval_etc
+
+import gtirb
 
 
 class BlockTest(unittest.TestCase):
