@@ -1,6 +1,7 @@
+import dataclasses
 import os
 import tempfile
-from typing import Any
+from typing import Any, ClassVar
 
 import gtirb
 
@@ -44,30 +45,25 @@ def test_mapvariant():
     compare_variant_maps(ad2, vmap)
 
 
+@dataclasses.dataclass
 class I1:
-    GTIRB_TYPE = "int64_t"
+    GTIRB_TYPE: ClassVar[str] = "int64_t"
     data: int
 
-    def __init__(self, data) -> None:
-        self.data = data
 
-
+@dataclasses.dataclass
 class I2:
-    GTIRB_TYPE = "int64_t"
+    GTIRB_TYPE: ClassVar[str] = "int64_t"
     data: int
 
-    def __init__(self, data) -> None:
-        self.data = data
 
-
+@dataclasses.dataclass
 class S1:
-    GTIRB_TYPE = "string"
+    GTIRB_TYPE: ClassVar[str] = "string"
     data: str
 
-    def __init__(self, data) -> None:
-        self.data = data
 
-
+@dataclasses.dataclass
 class MyMap:
     TYPELIST = [
         I1,
@@ -83,6 +79,9 @@ class MyMap:
         if not isinstance(__o, MyMap):
             return False
         return self._map == __o._map
+
+    def __repr__(self) -> str:
+        return f"MyMap({self._map!r})"
 
     def toAuxData(self):
         return {
@@ -137,7 +136,7 @@ def check_ir(filename):
     compare_variant_maps(ir.aux_data["simpleVariantMap"].data, simple)
     my_map = MyMap.fromAuxData(ir.aux_data["complexVariantMap"])
     _, my_other_map = make_complex_variant_map()
-    assert my_other_map == my_map
+    assert my_other_map == my_map, (my_other_map, my_map)
 
 
 if __name__ == "__main__":
