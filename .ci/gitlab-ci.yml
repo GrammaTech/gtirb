@@ -640,10 +640,12 @@ test-ubuntu22-libgtirb:
 debian-installer-ubuntu20:
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   needs: [test-ubuntu20-libgtirb, build-ubuntu20-packages]
+  <<: *debian-installer
 
 debian-installer-ubuntu22:
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
   needs: [test-ubuntu22-libgtirb, build-ubuntu22-packages]
+  <<: *debian-installer
 
 .apt-upload: &apt-upload
   stage: deploy-apt
