@@ -33,11 +33,6 @@ if __name__ == "__main__":
         ],
         extras_require={
             "doc": ["sphinx", "sphinx-autodoc-typehints"],
-            "dev": [
-                "mypy==0.961",
-                "mypy-protobuf==3.3.0",
-                "types-protobuf==3.20.4",
-            ],
         },
         classifiers=[
             "Programming Language :: Python :: 3",

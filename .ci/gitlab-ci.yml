@@ -61,6 +61,12 @@ build-ci-image-ubuntu20:
     DOCKERFILE_PATH: .ci/Dockerfile.ubuntu20
     IMAGE_NAME: ubuntu20
 
+build-ci-image-ubuntu22:
+  <<: *build-ci-image
+  variables:
+    DOCKERFILE_PATH: .ci/Dockerfile.ubuntu22
+    IMAGE_NAME: ubuntu22
+
 build-ci-image-static:
   <<: *build-ci-image
   variables:
@@ -98,7 +104,7 @@ check-format:
 
 build-docs:
   stage: build
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -118,6 +124,7 @@ build-docs:
     - mv doc/html ..
 
 .build-template: &build
+  image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -134,7 +141,6 @@ build-docs:
 
 build-ubuntu20-gcc:
   stage: build
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   variables:
     OS: 'ubuntu20'
     CXX_COMPILER: 'g++'
@@ -143,21 +149,29 @@ build-ubuntu20-gcc:
     PACKAGE_POLICY: "unix"
   <<: *build
 
-build-ubuntu20-gcc-debug:
+build-ubuntu22-gcc:
   stage: build
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   variables:
-    OS: 'ubuntu20'
+    OS: 'ubuntu22'
+    CXX_COMPILER: 'g++'
+    CPACK_GENERATOR: 'DEB'
+    BUILD_TYPE: 'RelWithDebInfo'
+    PACKAGE_POLICY: "unix"
+  <<: *build
+
+build-ubuntu22-gcc-debug:
+  stage: build
+  variables:
+    OS: 'ubuntu22'
     CXX_COMPILER: 'g++'
     BUILD_TYPE: 'Debug'
     PACKAGE_POLICY: "unix"
   <<: *build
 
-build-ubuntu20-clang-debug:
+build-ubuntu22-clang-debug:
   stage: build
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   variables:
-    OS: 'ubuntu20'
+    OS: 'ubuntu22'
     CXX_COMPILER: 'clang++'
     BUILD_TYPE: 'Debug'
     PACKAGE_POLICY: "unix"
@@ -182,8 +196,8 @@ build-static:
 
 test-capstone-example:
   stage: test-packages1
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
-  needs: ['build-ubuntu20-gcc']
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  needs: ['build-ubuntu22-gcc']
   script:
     - cd build
     - '[[ ! -f bin/ex-jumps ]]'
@@ -196,7 +210,7 @@ test-capstone-example:
 generate-coverage:
   stage: build
   needs: [check-format]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
   artifacts:
     # Upload coverage reports and source for report-coverage-* jobs to use.
     paths:
@@ -223,7 +237,7 @@ generate-coverage:
 report-coverage-cpp:
   stage: build
   needs: [generate-coverage]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   script:
     - pip install gcovr
@@ -233,7 +247,7 @@ report-coverage-cpp:
 report-coverage-py:
   stage: build
   needs: [generate-coverage]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   artifacts:
     reports:
@@ -250,12 +264,12 @@ report-coverage-py:
 
 test-default-install:
   stage: test-packages1
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
   variables:
-    OS: 'ubuntu20'
+    OS: 'ubuntu22'
     COMPILER: 'g++-9'
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
-  needs: ['build-ubuntu20-gcc']
+  needs: ['build-ubuntu22-gcc']
   script:
     - cmake --build build
     - make -C build install && rm -rf build
@@ -272,12 +286,12 @@ test-default-install-static:
 
 test-install-different-prefix:
   stage: test-packages1
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
   variables:
-    OS: 'ubuntu20'
+    OS: 'ubuntu22'
     COMPILER: 'g++-9'
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
-  needs: ['build-ubuntu20-gcc']
+  needs: ['build-ubuntu22-gcc']
   script:
     - cmake --build build
     - cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/tmp/prefix
@@ -287,24 +301,24 @@ test-install-different-prefix:
 
 test-install-with-destdir:
   stage: test-packages1
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
   variables:
-    OS: 'ubuntu20'
+    OS: 'ubuntu22'
     COMPILER: 'g++-9'
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
-  needs: ['build-ubuntu20-gcc']
+  needs: ['build-ubuntu22-gcc']
   script:
     - cmake --build build
     - DESTDIR=/tmp/destdir make -C ./build install
 
 test-install-python-virtualenv:
   stage: test-packages1
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
   variables:
-    OS: 'ubuntu20'
+    OS: 'ubuntu22'
     COMPILER: 'g++-9'
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
-  needs: ['build-ubuntu20-gcc']
+  needs: ['build-ubuntu22-gcc']
   script:
     - mkdir /tmp/myvenv
     - python3 -m venv /tmp/myvenv
@@ -314,16 +328,16 @@ test-install-python-virtualenv:
 
 test-interop:
   stage: test-packages1
-  needs: ['build-ubuntu20-gcc']
-  image: ${DOCKER_REGISTRY}/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  needs: ['build-ubuntu22-gcc']
+  image: ${DOCKER_REGISTRY}/rewriting/gtirb/ubuntu22:$IMAGE_TAG
   script:
     - sh -c 'cd build/python && pip3 install .'
     - sh -c '.ci/test-interop.sh'
 
-conan-linux-gcc9:
+.conan-linux: &conan-linux
   stage: deploy
   needs: [check-format]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
   script:
     - python3 -m pip install --upgrade conan~=$CONAN_VERSION
     - conan profile new default --detect
@@ -332,6 +346,16 @@ conan-linux-gcc9:
     - conan user ci_user -r gitlab -p
     - export PYTHONPATH="$(pwd)"
     - python3 .ci/build.py
+
+conan-linux-gcc9:
+  variables:
+    OS: ubuntu20
+  <<: *conan-linux
+
+conan-linux-gcc11:
+  variables:
+    OS: ubuntu22
+  <<: *conan-linux
 
 .conan-windows: &conan-windows
   stage: deploy
@@ -408,8 +432,8 @@ conan-windows-32:
 
 python-wheel:
   stage: build-installers
-  needs: [build-ubuntu20-gcc]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  needs: [build-ubuntu22-gcc]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -421,8 +445,8 @@ python-wheel:
 
 python-wheel-unstable:
   stage: build-installers
-  needs: [build-ubuntu20-gcc]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  needs: [build-ubuntu22-gcc]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
   artifacts:
@@ -436,8 +460,8 @@ python-wheel-unstable:
 
 external-pypi:
   stage: deploy
-  needs: [build-ubuntu20-gcc, python-wheel]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  needs: [build-ubuntu22-gcc, python-wheel]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   script:
@@ -461,7 +485,7 @@ external-pypi:
 # on release-.* branches.
 internal-pypi:
   stage: deploy
-  needs: [build-ubuntu20-gcc, python-wheel]
+  needs: [build-ubuntu22-gcc, python-wheel]
   image: python:3.9
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
@@ -498,10 +522,8 @@ internal-pypi:
     - twine upload --verbose --repository repypi dist/*
 
 # Apt packaging related jobs
-build-ubuntu20-packages:
+.build-ubuntu-packages: &build-ubuntu-packages
   stage: build-installers
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
-  needs: [build-ubuntu20-gcc]
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -512,6 +534,16 @@ build-ubuntu20-packages:
     - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-lib;
     - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-dev;
     - cpack -G "DEB" -D CPACK_GTIRB_PACKAGE=debian-debug;
+
+build-ubuntu20-packages:
+  needs: [build-ubuntu20-gcc]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  <<: *build-ubuntu-packages
+
+build-ubuntu22-packages:
+  needs: [build-ubuntu22-gcc]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  <<: *build-ubuntu-packages
 
 .setup-test-apt-repo: &setup-test-apt-repo
   stage: test-setup
@@ -561,9 +593,19 @@ setup-ubuntu20-test-apt-repo:
   needs: [build-ubuntu20-packages]
   <<: *setup-test-apt-repo
 
+setup-ubuntu22-test-apt-repo:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  needs: [build-ubuntu22-packages]
+  <<: *setup-test-apt-repo
+
 test-ubuntu20-libgtirb-dev:
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   needs: [setup-ubuntu20-test-apt-repo]
+  <<: *test-ubuntu-libgtirb-dev
+
+test-ubuntu22-libgtirb-dev:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  needs: [setup-ubuntu22-test-apt-repo]
   <<: *test-ubuntu-libgtirb-dev
 
 test-ubuntu20-libgtirb-dbg:
@@ -571,15 +613,23 @@ test-ubuntu20-libgtirb-dbg:
   needs: [setup-ubuntu20-test-apt-repo]
   <<: *test-ubuntu-libgtirb-dbg
 
+test-ubuntu22-libgtirb-dbg:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  needs: [setup-ubuntu22-test-apt-repo]
+  <<: *test-ubuntu-libgtirb-dbg
+
 test-ubuntu20-libgtirb:
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   needs: [setup-ubuntu20-test-apt-repo,test-ubuntu20-libgtirb-dev]
   <<: *test-ubuntu-libgtirb
 
-debian-installer-ubuntu20:
+test-ubuntu22-libgtirb:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  needs: [setup-ubuntu22-test-apt-repo,test-ubuntu22-libgtirb-dev]
+  <<: *test-ubuntu-libgtirb
+
+.debian-installer: &debian-installer
   stage: deploy
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
-  needs: [test-ubuntu20-libgtirb, build-ubuntu20-packages]
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -587,13 +637,21 @@ debian-installer-ubuntu20:
   script:
     - cp build/*gtirb*.deb ./
 
+debian-installer-ubuntu20:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
+  needs: [test-ubuntu20-libgtirb, build-ubuntu20-packages]
+
+debian-installer-ubuntu22:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  needs: [test-ubuntu22-libgtirb, build-ubuntu22-packages]
+
 .apt-upload: &apt-upload
   stage: deploy-apt
   trigger:
     project: rewriting/utility/package-uploader
     strategy: depend
 
-apt-public-unstable:
+apt-public-ubuntu20-unstable:
   <<: *apt-upload
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
@@ -603,7 +661,17 @@ apt-public-unstable:
     APT_REPO_CODENAMES: focal
     APT_REPO_COMPONENT: unstable
 
-apt-public-stable:
+apt-public-ubuntu22-unstable:
+  <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  variables:
+    JOB_NAME: debian-installer-ubuntu22
+    APT_REPO: public
+    APT_REPO_CODENAMES: jammy
+    APT_REPO_COMPONENT: unstable
+
+apt-public-ubuntu20-stable:
   <<: *apt-upload
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
@@ -613,7 +681,17 @@ apt-public-stable:
     APT_REPO_CODENAMES: focal
     APT_REPO_COMPONENT: stable
 
-apt-internal-unstable:
+apt-public-ubuntu22-stable:
+  <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+  variables:
+    JOB_NAME: debian-installer-ubuntu22
+    APT_REPO: public
+    APT_REPO_CODENAMES: jammy
+    APT_REPO_COMPONENT: stable
+
+apt-internal-ubuntu20-unstable:
   <<: *apt-upload
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
@@ -623,7 +701,17 @@ apt-internal-unstable:
     APT_REPO_CODENAMES: focal
     APT_REPO_COMPONENT: unstable
 
-apt-internal-stable:
+apt-internal-ubuntu22-unstable:
+  <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  variables:
+    JOB_NAME: debian-installer-ubuntu22
+    APT_REPO: internal
+    APT_REPO_CODENAMES: jammy
+    APT_REPO_COMPONENT: unstable
+
+apt-internal-ubuntu20-stable:
   <<: *apt-upload
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
@@ -631,11 +719,21 @@ apt-internal-stable:
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: internal
     APT_REPO_CODENAMES: focal
+    APT_REPO_COMPONENT: stable
+
+apt-internal-ubuntu22-stable:
+  <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+  variables:
+    JOB_NAME: debian-installer-ubuntu22
+    APT_REPO: internal
+    APT_REPO_CODENAMES: jammy
     APT_REPO_COMPONENT: stable
 
 maven-central-upload:
   stage: deploy
-  needs: [build-ubuntu20-gcc]
+  needs: [build-ubuntu22-gcc]
   trigger:
     project: rewriting/utility/package-uploader
     strategy: depend
@@ -643,7 +741,7 @@ maven-central-upload:
     - if: '$CI_COMMIT_REF_NAME == "master"'
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   variables:
-    JOB_NAME: build-ubuntu20-gcc
+    JOB_NAME: build-ubuntu22-gcc
     JAVA_POM_SUBDIR: ./build/java
 
 .windows-upload: &windows-upload
