@@ -13,11 +13,14 @@ if("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-lib")
   set(CPACK_DEBIAN_PACKAGE_NAME "libgtirb")
   set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
   set(CPACK_COMPONENTS_ALL ${LIB_COMPONENTS})
-  set(CPACK_DEBIAN_PACKAGE_DEPENDS "libstdc++6, libc6")
   if("${CPACK_DEBIAN_PACKAGE_RELEASE}" STREQUAL "focal")
-    list(APPEND CPACK_DEBIAN_PACKAGE_DEPENDS libgcc1 libprotobuf17)
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS
+        "libstdc++6, libc6, libgcc1, libprotobuf17"
+    )
   elseif("${CPACK_DEBIAN_PACKAGE_RELEASE}" STREQUAL "jammy")
-    list(APPEND CPACK_DEBIAN_PACKAGE_DEPENDS libgcc-s1 libprotobuf23)
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS
+        "libstdc++6, libc6, libgcc-s1, libprotobuf23"
+    )
   else()
     message(
       SEND_ERROR "Unknown / missing value for CPACK_DEBIAN_PACKAGE_RELEASE."
