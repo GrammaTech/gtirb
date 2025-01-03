@@ -67,6 +67,12 @@ build-ci-image-ubuntu22:
     DOCKERFILE_PATH: .ci/Dockerfile.ubuntu22
     IMAGE_NAME: ubuntu22
 
+build-ci-image-ubuntu24:
+  <<: *build-ci-image
+  variables:
+    DOCKERFILE_PATH: .ci/Dockerfile.ubuntu24
+    IMAGE_NAME: ubuntu24
+
 build-ci-image-static:
   <<: *build-ci-image
   variables:
@@ -104,7 +110,7 @@ check-format:
 
 build-docs:
   stage: build
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -159,19 +165,29 @@ build-ubuntu22-gcc:
     PACKAGE_POLICY: "unix"
   <<: *build
 
-build-ubuntu22-gcc-debug:
+build-ubuntu24-gcc:
   stage: build
   variables:
-    OS: 'ubuntu22'
+    OS: 'ubuntu24'
+    CXX_COMPILER: 'g++'
+    CPACK_GENERATOR: 'DEB'
+    BUILD_TYPE: 'RelWithDebInfo'
+    PACKAGE_POLICY: "unix"
+  <<: *build
+
+build-ubuntu24-gcc-debug:
+  stage: build
+  variables:
+    OS: 'ubuntu24'
     CXX_COMPILER: 'g++'
     BUILD_TYPE: 'Debug'
     PACKAGE_POLICY: "unix"
   <<: *build
 
-build-ubuntu22-clang-debug:
+build-ubuntu24-clang-debug:
   stage: build
   variables:
-    OS: 'ubuntu22'
+    OS: 'ubuntu24'
     CXX_COMPILER: 'clang++'
     BUILD_TYPE: 'Debug'
     PACKAGE_POLICY: "unix"
@@ -196,8 +212,8 @@ build-static:
 
 test-capstone-example:
   stage: test-packages1
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
-  needs: ['build-ubuntu22-gcc']
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
+  needs: ['build-ubuntu24-gcc']
   script:
     - cd build
     - '[[ ! -f bin/ex-jumps ]]'
@@ -210,7 +226,7 @@ test-capstone-example:
 generate-coverage:
   stage: build
   needs: [check-format]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
   artifacts:
     # Upload coverage reports and source for report-coverage-* jobs to use.
     paths:
@@ -237,7 +253,7 @@ generate-coverage:
 report-coverage-cpp:
   stage: build
   needs: [generate-coverage]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   script:
     - pip install gcovr
@@ -247,7 +263,7 @@ report-coverage-cpp:
 report-coverage-py:
   stage: build
   needs: [generate-coverage]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   artifacts:
     reports:
@@ -266,10 +282,10 @@ test-default-install:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
   variables:
-    OS: 'ubuntu22'
+    OS: 'ubuntu24'
     COMPILER: 'g++-9'
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
-  needs: ['build-ubuntu22-gcc']
+  needs: ['build-ubuntu24-gcc']
   script:
     - cmake --build build
     - make -C build install && rm -rf build
@@ -288,10 +304,10 @@ test-install-different-prefix:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
   variables:
-    OS: 'ubuntu22'
+    OS: 'ubuntu24'
     COMPILER: 'g++-9'
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
-  needs: ['build-ubuntu22-gcc']
+  needs: ['build-ubuntu24-gcc']
   script:
     - cmake --build build
     - cd build && cmake .. -DCMAKE_INSTALL_PREFIX=/tmp/prefix
@@ -303,10 +319,10 @@ test-install-with-destdir:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
   variables:
-    OS: 'ubuntu22'
+    OS: 'ubuntu24'
     COMPILER: 'g++-9'
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
-  needs: ['build-ubuntu22-gcc']
+  needs: ['build-ubuntu24-gcc']
   script:
     - cmake --build build
     - DESTDIR=/tmp/destdir make -C ./build install
@@ -315,10 +331,10 @@ test-install-python-virtualenv:
   stage: test-packages1
   image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
   variables:
-    OS: 'ubuntu22'
+    OS: 'ubuntu24'
     COMPILER: 'g++-9'
     PROTOBUF_PYTHON_RUNTIME: 'cpp'
-  needs: ['build-ubuntu22-gcc']
+  needs: ['build-ubuntu24-gcc']
   script:
     - mkdir /tmp/myvenv
     - python3 -m venv /tmp/myvenv
@@ -328,8 +344,8 @@ test-install-python-virtualenv:
 
 test-interop:
   stage: test-packages1
-  needs: ['build-ubuntu22-gcc']
-  image: ${DOCKER_REGISTRY}/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  needs: ['build-ubuntu24-gcc']
+  image: ${DOCKER_REGISTRY}/rewriting/gtirb/ubuntu24:$IMAGE_TAG
   script:
     - sh -c 'cd build/python && pip3 install .'
     - sh -c '.ci/test-interop.sh'
@@ -355,6 +371,11 @@ conan-linux-gcc9:
 conan-linux-gcc11:
   variables:
     OS: ubuntu22
+  <<: *conan-linux
+
+conan-linux-gcc13:
+  variables:
+    OS: ubuntu24
   <<: *conan-linux
 
 .conan-windows: &conan-windows
@@ -432,8 +453,8 @@ conan-windows-32:
 
 python-wheel:
   stage: build-installers
-  needs: [build-ubuntu22-gcc]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  needs: [build-ubuntu24-gcc]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -445,8 +466,8 @@ python-wheel:
 
 python-wheel-unstable:
   stage: build-installers
-  needs: [build-ubuntu22-gcc]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  needs: [build-ubuntu24-gcc]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
   artifacts:
@@ -460,8 +481,8 @@ python-wheel-unstable:
 
 external-pypi:
   stage: deploy
-  needs: [build-ubuntu22-gcc, python-wheel]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
+  needs: [build-ubuntu24-gcc, python-wheel]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   script:
@@ -485,7 +506,7 @@ external-pypi:
 # on release-.* branches.
 internal-pypi:
   stage: deploy
-  needs: [build-ubuntu22-gcc, python-wheel]
+  needs: [build-ubuntu24-gcc, python-wheel]
   image: python:3.9
   rules:
     - if: '$CI_COMMIT_BRANCH == "master"'
@@ -545,6 +566,11 @@ build-ubuntu22-packages:
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
   <<: *build-ubuntu-packages
 
+build-ubuntu24-packages:
+  needs: [build-ubuntu24-gcc]
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
+  <<: *build-ubuntu-packages
+
 .setup-test-apt-repo: &setup-test-apt-repo
   stage: test-setup
   artifacts:
@@ -598,6 +624,11 @@ setup-ubuntu22-test-apt-repo:
   needs: [build-ubuntu22-packages]
   <<: *setup-test-apt-repo
 
+setup-ubuntu24-test-apt-repo:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
+  needs: [build-ubuntu24-packages]
+  <<: *setup-test-apt-repo
+
 test-ubuntu20-libgtirb-dev:
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   needs: [setup-ubuntu20-test-apt-repo]
@@ -606,6 +637,11 @@ test-ubuntu20-libgtirb-dev:
 test-ubuntu22-libgtirb-dev:
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
   needs: [setup-ubuntu22-test-apt-repo]
+  <<: *test-ubuntu-libgtirb-dev
+
+test-ubuntu24-libgtirb-dev:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
+  needs: [setup-ubuntu24-test-apt-repo]
   <<: *test-ubuntu-libgtirb-dev
 
 test-ubuntu20-libgtirb-dbg:
@@ -618,6 +654,11 @@ test-ubuntu22-libgtirb-dbg:
   needs: [setup-ubuntu22-test-apt-repo]
   <<: *test-ubuntu-libgtirb-dbg
 
+test-ubuntu24-libgtirb-dbg:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
+  needs: [setup-ubuntu24-test-apt-repo]
+  <<: *test-ubuntu-libgtirb-dbg
+
 test-ubuntu20-libgtirb:
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu20:$IMAGE_TAG
   needs: [setup-ubuntu20-test-apt-repo,test-ubuntu20-libgtirb-dev]
@@ -626,6 +667,11 @@ test-ubuntu20-libgtirb:
 test-ubuntu22-libgtirb:
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
   needs: [setup-ubuntu22-test-apt-repo,test-ubuntu22-libgtirb-dev]
+  <<: *test-ubuntu-libgtirb
+
+test-ubuntu24-libgtirb:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
+  needs: [setup-ubuntu24-test-apt-repo,test-ubuntu24-libgtirb-dev]
   <<: *test-ubuntu-libgtirb
 
 .debian-installer: &debian-installer
@@ -645,6 +691,11 @@ debian-installer-ubuntu20:
 debian-installer-ubuntu22:
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
   needs: [test-ubuntu22-libgtirb, build-ubuntu22-packages]
+  <<: *debian-installer
+
+debian-installer-ubuntu24:
+  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
+  needs: [test-ubuntu24-libgtirb, build-ubuntu24-packages]
   <<: *debian-installer
 
 .apt-upload: &apt-upload
@@ -673,6 +724,16 @@ apt-public-ubuntu22-unstable:
     APT_REPO_CODENAMES: jammy
     APT_REPO_COMPONENT: unstable
 
+apt-public-ubuntu24-unstable:
+  <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  variables:
+    JOB_NAME: debian-installer-ubuntu24
+    APT_REPO: public
+    APT_REPO_CODENAMES: noble
+    APT_REPO_COMPONENT: unstable
+
 apt-public-ubuntu20-stable:
   <<: *apt-upload
   rules:
@@ -689,6 +750,16 @@ apt-public-ubuntu22-stable:
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   variables:
     JOB_NAME: debian-installer-ubuntu22
+    APT_REPO: public
+    APT_REPO_CODENAMES: jammy
+    APT_REPO_COMPONENT: stable
+
+apt-public-ubuntu24-stable:
+  <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+  variables:
+    JOB_NAME: debian-installer-ubuntu24
     APT_REPO: public
     APT_REPO_CODENAMES: jammy
     APT_REPO_COMPONENT: stable
@@ -713,6 +784,16 @@ apt-internal-ubuntu22-unstable:
     APT_REPO_CODENAMES: jammy
     APT_REPO_COMPONENT: unstable
 
+apt-internal-ubuntu24-unstable:
+  <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  variables:
+    JOB_NAME: debian-installer-ubuntu24
+    APT_REPO: internal
+    APT_REPO_CODENAMES: jammy
+    APT_REPO_COMPONENT: unstable
+
 apt-internal-ubuntu20-stable:
   <<: *apt-upload
   rules:
@@ -733,9 +814,19 @@ apt-internal-ubuntu22-stable:
     APT_REPO_CODENAMES: jammy
     APT_REPO_COMPONENT: stable
 
+apt-internal-ubuntu24-stable:
+  <<: *apt-upload
+  rules:
+    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+  variables:
+    JOB_NAME: debian-installer-ubuntu24
+    APT_REPO: internal
+    APT_REPO_CODENAMES: jammy
+    APT_REPO_COMPONENT: stable
+
 maven-central-upload:
   stage: deploy
-  needs: [build-ubuntu22-gcc]
+  needs: [build-ubuntu24-gcc]
   trigger:
     project: rewriting/utility/package-uploader
     strategy: depend
@@ -743,7 +834,7 @@ maven-central-upload:
     - if: '$CI_COMMIT_REF_NAME == "master"'
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   variables:
-    JOB_NAME: build-ubuntu22-gcc
+    JOB_NAME: build-ubuntu24-gcc
     JAVA_POM_SUBDIR: ./build/java
 
 .windows-upload: &windows-upload
