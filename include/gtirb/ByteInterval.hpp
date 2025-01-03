@@ -37,7 +37,6 @@
 #include <boost/multi_index/mem_fun.hpp>
 #include <boost/multi_index/ordered_index.hpp>
 #include <boost/multi_index_container.hpp>
-#include <boost/predef.h>
 #include <boost/range/iterator_range.hpp>
 #include <cstdint>
 #include <functional>
@@ -1646,26 +1645,13 @@ private:
         return *reinterpret_cast<const T*>(Array.data());
       }
 
-      if (I + sizeof(T) > S) {
+      if (sizeof(T) > S - I) {
         // Here, I < S < I + sizeof(T), so we need to partially fill the
         // initialized bytes and combine it with zeroes for the uninitialized
-        // bytes.
+        // bytes. The condition is S - I < sizeof(T) not S < I + sizeof(T) to
+        // help compilers verify the bounds in the std::copy_n below are safe.
         std::array<uint8_t, sizeof(T)> Array{};
-
-        // Starting in gcc-12, the line below causes gcc to warn about possibly
-        // accessing the array at nonsensical offsets.
-#define GTIRB_EXPECT_FALSE_POSITIVE                                            \
-  (BOOST_COMP_GNUC >= BOOST_VERSION_NUMBER(12, 0, 0))
-#if GTIRB_EXPECT_FALSE_POSITIVE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Warray-bounds"
-#pragma GCC diagnostic ignored "-Wstringop-overflow"
-#endif
-        // Thanks to math, 0 < S - I < sizeof(T).
         std::copy_n(BI->Bytes.begin() + I, S - I, Array.begin());
-#if GTIRB_EXPECT_FALSE_POSITIVE
-#pragma GCC diagnostic pop
-#endif
         return endian_flip(*reinterpret_cast<const T*>(Array.data()),
                            InputOrder, OutputOrder);
       }
