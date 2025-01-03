@@ -31,7 +31,8 @@ public class SymbolicExpression {
     /**
      * Attributes for Symbolic Expressions.
      *
-     * @see https://grammatech.github.io/gtirb/md__symbolic_expression.html
+     * @see <a
+     *     href="https://grammatech.github.io/gtirb/md__symbolic_expression.html">SymbolicExpression</a>
      */
     public enum AttributeFlag {
         GOT(SymbolicExpressionOuterClass.SymAttribute.GOT_VALUE),
