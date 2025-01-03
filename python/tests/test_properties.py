@@ -7,18 +7,18 @@ class TestProperties(unittest.TestCase):
     def test_data_blocks(self):
         b = gtirb.DataBlock()
 
-        self.assertEquals(b.address, None)
-        self.assertEquals(b.contents, b"")
-        self.assertEquals(set(b.references), set())
+        self.assertEqual(b.address, None)
+        self.assertEqual(b.contents, b"")
+        self.assertEqual(set(b.references), set())
 
         bi = gtirb.ByteInterval(address=1, contents=b"abcd1234")
         b.offset = 2
         b.size = 3
         b.byte_interval = bi
 
-        self.assertEquals(b.address, 3)
-        self.assertEquals(b.contents, b"cd1")
-        self.assertEquals(set(b.references), set())
+        self.assertEqual(b.address, 3)
+        self.assertEqual(b.contents, b"cd1")
+        self.assertEqual(set(b.references), set())
 
         s = gtirb.Section()
         bi.section = s
@@ -29,29 +29,29 @@ class TestProperties(unittest.TestCase):
         m.symbols |= {sym1, sym2, sym3}
         s.module = m
 
-        self.assertEquals(b.address, 3)
-        self.assertEquals(b.contents, b"cd1")
-        self.assertEquals(set(b.references), {sym1, sym3})
+        self.assertEqual(b.address, 3)
+        self.assertEqual(b.contents, b"cd1")
+        self.assertEqual(set(b.references), {sym1, sym3})
 
     def test_code_blocks(self):
         b = gtirb.CodeBlock()
 
-        self.assertEquals(b.address, None)
-        self.assertEquals(b.contents, b"")
-        self.assertEquals(set(b.references), set())
-        self.assertEquals(set(b.incoming_edges), set())
-        self.assertEquals(set(b.outgoing_edges), set())
+        self.assertEqual(b.address, None)
+        self.assertEqual(b.contents, b"")
+        self.assertEqual(set(b.references), set())
+        self.assertEqual(set(b.incoming_edges), set())
+        self.assertEqual(set(b.outgoing_edges), set())
 
         bi = gtirb.ByteInterval(address=1, contents=b"abcd1234")
         b.offset = 2
         b.size = 3
         b.byte_interval = bi
 
-        self.assertEquals(b.address, 3)
-        self.assertEquals(b.contents, b"cd1")
-        self.assertEquals(set(b.references), set())
-        self.assertEquals(set(b.incoming_edges), set())
-        self.assertEquals(set(b.outgoing_edges), set())
+        self.assertEqual(b.address, 3)
+        self.assertEqual(b.contents, b"cd1")
+        self.assertEqual(set(b.references), set())
+        self.assertEqual(set(b.incoming_edges), set())
+        self.assertEqual(set(b.outgoing_edges), set())
 
         s = gtirb.Section()
         bi.section = s
@@ -62,11 +62,11 @@ class TestProperties(unittest.TestCase):
         m.symbols |= {sym1, sym2, sym3}
         s.module = m
 
-        self.assertEquals(b.address, 3)
-        self.assertEquals(b.contents, b"cd1")
-        self.assertEquals(set(b.references), {sym1, sym3})
-        self.assertEquals(set(b.incoming_edges), set())
-        self.assertEquals(set(b.outgoing_edges), set())
+        self.assertEqual(b.address, 3)
+        self.assertEqual(b.contents, b"cd1")
+        self.assertEqual(set(b.references), {sym1, sym3})
+        self.assertEqual(set(b.incoming_edges), set())
+        self.assertEqual(set(b.outgoing_edges), set())
 
         i = gtirb.IR()
         m.ir = i
@@ -79,22 +79,22 @@ class TestProperties(unittest.TestCase):
         i.cfg.add(gtirb.Edge(p3, p4))
         i.cfg.add(gtirb.Edge(b, b))
 
-        self.assertEquals(b.address, 3)
-        self.assertEquals(b.contents, b"cd1")
-        self.assertEquals(set(b.references), {sym1, sym3})
-        self.assertEquals(
+        self.assertEqual(b.address, 3)
+        self.assertEqual(b.contents, b"cd1")
+        self.assertEqual(set(b.references), {sym1, sym3})
+        self.assertEqual(
             set((s, t) for s, t, l in b.incoming_edges), {(p2, b), (b, b)}
         )
-        self.assertEquals(
+        self.assertEqual(
             set((s, t) for s, t, l in b.outgoing_edges), {(b, p1), (b, b)}
         )
 
     def test_proxy_blocks(self):
         b = gtirb.ProxyBlock()
 
-        self.assertEquals(set(b.references), set())
-        self.assertEquals(set(b.incoming_edges), set())
-        self.assertEquals(set(b.outgoing_edges), set())
+        self.assertEqual(set(b.references), set())
+        self.assertEqual(set(b.incoming_edges), set())
+        self.assertEqual(set(b.outgoing_edges), set())
 
         m = gtirb.Module(name="M")
         sym1 = gtirb.Symbol("test", payload=b)
@@ -103,9 +103,9 @@ class TestProperties(unittest.TestCase):
         m.symbols |= {sym1, sym2, sym3}
         b.module = m
 
-        self.assertEquals(set(b.references), {sym1, sym3})
-        self.assertEquals(set(b.incoming_edges), set())
-        self.assertEquals(set(b.outgoing_edges), set())
+        self.assertEqual(set(b.references), {sym1, sym3})
+        self.assertEqual(set(b.incoming_edges), set())
+        self.assertEqual(set(b.outgoing_edges), set())
 
         i = gtirb.IR()
         m.ir = i
@@ -118,49 +118,49 @@ class TestProperties(unittest.TestCase):
         i.cfg.add(gtirb.Edge(p3, p4))
         i.cfg.add(gtirb.Edge(b, b))
 
-        self.assertEquals(set(b.references), {sym1, sym3})
-        self.assertEquals(
+        self.assertEqual(set(b.references), {sym1, sym3})
+        self.assertEqual(
             set((s, t) for s, t, l in b.incoming_edges), {(p2, b), (b, b)}
         )
-        self.assertEquals(
+        self.assertEqual(
             set((s, t) for s, t, l in b.outgoing_edges), {(b, p1), (b, b)}
         )
 
     def test_sections(self):
         s = gtirb.Section()
-        self.assertEquals(s.address, None)
-        self.assertEquals(s.size, None)
+        self.assertEqual(s.address, None)
+        self.assertEqual(s.size, None)
 
         s.byte_intervals.clear()
         s.byte_intervals |= {gtirb.ByteInterval()}
-        self.assertEquals(s.address, None)
-        self.assertEquals(s.size, None)
+        self.assertEqual(s.address, None)
+        self.assertEqual(s.size, None)
 
         s.byte_intervals.clear()
         s.byte_intervals |= {gtirb.ByteInterval(size=3)}
-        self.assertEquals(s.address, None)
-        self.assertEquals(s.size, None)
+        self.assertEqual(s.address, None)
+        self.assertEqual(s.size, None)
 
         s.byte_intervals.clear()
         s.byte_intervals |= {gtirb.ByteInterval(address=2, size=4)}
-        self.assertEquals(s.address, 2)
-        self.assertEquals(s.size, 4)
+        self.assertEqual(s.address, 2)
+        self.assertEqual(s.size, 4)
 
         s.byte_intervals.clear()
         s.byte_intervals |= {
             gtirb.ByteInterval(address=2, size=4),
             gtirb.ByteInterval(size=3),
         }
-        self.assertEquals(s.address, None)
-        self.assertEquals(s.size, None)
+        self.assertEqual(s.address, None)
+        self.assertEqual(s.size, None)
 
         s.byte_intervals.clear()
         s.byte_intervals |= {
             gtirb.ByteInterval(address=2, size=4),
             gtirb.ByteInterval(address=100, size=3),
         }
-        self.assertEquals(s.address, 2)
-        self.assertEquals(s.size, 101)
+        self.assertEqual(s.address, 2)
+        self.assertEqual(s.size, 101)
 
     def test_modules(self):
         s1 = gtirb.Section(
@@ -177,37 +177,37 @@ class TestProperties(unittest.TestCase):
         )
         m = gtirb.Module(name="M", sections=[s1, s2, s3, s4])
 
-        self.assertEquals(set(m.sections_on(3)), set())
-        self.assertEquals(set(m.sections_on(4)), {s1})
-        self.assertEquals(set(m.sections_on(7)), {s1})
-        self.assertEquals(set(m.sections_on(8)), {s2})
-        self.assertEquals(set(m.sections_on(15)), {s2})
-        self.assertEquals(set(m.sections_on(16)), set())
-        self.assertEquals(set(m.sections_on(99)), set())
-        self.assertEquals(set(m.sections_on(100)), {s3})
-        self.assertEquals(set(m.sections_on(101)), set())
+        self.assertEqual(set(m.sections_on(3)), set())
+        self.assertEqual(set(m.sections_on(4)), {s1})
+        self.assertEqual(set(m.sections_on(7)), {s1})
+        self.assertEqual(set(m.sections_on(8)), {s2})
+        self.assertEqual(set(m.sections_on(15)), {s2})
+        self.assertEqual(set(m.sections_on(16)), set())
+        self.assertEqual(set(m.sections_on(99)), set())
+        self.assertEqual(set(m.sections_on(100)), {s3})
+        self.assertEqual(set(m.sections_on(101)), set())
 
-        self.assertEquals(set(m.sections_on(range(0, 100))), {s1, s2})
-        self.assertEquals(set(m.sections_on(range(0, 101))), {s1, s2, s3})
-        self.assertEquals(set(m.sections_on(range(0, 102))), {s1, s2, s3})
-        self.assertEquals(set(m.sections_on(range(7, 7 + 4))), {s1, s2})
-        self.assertEquals(set(m.sections_on(range(8, 8 + 4))), {s2})
-        self.assertEquals(set(m.sections_on(range(17, 17 + 80))), set())
+        self.assertEqual(set(m.sections_on(range(0, 100))), {s1, s2})
+        self.assertEqual(set(m.sections_on(range(0, 101))), {s1, s2, s3})
+        self.assertEqual(set(m.sections_on(range(0, 102))), {s1, s2, s3})
+        self.assertEqual(set(m.sections_on(range(7, 7 + 4))), {s1, s2})
+        self.assertEqual(set(m.sections_on(range(8, 8 + 4))), {s2})
+        self.assertEqual(set(m.sections_on(range(17, 17 + 80))), set())
 
-        self.assertEquals(set(m.sections_at(3)), set())
-        self.assertEquals(set(m.sections_at(4)), {s1})
-        self.assertEquals(set(m.sections_at(5)), set())
-        self.assertEquals(set(m.sections_at(7)), set())
-        self.assertEquals(set(m.sections_at(8)), {s2})
-        self.assertEquals(set(m.sections_at(9)), set())
-        self.assertEquals(set(m.sections_at(99)), set())
-        self.assertEquals(set(m.sections_at(100)), {s3})
-        self.assertEquals(set(m.sections_at(101)), set())
+        self.assertEqual(set(m.sections_at(3)), set())
+        self.assertEqual(set(m.sections_at(4)), {s1})
+        self.assertEqual(set(m.sections_at(5)), set())
+        self.assertEqual(set(m.sections_at(7)), set())
+        self.assertEqual(set(m.sections_at(8)), {s2})
+        self.assertEqual(set(m.sections_at(9)), set())
+        self.assertEqual(set(m.sections_at(99)), set())
+        self.assertEqual(set(m.sections_at(100)), {s3})
+        self.assertEqual(set(m.sections_at(101)), set())
 
-        self.assertEquals(set(m.sections_at(range(0, 100))), {s1, s2})
-        self.assertEquals(set(m.sections_at(range(0, 101))), {s1, s2, s3})
-        self.assertEquals(set(m.sections_at(range(5, 10))), {s2})
-        self.assertEquals(set(m.sections_at(range(95, 105))), {s3})
+        self.assertEqual(set(m.sections_at(range(0, 100))), {s1, s2})
+        self.assertEqual(set(m.sections_at(range(0, 101))), {s1, s2, s3})
+        self.assertEqual(set(m.sections_at(range(5, 10))), {s2})
+        self.assertEqual(set(m.sections_at(range(95, 105))), {s3})
 
     def test_byte_intervals(self):
         s = gtirb.Symbol(name="test")

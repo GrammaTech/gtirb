@@ -1,11 +1,13 @@
-import imp
+from importlib.util import module_from_spec, spec_from_file_location
 
 import setuptools
 
 # copy over files needed for sdist: README and LICENCE
 
 # Set the version
-version = imp.load_source("pkginfo.version", "gtirb/version.py").API_VERSION
+spec = spec_from_file_location("gtirb.version", "gtirb/version.py")
+version = module_from_spec(spec)
+spec.loader.exec_module(version)
 
 # run setuptools
 if __name__ == "__main__":
@@ -18,7 +20,7 @@ if __name__ == "__main__":
 
     setuptools.setup(
         name="gtirb",
-        version=version,
+        version=version.API_VERSION,
         author="GrammaTech",
         author_email="gtirb@grammatech.com",
         description="GrammaTech Intermediate Representation for Binaries",

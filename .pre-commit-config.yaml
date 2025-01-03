@@ -43,6 +43,6 @@ repos:
       - id: isort
         files: \.py$
   - repo: https://github.com/PyCQA/flake8
-    rev: 4.0.1
+    rev: 7.1.0
     hooks:
       - id: flake8
