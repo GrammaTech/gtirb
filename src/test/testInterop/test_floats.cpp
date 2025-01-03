@@ -15,7 +15,9 @@
 //===----------------------------------------------------------------------===//
 
 #include <gtirb/gtirb.hpp>
+#include <cstring>
 #include <fstream>
+#include <iostream>
 
 struct AFloat {
   static constexpr const char* Name = "AFloat";
@@ -55,21 +57,21 @@ void create_floats(const std::string& filename) {
   ir->save(out);
 }
 
+int usage(const char* argv0) {
+  std::cout << "Usage: " << argv0 << " {-r filename | -w filename}\n";
+  return -1;
+}
+
 int main(int argc, char** argv) {
-  if (argc < 2)
-    return -1;
+  if (argc < 3)
+    return usage(argv[0]);
   registerAuxData();
-  std::string filename;
-  while (auto c = getopt(argc, argv, "r:w:")) {
-    switch (c) {
-    case 'w':
-      create_floats(optarg);
-      return 0;
-    case 'r':
-      return test_floats(optarg);
-    default:
-      break;
-    }
+  if (strcmp("-w", argv[1]) == 0) {
+    create_floats(argv[2]);
+    return 0;
+  } else if (strcmp("-r", argv[1]) == 0) {
+    return test_floats(argv[2]);
+  } else {
+    return usage(argv[0]);
   }
-  return 0;
 }

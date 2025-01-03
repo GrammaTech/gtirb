@@ -1,4 +1,5 @@
 #include <gtirb/gtirb.hpp>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -66,17 +67,18 @@ bool check_ir(const std::string& filename) {
   return 0;
 }
 
+int usage(const char* argv0) {
+  std::cout << "Usage: " << argv0 << " {-r filename | -w filename}\n";
+  return -1;
+}
+
 int main(int argc, char** argv) {
+  if (argc < 3)
+    return usage(argv[0]);
   register_schema();
-  while (auto c = getopt(argc, argv, "r:w:")) {
-    switch (c) {
-    case 'r':
-      return check_ir(optarg);
-    case 'w':
-      return write_ir(optarg);
-    default:
-      return 1;
-    }
-  }
-  return 1;
+  if (strcmp(argv[1], "-r") == 0)
+    return check_ir(argv[2]);
+  if (strcmp(argv[1], "-w") == 0)
+    return write_ir(argv[2]);
+  return usage(argv[0]);
 }
