@@ -421,7 +421,9 @@ endif()
 # ---------------------------------------------------------------------------
 # protobuf
 # ---------------------------------------------------------------------------
-if(CL_API)
+if(PY_API)
+  find_package(Protobuf 3.19.0 REQUIRED)
+elseif(CL_API)
   find_package(Protobuf 3.7.0 REQUIRED)
 else()
   find_package(Protobuf 3.0.0 REQUIRED)
