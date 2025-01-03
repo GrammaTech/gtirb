@@ -425,11 +425,6 @@ conan-linux-gcc11:
     IMAGE_NAME: ubuntu22
   <<: *conan-linux
 
-conan-linux-gcc13:
-  variables:
-    IMAGE_NAME: ubuntu24
-  <<: *conan-linux
-
 .conan-windows: &conan-windows
   stage: deploy
   needs: [check-format]
