@@ -3,21 +3,6 @@
 #
 
 # ---------------------------------------------------------------------------
-# Get protobuf version to DL from maven repository. This value is used in
-# pom.xml.in.
-# ---------------------------------------------------------------------------
-
-# Use only minor version, patch versions might not be available
-string(REGEX MATCH "([^\.]+)\.([^\.]+)\.([^\.]+)" PROTOBUF_VERSION_MATCH
-             ${Protobuf_VERSION}
-)
-set(PROTOBUF_MAJOR_VERSION ${CMAKE_MATCH_1})
-set(PROTOBUF_MINOR_VERSION ${CMAKE_MATCH_2})
-set(JAVA_PROTOBUF_VERSION
-    "${PROTOBUF_MAJOR_VERSION}.${PROTOBUF_MINOR_VERSION}.0"
-)
-
-# ---------------------------------------------------------------------------
 # Building the gtirb protobuf files into java
 # ---------------------------------------------------------------------------
 set(GTIRB_JAVA_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/src)
