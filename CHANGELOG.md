@@ -1,5 +1,11 @@
+# 2.3.0 (Unreleased)
 
-# 2.2.0 (Unreleased)
+* Fixed a compatibility problem in the Python API that prevented using recent
+  releases of protobuf. The Python API now requires protobuf 4.21.1 or newer.
+* Building the Python API now requires protobuf compiler version 3.19 or later
+  for the generated definitions to be compatible with recent protobuf packages.
+
+# 2.2.0
 
 * Move the following utility functions into the `gtirb` namespace:
   `alignAddr`, `alignmentAdjustment`, `BumpPtrAllocator`, `isPowerOf2_64`,
