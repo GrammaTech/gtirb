@@ -846,7 +846,7 @@ maven-central-upload:
     - if: '$CI_COMMIT_REF_NAME == "master"'
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   variables:
-    JOB_NAME: build-ubuntu24-gcc
+    JOB_NAME: build-java
     JAVA_POM_SUBDIR: ./build/java
 
 .windows-upload: &windows-upload
