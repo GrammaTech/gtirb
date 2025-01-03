@@ -120,16 +120,10 @@ if(GTIRB_PY_API)
   gtirb_find_python()
 
   if(PYTHON)
-    set(PYTHON_MINIMUM_VERSION "3.5.2")
-    execute_process(
-      COMMAND "${PYTHON}" "--version" OUTPUT_VARIABLE PYTHON_VERSION
-    )
-    string(REPLACE "Python" "" PYTHON_VERSION "${PYTHON_VERSION}")
-
-    if("${PYTHON_VERSION}" VERSION_LESS "${PYTHON_MINIMUM_VERSION}")
+    if("${Python3_VERSION}" VERSION_LESS "${PYTHON_MINIMUM_VERSION}")
       message(
         WARNING
-          "${PYTHON} --version is ${PYTHON_VERSION}, which is less then the minimum required, ${PYTHON_MINIMUM_VERSION}; disabling building of API."
+          "${PYTHON} --version is ${Python3_VERSION}, which is less than the minimum required, ${PYTHON_MINIMUM_VERSION}; disabling building of API."
       )
       set(PY_API OFF)
     endif()

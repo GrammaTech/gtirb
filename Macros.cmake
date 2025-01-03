@@ -105,12 +105,12 @@ else()
     find_program(PYTHON NAMES python3 python py)
     if(PYTHON)
       execute_process(
-        COMMAND "${PYTHON}" --version OUTPUT_VARIABLE PYTHON_VERSION
+        COMMAND "${PYTHON}" --version OUTPUT_VARIABLE Python3_VERSION
       )
-      string(REPLACE "Python" "" PYTHON_VERSION "${PYTHON_VERSION}")
-      if("${PYTHON_VERSION}" VERSION_LESS 3)
+      string(REPLACE "Python " "" Python3_VERSION "${Python3_VERSION}")
+      if("${Python3_VERSION}" VERSION_LESS 3)
         unset(PYTHON)
-        unset(PYTHON_VERSION)
+        unset(Python3_VERSION)
       endif()
     endif()
   endmacro()
