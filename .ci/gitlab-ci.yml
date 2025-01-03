@@ -133,7 +133,7 @@ build-docs:
 
 .build-template: &build
   stage: build
-  image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/$IMAGE_NAME:$IMAGE_TAG
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
     paths:
@@ -146,7 +146,7 @@ build-docs:
     - >
       cmake ../
       -DCMAKE_BUILD_TYPE=$BUILD_TYPE
-      -DCMAKE_CXX_COMPILER=${CXX_COMPILER}
+      -DCMAKE_CXX_COMPILER=${CXX_COMPILER:-g++}
       -DCPACK_DEBIAN_PACKAGE_RELEASE="$(lsb_release -sc)"
       -DENABLE_CODE_COVERAGE=${ENABLE_CODE_COVERAGE:-OFF}
       -DGTIRB_BUILD_SHARED_LIBS=${GTIRB_BUILD_SHARED_LIBS:-ON}
@@ -163,7 +163,7 @@ build-docs:
 
 build-ubuntu20-gcc:
   variables:
-    OS: 'ubuntu20'
+    IMAGE_NAME: 'ubuntu20'
     GTIRB_CXX_API: 'ON'
     CXX_COMPILER: 'g++'
     CPACK_GENERATOR: 'DEB'
@@ -173,7 +173,7 @@ build-ubuntu20-gcc:
 
 build-ubuntu22-gcc:
   variables:
-    OS: 'ubuntu22'
+    IMAGE_NAME: 'ubuntu22'
     GTIRB_CXX_API: 'ON'
     CXX_COMPILER: 'g++'
     CPACK_GENERATOR: 'DEB'
@@ -183,7 +183,7 @@ build-ubuntu22-gcc:
 
 build-ubuntu24-gcc:
   variables:
-    OS: 'ubuntu24'
+    IMAGE_NAME: 'ubuntu24'
     GTIRB_CXX_API: 'ON'
     CXX_COMPILER: 'g++'
     CPACK_GENERATOR: 'DEB'
@@ -193,7 +193,7 @@ build-ubuntu24-gcc:
 
 build-ubuntu24-gcc-debug:
   variables:
-    OS: 'ubuntu24'
+    IMAGE_NAME: 'ubuntu24'
     GTIRB_CXX_API: 'ON'
     CXX_COMPILER: 'g++'
     BUILD_TYPE: 'Debug'
@@ -202,7 +202,7 @@ build-ubuntu24-gcc-debug:
 
 build-ubuntu24-clang-debug:
   variables:
-    OS: 'ubuntu24'
+    IMAGE_NAME: 'ubuntu24'
     GTIRB_CXX_API: 'ON'
     CXX_COMPILER: 'clang++'
     BUILD_TYPE: 'Debug'
@@ -211,7 +211,7 @@ build-ubuntu24-clang-debug:
 
 build-static:
   variables:
-    OS: 'static'
+    IMAGE_NAME: 'static'
     GTIRB_CXX_API: 'ON'
     CXX_COMPILER: 'g++'
     BUILD_TYPE: 'RelWithDebInfo'
@@ -220,19 +220,19 @@ build-static:
 
 build-java:
   variables:
-    OS: 'ubuntu24'
+    IMAGE_NAME: 'ubuntu24'
     GTIRB_JAVA_API: 'ON'
   <<: *build
 
 build-lisp:
   variables:
-    OS: 'ubuntu20'
+    IMAGE_NAME: 'ubuntu20'
     GTIRB_CL_API: 'ON'
   <<: *build
 
 build-python:
   variables:
-    OS: 'ubuntu24'
+    IMAGE_NAME: 'ubuntu24'
     GTIRB_PY_API: 'ON'
   <<: *build
 
@@ -337,9 +337,9 @@ test-capstone-example:
 
 test-default-install:
   stage: test-packages1
-  image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/$IMAGE_NAME:$IMAGE_TAG
   variables:
-    OS: 'ubuntu24'
+    IMAGE_NAME: 'ubuntu24'
     COMPILER: 'g++-9'
   needs: ['build-ubuntu24-gcc']
   script:
@@ -361,9 +361,9 @@ test-default-install-static:
 
 test-install-different-prefix:
   stage: test-packages1
-  image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/$IMAGE_NAME:$IMAGE_TAG
   variables:
-    OS: 'ubuntu24'
+    IMAGE_NAME: 'ubuntu24'
     COMPILER: 'g++-9'
   needs: ['build-ubuntu24-gcc']
   script:
@@ -379,9 +379,9 @@ test-install-different-prefix:
 
 test-install-with-destdir:
   stage: test-packages1
-  image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/$IMAGE_NAME:$IMAGE_TAG
   variables:
-    OS: 'ubuntu24'
+    IMAGE_NAME: 'ubuntu24'
     COMPILER: 'g++-9'
   needs: ['build-ubuntu24-gcc']
   script:
@@ -405,7 +405,7 @@ test-interop:
 .conan-linux: &conan-linux
   stage: deploy
   needs: [check-format]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/$OS:$IMAGE_TAG
+  image: $DOCKER_REGISTRY/rewriting/gtirb/$IMAGE_NAME:$IMAGE_TAG
   script:
     - python3 -m pip install --upgrade conan~=$CONAN_VERSION
     - conan profile new default --detect
@@ -417,17 +417,17 @@ test-interop:
 
 conan-linux-gcc9:
   variables:
-    OS: ubuntu20
+    IMAGE_NAME: ubuntu20
   <<: *conan-linux
 
 conan-linux-gcc11:
   variables:
-    OS: ubuntu22
+    IMAGE_NAME: ubuntu22
   <<: *conan-linux
 
 conan-linux-gcc13:
   variables:
-    OS: ubuntu24
+    IMAGE_NAME: ubuntu24
   <<: *conan-linux
 
 .conan-windows: &conan-windows
