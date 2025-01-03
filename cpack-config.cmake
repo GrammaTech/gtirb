@@ -21,6 +21,10 @@ if("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-lib")
     set(CPACK_DEBIAN_PACKAGE_DEPENDS
         "libstdc++6, libc6, libgcc-s1, libprotobuf23"
     )
+  elseif("${CPACK_DEBIAN_PACKAGE_RELEASE}" STREQUAL "noble")
+    set(CPACK_DEBIAN_PACKAGE_DEPENDS
+        "libstdc++6, libc6, libgcc-s1, libprotobuf32t64"
+    )
   else()
     message(
       SEND_ERROR "Unknown / missing value for CPACK_DEBIAN_PACKAGE_RELEASE."
