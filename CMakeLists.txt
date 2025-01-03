@@ -120,6 +120,7 @@ if(GTIRB_PY_API)
   gtirb_find_python()
 
   if(PYTHON)
+    set(PYTHON_MINIMUM_VERSION "3.6")
     if("${Python3_VERSION}" VERSION_LESS "${PYTHON_MINIMUM_VERSION}")
       message(
         WARNING
