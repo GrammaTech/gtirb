@@ -230,7 +230,13 @@ build-lisp:
     GTIRB_CL_API: 'ON'
   <<: *build
 
-build-python:
+build-ubuntu20-python:
+  variables:
+    IMAGE_NAME: 'ubuntu20'
+    GTIRB_PY_API: 'ON'
+  <<: *build
+
+build-ubuntu24-python:
   variables:
     IMAGE_NAME: 'ubuntu24'
     GTIRB_PY_API: 'ON'
@@ -299,7 +305,7 @@ report-coverage-py:
 
 python-wheel:
   stage: build-installers
-  needs: [build-python]
+  needs: [build-ubuntu24-python]
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
   artifacts:
     name: "$CI_COMMIT_REF_NAME-$CI_JOB_NAME"
