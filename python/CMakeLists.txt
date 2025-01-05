@@ -24,7 +24,14 @@ endif()
 # Create a PEP 561 py.typed to let clients find the inline type annotations.
 file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gtirb/py.typed "")
 
-configure_file(setup.py setup.py COPYONLY)
+if("${Protobuf_VERSION}" VERSION_LESS "3.19.0")
+  # Older protobuf compilers generate code incompatible with newer runtimes.
+  set(GTIRB_PROTOBUF_CONSTRAINT "protobuf<=3.20.1")
+else()
+  set(GTIRB_PROTOBUF_CONSTRAINT "protobuf>=4.21.1")
+endif()
+
+configure_file(setup.py.in setup.py @ONLY)
 configure_file(.coveragerc .coveragerc COPYONLY)
 configure_file(README.md README COPYONLY)
 # Copy the license from the top-level of the source repo.

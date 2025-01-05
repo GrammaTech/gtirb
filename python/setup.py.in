@@ -28,7 +28,7 @@ if __name__ == "__main__":
         package_data={"gtirb": ["py.typed"]},
         install_requires=[
             "networkx",
-            "protobuf>=4.21.1",
+            "@GTIRB_PROTOBUF_CONSTRAINT@",
             "intervaltree",
             "sortedcontainers",
             "typing-extensions>=3.7.4.2",
