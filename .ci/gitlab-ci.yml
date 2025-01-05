@@ -700,16 +700,6 @@ debian-installer-ubuntu20:
   needs: [test-ubuntu20-libgtirb, build-ubuntu20-packages]
   <<: *debian-installer
 
-debian-installer-ubuntu22:
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu22:$IMAGE_TAG
-  needs: [test-ubuntu22-libgtirb, build-ubuntu22-packages]
-  <<: *debian-installer
-
-debian-installer-ubuntu24:
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
-  needs: [test-ubuntu24-libgtirb, build-ubuntu24-packages]
-  <<: *debian-installer
-
 .apt-upload: &apt-upload
   stage: deploy-apt
   trigger:
@@ -726,26 +716,6 @@ apt-public-ubuntu20-unstable:
     APT_REPO_CODENAMES: focal
     APT_REPO_COMPONENT: unstable
 
-apt-public-ubuntu22-unstable:
-  <<: *apt-upload
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-  variables:
-    JOB_NAME: debian-installer-ubuntu22
-    APT_REPO: public
-    APT_REPO_CODENAMES: jammy
-    APT_REPO_COMPONENT: unstable
-
-apt-public-ubuntu24-unstable:
-  <<: *apt-upload
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-  variables:
-    JOB_NAME: debian-installer-ubuntu24
-    APT_REPO: public
-    APT_REPO_CODENAMES: noble
-    APT_REPO_COMPONENT: unstable
-
 apt-public-ubuntu20-stable:
   <<: *apt-upload
   rules:
@@ -754,26 +724,6 @@ apt-public-ubuntu20-stable:
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: public
     APT_REPO_CODENAMES: focal
-    APT_REPO_COMPONENT: stable
-
-apt-public-ubuntu22-stable:
-  <<: *apt-upload
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-  variables:
-    JOB_NAME: debian-installer-ubuntu22
-    APT_REPO: public
-    APT_REPO_CODENAMES: jammy
-    APT_REPO_COMPONENT: stable
-
-apt-public-ubuntu24-stable:
-  <<: *apt-upload
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-  variables:
-    JOB_NAME: debian-installer-ubuntu24
-    APT_REPO: public
-    APT_REPO_CODENAMES: jammy
     APT_REPO_COMPONENT: stable
 
 apt-internal-ubuntu20-unstable:
@@ -786,26 +736,6 @@ apt-internal-ubuntu20-unstable:
     APT_REPO_CODENAMES: focal
     APT_REPO_COMPONENT: unstable
 
-apt-internal-ubuntu22-unstable:
-  <<: *apt-upload
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-  variables:
-    JOB_NAME: debian-installer-ubuntu22
-    APT_REPO: internal
-    APT_REPO_CODENAMES: jammy
-    APT_REPO_COMPONENT: unstable
-
-apt-internal-ubuntu24-unstable:
-  <<: *apt-upload
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-  variables:
-    JOB_NAME: debian-installer-ubuntu24
-    APT_REPO: internal
-    APT_REPO_CODENAMES: jammy
-    APT_REPO_COMPONENT: unstable
-
 apt-internal-ubuntu20-stable:
   <<: *apt-upload
   rules:
@@ -814,26 +744,6 @@ apt-internal-ubuntu20-stable:
     JOB_NAME: debian-installer-ubuntu20
     APT_REPO: internal
     APT_REPO_CODENAMES: focal
-    APT_REPO_COMPONENT: stable
-
-apt-internal-ubuntu22-stable:
-  <<: *apt-upload
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-  variables:
-    JOB_NAME: debian-installer-ubuntu22
-    APT_REPO: internal
-    APT_REPO_CODENAMES: jammy
-    APT_REPO_COMPONENT: stable
-
-apt-internal-ubuntu24-stable:
-  <<: *apt-upload
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-  variables:
-    JOB_NAME: debian-installer-ubuntu24
-    APT_REPO: internal
-    APT_REPO_CODENAMES: jammy
     APT_REPO_COMPONENT: stable
 
 maven-central-upload:
