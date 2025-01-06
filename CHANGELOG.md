@@ -1,9 +1,12 @@
 # 2.3.0 (Unreleased)
 
 * Fixed a compatibility problem in the Python API that prevented using recent
-  releases of protobuf. The Python API now requires protobuf 4.21.1 or newer.
+  releases of protobuf. The Python API on PyPI now requires protobuf 4.21.1 or
+  newer.
 * Building the Python API now requires protobuf compiler version 3.19 or later
   for the generated definitions to be compatible with recent protobuf packages.
+  The API can still be built with older protobuf compilers, but the result will
+  not be compatible with recent protobuf packages.
 
 # 2.2.0
 

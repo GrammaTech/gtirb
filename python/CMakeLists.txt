@@ -26,9 +26,9 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gtirb/py.typed "")
 
 if("${Protobuf_VERSION}" VERSION_LESS "3.19.0")
   # Older protobuf compilers generate code incompatible with newer runtimes.
-  set(GTIRB_PROTOBUF_CONSTRAINT "protobuf<=3.20.1")
+  set(GTIRB_PROTOBUF_CONSTRAINT "protobuf~=3.0")
 else()
-  set(GTIRB_PROTOBUF_CONSTRAINT "protobuf>=4.21.1")
+  set(GTIRB_PROTOBUF_CONSTRAINT "protobuf>=4.0")
 endif()
 
 configure_file(setup.py.in setup.py @ONLY)
