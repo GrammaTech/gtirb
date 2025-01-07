@@ -3,6 +3,18 @@
 #
 
 # ---------------------------------------------------------------------------
+# Get upper bound of compatible versions
+# ---------------------------------------------------------------------------
+
+if("${Protobuf_VERSION}" VERSION_LESS 3.21.7)
+  # Before 3.21.7, generated code is incompatible with the 4.* API.
+  set(GTIRB_PROTOBUF_UPPER_BOUND "4.0.0-rc-1")
+else()
+  # Upper bound for 3.21.7 and above is not yet known.
+  set(GTIRB_PROTOBUF_UPPER_BOUND "")
+endif()
+
+# ---------------------------------------------------------------------------
 # Building the gtirb protobuf files into java
 # ---------------------------------------------------------------------------
 set(GTIRB_JAVA_SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/src)

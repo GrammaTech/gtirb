@@ -126,7 +126,7 @@
     <dependency>
       <groupId>com.google.protobuf</groupId>
       <artifactId>protobuf-java</artifactId>
-      <version>[@Protobuf_VERSION@,)</version>
+      <version>[@Protobuf_VERSION@,@GTIRB_PROTOBUF_UPPER_BOUND@)</version>
     </dependency>
   </dependencies>
 </project>
