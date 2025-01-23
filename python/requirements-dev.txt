@@ -2,3 +2,4 @@ mypy==0.961
 mypy-protobuf==3.3.0
 pre-commit
 types-protobuf==3.20.4
+pkginfo
