@@ -539,7 +539,7 @@ internal-pypi:
     #  changes:
     #    - python/gtirb/setup.py.in
   script:
-    - pip3 install twine wheel setuptools --upgrade
+    - pip3 install twine wheel setuptools pkginfo --upgrade
     - wget https://git.grammatech.com/research/templates/python-module/raw/master/.pypirc
     - sed "s/password = <access token>/password = $GL_PKG_API_TOKEN/" .pypirc > ~/.pypirc
     - pip3 install gtirb-*-py*-none-any.whl
