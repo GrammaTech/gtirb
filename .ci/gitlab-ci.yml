@@ -450,6 +450,7 @@ conan-linux-gcc11:
     - conan remote add gitlab ${CI_API_V4_URL}/packages/conan
     - conan user ci_user -r gitlab -p
     # Build
+    - export GTIRB_DISABLE_PARALLEL_BUILD=1
     - python .ci/build.py -s build_type=$BUILD_TYPE
     # Install
       # Python print() on Windows returns CRLF and will cause issues in CI - use "print('string', end='')" when outputting from python.

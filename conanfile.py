@@ -133,6 +133,9 @@ class GtirbConan(Properties, ConanFile):
             "GTIRB_CL_API:BOOL": "OFF",
             "GTIRB_JAVA_API:BOOL": "OFF",
         }
+        disable_parallel_build = (
+            int(os.environ.get("GTIRB_DISABLE_PARALLEL_BUILD", "0")) != 0
+        )
         if self.settings.os == "Windows":
             cmake = CMake(self, generator="Ninja")
             defs.update(
@@ -142,6 +145,8 @@ class GtirbConan(Properties, ConanFile):
                 }
             )
             defs.update({"Protobuf_USE_STATIC_LIBS": "ON"})
+            if disable_parallel_build:
+                defs["GTIRB_MSVC_PARALLEL_COMPILE_JOBS"] = "1"
         else:
             cmake = CMake(self, generator=None)
             defs.update({"GTIRB_STRIP_DEBUG_SYMBOLS:BOOL": "ON"})
@@ -149,6 +154,8 @@ class GtirbConan(Properties, ConanFile):
             source_folder=".",
             defs=defs,
         )
+        if disable_parallel_build:
+            cmake.parallel = False
         cmake.build()
         cmake.test(output_on_failure=True)
         cmake.install()
