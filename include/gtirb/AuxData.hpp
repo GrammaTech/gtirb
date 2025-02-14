@@ -28,6 +28,7 @@
 #include <type_traits>
 #include <typeinfo>
 #include <unordered_map>
+#include <unordered_set>
 #include <variant>
 #include <vector>
 
@@ -131,8 +132,33 @@ template <class T, class U>
 struct is_mapping<std::multimap<T, U>> : std::false_type {};
 template <class T, class U>
 struct is_mapping<std::unordered_multimap<T, U>> : std::false_type {};
+/// @endcond
 
+/// \struct is_set
+///
+/// \brief Trait class that identifies whether T is a set container type.
+///
+/// \see AUXDATA_GROUP
+template <class T> struct is_set : std::false_type {};
+/// @cond internal
+template <class... Args> struct is_set<std::set<Args...>> : std::true_type {};
+template <class... Args>
+struct is_set<std::unordered_set<Args...>> : std::true_type {};
+// Explicitly disable multisets. Because they can contain multiple equivalent
+// values, they can't be used interchangeably with sets.
+template <class... Args>
+struct is_set<std::multiset<Args...>> : std::false_type {};
+template <class... Args>
+struct is_set<std::unordered_multiset<Args...>> : std::false_type {};
+/// @endcond
+
+/// \struct is_tuple
+///
+/// \brief Trait class that identifies whether T is tuple-like.
+///
+/// \see AUXDATA_GROUP
 template <class T> struct is_tuple : std::false_type {};
+/// @cond INTERNAL
 template <class... Args>
 struct is_tuple<std::tuple<Args...>> : std::true_type {};
 
@@ -387,9 +413,8 @@ struct auxdata_traits<T, typename std::enable_if_t<is_sequence<T>::value>> {
   }
 };
 
-template <class... Args> struct auxdata_traits<std::set<Args...>> {
-  using T = std::set<Args...>;
-
+template <class T>
+struct auxdata_traits<T, typename std::enable_if_t<is_set<T>::value>> {
   static std::string type_name() {
     return "set<" + TypeId<typename T::value_type>::value() + ">";
   }

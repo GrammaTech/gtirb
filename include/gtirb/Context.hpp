@@ -19,6 +19,7 @@
 #include <gtirb/Export.hpp>
 #include <boost/functional/hash.hpp>
 #include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_hash.hpp>
 #include <cstdlib>
 #include <functional>
 #include <map>
@@ -139,16 +140,5 @@ template <> GTIRB_EXPORT_API void* Context::Allocate<Section>() const;
 template <> GTIRB_EXPORT_API void* Context::Allocate<Symbol>() const;
 
 } // namespace gtirb
-
-namespace std {
-
-/// \brief Hash implementation of gtirb::UUID.
-template <> struct hash<::gtirb::UUID> {
-  size_t operator()(const ::gtirb::UUID& UID) const {
-    return ::boost::hash<::gtirb::UUID>()(UID);
-  }
-};
-
-} // namespace std
 
 #endif // GTIRB_CONTEXT_H

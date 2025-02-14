@@ -71,8 +71,8 @@ struct VectorUUID {
 };
 
 struct SetUUID {
-  static constexpr const char* Name = "std::set<UUID>";
-  typedef std::set<UUID> Type;
+  static constexpr const char* Name = "std::unordered_set<UUID>";
+  typedef std::unordered_set<UUID> Type;
 };
 
 struct AString {
@@ -377,13 +377,13 @@ TEST(Unit_AuxData, uuidSetProtobufRoundTrip) {
   using STH = gtirb::SerializationTestHarness;
   UUID Id1 = Node::Create(Ctx)->getUUID(), Id2 = Node::Create(Ctx)->getUUID(),
        Id3 = Node::Create(Ctx)->getUUID();
-  AuxDataImpl<SetUUID> Original = std::set<UUID>({Id1, Id2, Id3});
+  AuxDataImpl<SetUUID> Original = std::unordered_set<UUID>({Id1, Id2, Id3});
 
   std::stringstream ss;
   STH::save(Original, ss);
   auto Result = STH::load<AuxDataImpl<SetUUID>>(Ctx, ss);
 
-  EXPECT_EQ(*Result->get(), std::set<UUID>({Id1, Id2, Id3}));
+  EXPECT_EQ(*Result->get(), std::unordered_set<UUID>({Id1, Id2, Id3}));
   EXPECT_EQ(Result->rawData().ProtobufType, "set<UUID>");
 }
 
