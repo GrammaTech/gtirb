@@ -7,6 +7,8 @@
   for the generated definitions to be compatible with recent protobuf packages.
   The API can still be built with older protobuf compilers, but the result will
   not be compatible with recent protobuf packages.
+* Added support in the C++ API for deserializing set AuxData into unordered_sets.
+* Fixed issue causing compile errors when building with Boost 1.86+.
 
 # 2.2.0
 
