@@ -67,7 +67,7 @@ jobs:
           make doc
           mv doc/html ../public
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v1.0.8
+        uses: actions/upload-pages-artifact@v3.0.1
         with:
           path: public
 
