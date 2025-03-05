@@ -205,7 +205,7 @@ To build and install GTIRB, the following requirements should be installed:
     `libprotobuf-dev` and `protobuf-compiler`.
   - Ubuntu 16 and earlier provide out of date versions; build from
     source on those versions.
-- Boost [(non-standard Ubuntu package from launchpad.net)][], version 1.67 or later.
+- Boost [(non-standard Ubuntu package from launchpad.net)][], version 1.68 or later.
   - Ubuntu 18 only has version 1.65 in the standard repository.  See Ubuntu instructions above.
 
 [CMake]: https://cmake.org/

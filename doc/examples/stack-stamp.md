@@ -60,7 +60,7 @@ libraries and utilities (for complete installation instructions see
         [Protobuf](https://developers.google.com/protocol-buffers/)
         version 3.0.0 or higher.
      5. If you plan to work in C++, you will also need
-        [Boost](https://www.boost.org/), version 1.67.0 or higher.
+        [Boost](https://www.boost.org/), version 1.68.0 or higher.
 
    - Ubuntu16: install the binaries from the GTIRB xenial repository as follows.
      ```bash

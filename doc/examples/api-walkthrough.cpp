@@ -115,7 +115,7 @@ int main() {
   auto Blocks = M->findBlocksAt(Addr(2048), Addr(4096));
   assert(std::distance(Blocks.begin(), Blocks.end()) == 4);
   // The CFG uses
-  // [boost::graph](https://www.boost.org/doc/libs/1_67_0/libs/graph/doc/).
+  // [boost::graph](https://www.boost.org/doc/libs/1_68_0/libs/graph/doc/).
   // GTIRB also provides a convenience function for iterating over blocks:
   for (const auto& B : blocks(Cfg)) {
     std::cout << "Block at address " << B.getAddress() << std::endl;

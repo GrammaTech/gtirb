@@ -35,7 +35,7 @@ elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-dev")
   set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
   set(CPACK_COMPONENTS_ALL ${DEV_COMPONENTS})
   set(CPACK_DEBIAN_PACKAGE_DEPENDS
-      "libgtirb (=${CPACK_GTIRB_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}), libboost-dev (>=1.67) | libboost1.67-dev, libprotobuf-dev (>=${CPACK_PROTOBUF_VERSION_LOWER_BOUND}~), libprotobuf-dev (<<${CPACK_PROTOBUF_VERSION_UPPER_BOUND})"
+      "libgtirb (=${CPACK_GTIRB_VERSION}-${CPACK_DEBIAN_PACKAGE_RELEASE}), libboost-dev (>=1.68) | libboost1.68-dev, libprotobuf-dev (>=${CPACK_PROTOBUF_VERSION_LOWER_BOUND}~), libprotobuf-dev (<<${CPACK_PROTOBUF_VERSION_UPPER_BOUND})"
   )
 elseif("${CPACK_GTIRB_PACKAGE}" STREQUAL "debian-debug")
   set(CPACK_DEBIAN_PACKAGE_NAME "libgtirb-dbg")

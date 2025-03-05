@@ -333,7 +333,7 @@ endif()
 # Boost
 # ---------------------------------------------------------------------------
 if(CXX_API)
-  find_package(Boost 1.67 REQUIRED)
+  find_package(Boost 1.68 REQUIRED)
 
   add_compile_options(-DBOOST_CONFIG_SUPPRESS_OUTDATED_MESSAGE)
   add_compile_options(-DBOOST_SYSTEM_NO_DEPRECATED)

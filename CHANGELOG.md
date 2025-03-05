@@ -9,6 +9,7 @@
   not be compatible with recent protobuf packages.
 * Added support in the C++ API for deserializing set AuxData into unordered_sets.
 * Fixed issue causing compile errors when building with Boost 1.86+.
+* Building the C++ API now requires Boost 1.68 or later.
 
 # 2.2.0
 

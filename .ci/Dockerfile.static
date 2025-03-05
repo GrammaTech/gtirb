@@ -1,6 +1,6 @@
 FROM ubuntu:20.04
 
-ARG BOOST_VERSION=1.67
+ARG BOOST_VERSION=1_68_0
 
 SHELL ["/bin/bash", "-c"]
 
@@ -16,7 +16,6 @@ RUN apt-get -y update && \
         cmake \
         curl \
         git \
-        libboost${BOOST_VERSION}-dev \
         libprotobuf-dev \
         libprotoc-dev \
         libtool \
@@ -24,3 +23,9 @@ RUN apt-get -y update && \
         unzip \
         wget \
         software-properties-common
+RUN TARBALL=boost_${BOOST_VERSION}.tar.bz2 && \
+    curl -L https://archives.boost.io/release/1.68.0/source/${TARBALL} \
+        -o /tmp/${TARBALL} --fail && \
+    tar xf /tmp/${TARBALL} --one-top-level=/tmp && \
+    mv /tmp/boost_${BOOST_VERSION}/boost /usr/local/include/boost && \
+    rm -rf /tmp/${TARBALL} /tmp/boost_${BOOST_VERSION}

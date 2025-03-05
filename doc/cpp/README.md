@@ -20,7 +20,7 @@ tasks using the GTIRB C++ library API.
 
 To build and install GTIRB, the following requirements should be installed in addition to the [common requirements](../../README.md#requirements):
 
-- [Boost](https://www.boost.org/), version 1.67.0 or later.
+- [Boost](https://www.boost.org/), version 1.68.0 or later.
   - No version of Ubuntu provides this version of Boost yet; you must build it from source.
 
 ### Building on Windows
