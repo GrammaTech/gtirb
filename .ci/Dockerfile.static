@@ -27,5 +27,8 @@ RUN TARBALL=boost_${BOOST_VERSION}.tar.bz2 && \
     curl -L https://archives.boost.io/release/1.68.0/source/${TARBALL} \
         -o /tmp/${TARBALL} --fail && \
     tar xf /tmp/${TARBALL} --one-top-level=/tmp && \
-    mv /tmp/boost_${BOOST_VERSION}/boost /usr/local/include/boost && \
+    cd /tmp/boost_${BOOST_VERSION} && \
+    ./bootstrap.sh --prefix=/usr/local && \
+    ./b2 include=/usr/include/python3.8 link=static install && \
+    cd / && \
     rm -rf /tmp/${TARBALL} /tmp/boost_${BOOST_VERSION}
