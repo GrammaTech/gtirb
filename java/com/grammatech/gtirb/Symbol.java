@@ -126,7 +126,7 @@ public class Symbol extends Node {
      * @param  An Optional that contains the Module this
      * symbol belongs to, or empty if it does not belong to a Module.
      */
-    void setModule(Optional<Module> module) { this.module = module; }
+    public void setModule(Optional<Module> module) { this.module = module; }
 
     /**
      * Get the name of this Symbol.
