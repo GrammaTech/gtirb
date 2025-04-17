@@ -18,6 +18,7 @@
 #include <gtirb/proto/CFG.pb.h>
 #include <map>
 #include <tuple>
+#include <iostream>
 
 namespace gtirb {
 GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
@@ -230,6 +231,9 @@ bool fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
     if (!uuidFromBytes(M, Id))
       return false;
     auto* N = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, Id));
+    if(!N) {
+      printf("Bad vertex!");
+    }
     assert(N && "CFG message contains vertex that is not a CfgNode!");
     if (!N)
       return false;
