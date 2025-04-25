@@ -10,6 +10,8 @@
 * Added support in the C++ API for deserializing set AuxData into unordered_sets.
 * Fixed issue causing compile errors when building with Boost 1.86+.
 * Building the C++ API now requires Boost 1.68 or later.
+* Fixed an obscure build error caused by a missing protobuf compiler. CMake now
+  explicitly checks for the protobuf compiler before generating build files.
 
 # 2.2.0
 

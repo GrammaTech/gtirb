@@ -427,6 +427,16 @@ if(CL_API)
 else()
   find_package(Protobuf 3.0.0 REQUIRED)
 endif()
+if(NOT Protobuf_PROTOC_EXECUTABLE)
+  # find_package only fails if the protobuf libraries or headers cannot be
+  # found. It does not treat failing to find the protobuf compiler as an error,
+  # so we do that explicitly here.
+  message(
+    FATAL_ERROR
+      "Could not find Protobuf compiler 'protoc'. Please make sure the "
+      "Protobuf compiler is installed."
+  )
+endif()
 
 if(Protobuf_VERSION VERSION_LESS 3.2)
   add_definitions(-DPROTOBUF_SET_BYTES_LIMIT)
