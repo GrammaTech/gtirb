@@ -17,6 +17,7 @@ package com.grammatech.gtirb;
 import com.grammatech.gtirb.proto.ProxyBlockOuterClass;
 import java.io.IOException;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * ProxyBlock is a placeholder that serves as the end point (source or target)
@@ -42,6 +43,11 @@ public class ProxyBlock extends Node {
      */
     public ProxyBlock() {
         super();
+        this.module = Optional.empty();
+    }
+
+    public ProxyBlock(UUID uuid) {
+        super(uuid);
         this.module = Optional.empty();
     }
 
