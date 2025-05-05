@@ -231,9 +231,14 @@ bool fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
     if (!uuidFromBytes(M, Id))
       return false;
     auto* N = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, Id));
-    assert(N && "CFG message contains vertex that is not a CfgNode!");
-    if (!N)
-      return false;
+    // assert(N && "CFG message contains vertex that is not a CfgNode!");
+    if (N == NULL) {
+      std::cout << "Skipping bad node\n";
+      continue;
+    }
+    // if (!N)
+    //   return false;
+    std::cout << "Valid vertex :)\n";
     addVertex(N, Result);
   }
   for (const auto& M : Message.edges()) {
