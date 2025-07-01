@@ -753,19 +753,6 @@ apt-internal-ubuntu20-stable:
     APT_REPO_CODENAMES: focal
     APT_REPO_COMPONENT: stable
 
-maven-central-upload:
-  stage: deploy
-  needs: [build-java]
-  trigger:
-    project: rewriting/utility/package-uploader
-    strategy: depend
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-  variables:
-    JOB_NAME: build-java
-    JAVA_POM_SUBDIR: ./build/java
-
 .windows-upload: &windows-upload
   stage: upload
   trigger:
