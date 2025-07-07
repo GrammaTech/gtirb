@@ -505,21 +505,24 @@ conan-windows-32:
     # The boost options disable building boost with libiconv.  This is important, because we can't get the package to build with --build=libiconv.
     - CI_PROJECT_DIR=$(cygpath -w $(pwd)) python .ci/build.py -s arch=x86 -s compiler.runtime=MT --build=protobuf -o protobuf:with_zlib=False --build=gtirb --build=boost -o boost:zlib=False -o boost:bzip2=False -o boost:without_locale=True -o boost:without_log=True --build=missing
 
-external-pypi:
-  stage: deploy
-  needs: [build-ubuntu24-gcc, python-wheel]
-  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
-  rules:
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-  script:
-    - pip3 install gtirb-*-py*-none-any.whl
-    - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
-    # We won't be releasing our dev packages externally, so fail if this is a
-    # .dev package.
-    - if [[ "$GTIRB_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ ]]; then exit 1; fi
-    - pip3 install twine wheel setuptools pkginfo --upgrade
-    - twine check gtirb-*-py*-none-any.whl
-    - twine upload gtirb-*-py*-none-any.whl -u __token__ -p $PYPI_API_KEY
+# The upload to the pypi.org succeeded but the apt packages were not uploaded.
+# We need to disable this job to avoid re-uploading the wheel when we run the
+# pipeline to upload the python wheel for the first time.
+#external-pypi:
+#  stage: deploy
+#  needs: [build-ubuntu24-gcc, python-wheel]
+#  image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
+#  rules:
+#    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+#  script:
+#    - pip3 install gtirb-*-py*-none-any.whl
+#    - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
+#    # We won't be releasing our dev packages externally, so fail if this is a
+#    # .dev package.
+#    - if [[ "$GTIRB_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ ]]; then exit 1; fi
+#    - pip3 install twine wheel setuptools pkginfo --upgrade
+#    - twine check gtirb-*-py*-none-any.whl
+#    - twine upload gtirb-*-py*-none-any.whl -u __token__ -p $PYPI_API_KEY
 
 # On master, we only upload and overwrite `.dev` versions of the python
 # package.  Non-.dev versions should only be uploaded on versioned
@@ -527,40 +530,44 @@ external-pypi:
 # coincides with that of our conan packages, where dev packages are
 # produced from master, and stable, versioned packages are produced
 # on release-.* branches.
-internal-pypi:
-  stage: deploy
-  needs: [build-ubuntu24-gcc, python-wheel]
-  image: python:3.9
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-    # If you need to publish a package for a specific branch, change the
-    # package version to something like, '0.0.0.dev0+mybranchname', uncomment
-    # the rule below and replace 'mybranchname' with your branch name.
-    #- if: '$CI_COMMIT_BRANCH == "mybranchname"'
-    #  changes:
-    #    - python/gtirb/setup.py.in
-  script:
-    - pip3 install twine wheel setuptools pkginfo --upgrade
-    - wget https://git.grammatech.com/research/templates/python-module/raw/master/.pypirc
-    - sed "s/password = <access token>/password = $GL_PKG_API_TOKEN/" .pypirc > ~/.pypirc
-    - pip3 install gtirb-*-py*-none-any.whl
-    - NEW_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
-    - if [[ "$NEW_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ && "$CI_COMMIT_REF_NAME" =~ ^release-.* ]]; then exit 1; fi
-    - if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
-        if [[ ! "$NEW_VERSION" =~ \.dev[[:digit:]]*$ ]]; then
-          echo "[ERROR] Only .dev versions can be uploaded from the master branch.";
-          exit 1;
-        fi;
-        if pip3 install --extra-index-url=$EXTRA_INDEX_URL "gtirb>$NEW_VERSION" 2>/dev/null; then
-          echo "[ERROR] The package version being published on master should always be >= the version in the repository.";
-          exit 1;
-        fi;
-        wget https://git.grammatech.com/research/templates/python-module/raw/master/delete_remote_packages.py;
-        python3 delete_remote_packages.py $GL_PKG_API_TOKEN gtirb-*-py*-none-any.whl;
-      fi
-    - twine check gtirb-*-py*-none-any.whl
-    - twine upload --verbose --repository repypi gtirb-*-py*-none-any.whl
+
+# The upload to the internal pypi repository succeeded but the apt packages
+# were not uploaded. We need to disable this job to avoid re-uploading the
+# wheel when we run the pipeline to upload the python wheel for the first time.
+#internal-pypi:
+#  stage: deploy
+#  needs: [build-ubuntu24-gcc, python-wheel]
+#  image: python:3.9
+#  rules:
+#    - if: '$CI_COMMIT_BRANCH == "master"'
+#    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+#    # If you need to publish a package for a specific branch, change the
+#    # package version to something like, '0.0.0.dev0+mybranchname', uncomment
+#    # the rule below and replace 'mybranchname' with your branch name.
+#    #- if: '$CI_COMMIT_BRANCH == "mybranchname"'
+#    #  changes:
+#    #    - python/gtirb/setup.py.in
+#  script:
+#    - pip3 install twine wheel setuptools pkginfo --upgrade
+#    - wget https://git.grammatech.com/research/templates/python-module/raw/master/.pypirc
+#    - sed "s/password = <access token>/password = $GL_PKG_API_TOKEN/" .pypirc > ~/.pypirc
+#    - pip3 install gtirb-*-py*-none-any.whl
+#    - NEW_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
+#    - if [[ "$NEW_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ && "$CI_COMMIT_REF_NAME" =~ ^release-.* ]]; then exit 1; fi
+#    - if [[ "$CI_COMMIT_BRANCH" == "master" ]]; then
+#        if [[ ! "$NEW_VERSION" =~ \.dev[[:digit:]]*$ ]]; then
+#          echo "[ERROR] Only .dev versions can be uploaded from the master branch.";
+#          exit 1;
+#        fi;
+#        if pip3 install --extra-index-url=$EXTRA_INDEX_URL "gtirb>$NEW_VERSION" 2>/dev/null; then
+#          echo "[ERROR] The package version being published on master should always be >= the version in the repository.";
+#          exit 1;
+#        fi;
+#        wget https://git.grammatech.com/research/templates/python-module/raw/master/delete_remote_packages.py;
+#        python3 delete_remote_packages.py $GL_PKG_API_TOKEN gtirb-*-py*-none-any.whl;
+#      fi
+#    - twine check gtirb-*-py*-none-any.whl
+#    - twine upload --verbose --repository repypi gtirb-*-py*-none-any.whl
 
 # Apt packaging related jobs
 .build-ubuntu-packages: &build-ubuntu-packages
