@@ -512,6 +512,7 @@ external-pypi:
   rules:
     - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
   script:
+    - pip3 install twine wheel setuptools pkginfo --upgrade
     - pip3 install gtirb-*-py*-none-any.whl
     - GTIRB_VERSION=$(python3 -c "import gtirb; print(gtirb.__version__)")
     # We won't be releasing our dev packages externally, so fail if this is a

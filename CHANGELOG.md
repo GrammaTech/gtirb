@@ -1,4 +1,6 @@
-# 2.3.0 (Unreleased)
+# 2.3.1 (Unreleased)
+
+# 2.3.0
 
 * Fixed a compatibility problem in the Python API that prevented using recent
   releases of protobuf. The Python API on PyPI now requires protobuf 4.21.1 or
