@@ -517,6 +517,7 @@ external-pypi:
     # We won't be releasing our dev packages externally, so fail if this is a
     # .dev package.
     - if [[ "$GTIRB_VERSION" =~ \.dev[[:digit:]]*(\+.*)?$ ]]; then exit 1; fi
+    - pip3 install twine wheel setuptools pkginfo --upgrade
     - twine check gtirb-*-py*-none-any.whl
     - twine upload gtirb-*-py*-none-any.whl -u __token__ -p $PYPI_API_KEY
 
@@ -753,18 +754,21 @@ apt-internal-ubuntu20-stable:
     APT_REPO_CODENAMES: focal
     APT_REPO_COMPONENT: stable
 
-maven-central-upload:
-  stage: deploy
-  needs: [build-java]
-  trigger:
-    project: rewriting/utility/package-uploader
-    strategy: depend
-  rules:
-    - if: '$CI_COMMIT_REF_NAME == "master"'
-    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
-  variables:
-    JOB_NAME: build-java
-    JAVA_POM_SUBDIR: ./build/java
+# The upload to the maven central repository succeeded before the upload to
+# pypi.org failed. We need to disable this job to avoid re-uploading the jar
+# when we run the pipeline to upload the python wheel for the first time.
+#maven-central-upload:
+#  stage: deploy
+#  needs: [build-java]
+#  trigger:
+#    project: rewriting/utility/package-uploader
+#    strategy: depend
+#  rules:
+#    - if: '$CI_COMMIT_REF_NAME == "master"'
+#    - if: '$CI_COMMIT_REF_NAME =~ /^release-.*/'
+#  variables:
+#    JOB_NAME: build-java
+#    JAVA_POM_SUBDIR: ./build/java
 
 .windows-upload: &windows-upload
   stage: upload
