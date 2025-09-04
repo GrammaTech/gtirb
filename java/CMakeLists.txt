@@ -91,7 +91,7 @@ set(GTIRB_API_JAVAS
     CodeBlock
     DataBlock
     Edge
-    ElfSectionPropertyTuple
+    SectionPropertyTuple
     ElfSymbolInfoTuple
     ElfSymbolVersionsTable
     IR

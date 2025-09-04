@@ -171,12 +171,12 @@ public class AuxDataSchemas {
     /**
      * Map from section UUIDs to tuples with the ELF section types and flags.
      */
-    public final static AuxDataSchema<Map<UUID, ElfSectionPropertyTuple>>
-        elfSectionProperties = new AuxDataSchema<>(
-            "elfSectionProperties",
+    public final static AuxDataSchema<Map<UUID, SectionPropertyTuple>>
+        sectionProperties = new AuxDataSchema<>(
+            "sectionProperties",
             new MapCodec<>(new UuidCodec(),
                            new Tuple2Codec<>(LongCodec.UINT64, LongCodec.UINT64,
-                                             ElfSectionPropertyTuple::new),
+                                             SectionPropertyTuple::new),
                            HashMap::new));
 
     /**
