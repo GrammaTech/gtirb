@@ -12,9 +12,7 @@ public class SectionPropertyTuple extends Tuple2<Long, Long> {
      * @param type The type of the section.
      * @param flags The flags for the section.
      */
-    public SectionPropertyTuple(Long type, Long flags) {
-        super(type, flags);
-    }
+    public SectionPropertyTuple(Long type, Long flags) { super(type, flags); }
 
     /**
      * Get the type of the section.
