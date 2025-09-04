@@ -82,9 +82,9 @@ add_custom_command(
           "${CMAKE_CURRENT_BINARY_DIR}/tests"
   COMMAND ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/gtirb"
           "${CMAKE_CURRENT_BINARY_DIR}/gtirb"
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-          "${CMAKE_CURRENT_SOURCE_DIR}/tests"
-          "${CMAKE_CURRENT_BINARY_DIR}/tests"
+  COMMAND
+    ${CMAKE_COMMAND} -E copy_directory "${CMAKE_CURRENT_SOURCE_DIR}/tests"
+    "${CMAKE_CURRENT_BINARY_DIR}/tests"
 )
 
 if(GTIRB_RELEASE_VERSION)
@@ -110,8 +110,7 @@ if(GTIRB_ENABLE_TESTS)
   if(ENABLE_CODE_COVERAGE)
     add_test(
       NAME testgtirbpy
-      COMMAND
-        coverage run --source=gtirb -m unittest discover tests
+      COMMAND coverage run --source=gtirb -m unittest discover tests
       WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
     )
   else()

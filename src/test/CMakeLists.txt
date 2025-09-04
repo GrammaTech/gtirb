@@ -97,9 +97,10 @@ target_link_libraries(${PROJECT_NAME} ${SYSLIBS} ${Boost_LIBRARIES} gtirb)
 # in sequence, passing the output GTIRB file from the former to the latter.
 add_test(
   NAME testgtirbc++
-  COMMAND ${CMAKE_COMMAND} -DCMD1=$<TARGET_FILE:PrepTestGTIRB>
-          -DCMD2=$<TARGET_FILE:TestGTIRB> -P
-          ${CMAKE_CURRENT_SOURCE_DIR}/runtests.cmake
+  COMMAND
+    ${CMAKE_COMMAND} -DCMD1=$<TARGET_FILE:PrepTestGTIRB>
+    -DCMD2=$<TARGET_FILE:TestGTIRB> -P
+    ${CMAKE_CURRENT_SOURCE_DIR}/runtests.cmake
 )
 
 # testgtirb_schemac++

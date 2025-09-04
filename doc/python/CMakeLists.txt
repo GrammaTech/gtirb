@@ -12,9 +12,8 @@ if(PYTHON)
       sphinx
       DEPENDS pygtirb
       WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-      COMMAND
-        ${SPHINX_APIDOC} ${CMAKE_BINARY_DIR}/python/gtirb --output-dir
-        ${CMAKE_CURRENT_BINARY_DIR} --force --full --separate
+      COMMAND ${SPHINX_APIDOC} ${CMAKE_BINARY_DIR}/python/gtirb --output-dir
+              ${CMAKE_CURRENT_BINARY_DIR} --force --full --separate
       COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/conf.py
               ${CMAKE_CURRENT_BINARY_DIR}/
       COMMAND ${SPHINX_MAKE_CMD} html

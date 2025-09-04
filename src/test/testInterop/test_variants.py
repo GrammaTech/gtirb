@@ -94,7 +94,7 @@ class MyMap:
         if not isinstance(auxdata.data, dict):
             raise Exception()
         newmap = dict()
-        for (k, v) in auxdata.data.items():
+        for k, v in auxdata.data.items():
             newmap[k] = cls.TYPELIST[v.index](v.val)
         return cls(newmap)
 

@@ -106,7 +106,7 @@ class NotGTIRBTest(unittest.TestCase):
 
 class BadVersionTest(unittest.TestCase):
     def test(self):
-        file_content = io.BytesIO(b"GTIRB\x00\x00\xFF")
+        file_content = io.BytesIO(b"GTIRB\x00\x00\xff")
         with self.assertRaises(Exception) as context:
             gtirb.IR.load_protobuf_file(file_content)
 

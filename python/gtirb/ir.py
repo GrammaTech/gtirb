@@ -1,12 +1,12 @@
 """The IR is the core class for reading and writing GTIRB files.
 
-    You can open a GTIRB Protobuf file and load it into an IR instance:
+You can open a GTIRB Protobuf file and load it into an IR instance:
 
-    >>> ir = IR.load_protobuf('filename.gtirb')
+>>> ir = IR.load_protobuf('filename.gtirb')
 
-    And then you can write the IR instance as a Protobuf file:
+And then you can write the IR instance as a Protobuf file:
 
-    >>> ir.save_protobuf('filename.gtirb')
+>>> ir.save_protobuf('filename.gtirb')
 """
 
 import itertools
@@ -173,7 +173,7 @@ class IR(AuxDataContainer):
 
     @staticmethod
     def load_protobuf(
-        file_name: typing.Union[str, "os.PathLike[str]"]
+        file_name: typing.Union[str, "os.PathLike[str]"],
     ) -> "IR":
         """Load IR from a Protobuf file at the specified path.
 
