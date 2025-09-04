@@ -10,7 +10,9 @@ public class Tuple1Codec<T extends Tuple1<A>, A> implements Codec<T> {
 
     private Tuple1Maker<T, A> maker;
 
-    public interface Tuple1Maker<T, A> { public T make(A a); }
+    public interface Tuple1Maker<T, A> {
+        public T make(A a);
+    }
 
     public Tuple1Codec(Codec<A> ac, Tuple1Maker<T, A> maker) {
         this.aCodec = ac;

@@ -27,7 +27,9 @@ public class Tuple3Codec<T extends Tuple3<A, B, C>, A, B, C>
 
     private Tuple3Maker<T, A, B, C> maker;
 
-    public interface Tuple3Maker<T, A, B, C> { public T make(A a, B b, C c); }
+    public interface Tuple3Maker<T, A, B, C> {
+        public T make(A a, B b, C c);
+    }
 
     public Tuple3Codec(Codec<A> ac, Codec<B> bc, Codec<C> cc,
                        Tuple3Maker<T, A, B, C> maker) {

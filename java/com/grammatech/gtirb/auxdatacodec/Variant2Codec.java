@@ -15,7 +15,9 @@ public class Variant2Codec<T extends Variant2<A, B>, A, B> implements Codec<T> {
     private Variant2Maker<T, A> aMaker;
     private Variant2Maker<T, B> bMaker;
 
-    public interface Variant2Maker<T, X> { public T make(X x); }
+    public interface Variant2Maker<T, X> {
+        public T make(X x);
+    }
 
     /**
      * Construct a codec for 2-element variants.
