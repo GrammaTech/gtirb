@@ -43,7 +43,8 @@ class IntervalBuilder(Protocol[_Kco, _V]):
     If no interval is available for a particular value, returns None instead.
     """
 
-    def __call__(self, node: _V) -> Optional["Interval[_Kco, _V]"]: ...
+    def __call__(self, node: _V) -> Optional["Interval[_Kco, _V]"]:
+        ...
 
 
 class LazyIntervalTree(Generic[_K, _V]):

@@ -135,14 +135,16 @@ target_include_directories(
 
 target_link_libraries(
   ${PROJECT_NAME}
-  PUBLIC ${SYSLIBS} ${Boost_LIBRARIES} ${Protobuf_LIBRARIES}
+  PUBLIC ${SYSLIBS}
+         ${Boost_LIBRARIES}
+         ${Protobuf_LIBRARIES}
          # Link in this static lib, but don't make it a transitive dependency of
          # TestGTIRB, etc
   PRIVATE gtirb_proto
 )
 target_compile_definitions(
   ${PROJECT_NAME} PRIVATE GTIRB_${PROJECT_NAME}_EXPORTS
-                          GTIRB_WRAP_UTILS_IN_NAMESPACE
+  GTIRB_WRAP_UTILS_IN_NAMESPACE
 )
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROTOBUF_INCLUDE_DIRS}")
 
@@ -159,8 +161,8 @@ if(${CMAKE_CXX_COMPILER_ID} STREQUAL MSVC)
     ${PROJECT_NAME} PUBLIC -wd4244
   ) # conversion from 'type1' to 'type2', possible loss of data
   target_compile_definitions(
-    ${PROJECT_NAME}
-    PUBLIC _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
+    ${PROJECT_NAME} PUBLIC
+    _SILENCE_CXX17_ITERATOR_BASE_CLASS_DEPRECATION_WARNING
   )
 
   target_compile_options(

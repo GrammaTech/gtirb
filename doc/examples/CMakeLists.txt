@@ -1,7 +1,7 @@
 if(CL_API)
   list(APPEND EXAMPLE_FILES_IN "${CMAKE_CURRENT_SOURCE_DIR}/cfg-paths.lisp"
-       "${CMAKE_CURRENT_SOURCE_DIR}/data-symbols.lisp"
-       "${CMAKE_CURRENT_SOURCE_DIR}/show-cfg.lisp"
+              "${CMAKE_CURRENT_SOURCE_DIR}/data-symbols.lisp"
+              "${CMAKE_CURRENT_SOURCE_DIR}/show-cfg.lisp"
   )
 endif(CL_API)
 
@@ -45,26 +45,25 @@ if(CXX_API)
   endif()
 
   list(
-    APPEND
-    EXAMPLE_FILES_IN
-    "${CMAKE_CURRENT_SOURCE_DIR}/api-walkthrough.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/cfg-paths.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/data-symbols.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/functions.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/jumps.cpp"
+    APPEND EXAMPLE_FILES_IN
+           "${CMAKE_CURRENT_SOURCE_DIR}/api-walkthrough.cpp"
+           "${CMAKE_CURRENT_SOURCE_DIR}/cfg-paths.cpp"
+           "${CMAKE_CURRENT_SOURCE_DIR}/data-symbols.cpp"
+           "${CMAKE_CURRENT_SOURCE_DIR}/functions.cpp"
+           "${CMAKE_CURRENT_SOURCE_DIR}/jumps.cpp"
   )
 endif(CXX_API)
 
 if(JAVA_API)
   list(APPEND EXAMPLE_FILES_IN "${CMAKE_CURRENT_SOURCE_DIR}/cfgpaths.java"
-       "${CMAKE_CURRENT_SOURCE_DIR}/datasymbols.java"
+              "${CMAKE_CURRENT_SOURCE_DIR}/datasymbols.java"
   )
 endif(JAVA_API)
 
 if(PY_API)
   list(APPEND EXAMPLE_FILES_IN "${CMAKE_CURRENT_SOURCE_DIR}/cfg-paths.py"
-       "${CMAKE_CURRENT_SOURCE_DIR}/data-symbols.py"
-       "${CMAKE_CURRENT_SOURCE_DIR}/show-cfg.py"
+              "${CMAKE_CURRENT_SOURCE_DIR}/data-symbols.py"
+              "${CMAKE_CURRENT_SOURCE_DIR}/show-cfg.py"
   )
 endif(PY_API)
 

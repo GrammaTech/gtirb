@@ -134,8 +134,9 @@ configure_file(
 list(APPEND GTIRB_API_JAVAS Version)
 
 foreach(GTIRB_API_JAVA ${GTIRB_API_JAVAS})
-  list(APPEND GTIRB_API_SOURCES
-       ${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb/${GTIRB_API_JAVA}.java
+  list(
+    APPEND GTIRB_API_SOURCES
+           ${GTIRB_JAVA_SOURCE_DIR}/com/grammatech/gtirb/${GTIRB_API_JAVA}.java
   )
 endforeach()
 

@@ -36,7 +36,8 @@ class _SymbolicExpressionContainer(typing_extensions.Protocol[T_cov]):
 
     def symbolic_expressions_at(
         self, addrs: typing.Union[int, range]
-    ) -> typing.Iterable[T_cov]: ...  # pragma: no cover
+    ) -> typing.Iterable[T_cov]:
+        ...  # pragma: no cover
 
 
 class ListWrapper(typing.MutableSequence[T]):
@@ -54,12 +55,12 @@ class ListWrapper(typing.MutableSequence[T]):
 
     # begin functions for ABC
     @typing.overload
-    def __getitem__(self, i: int) -> T: ...  # pragma: no cover
+    def __getitem__(self, i: int) -> T:
+        ...  # pragma: no cover
 
     @typing.overload
-    def __getitem__(
-        self, i: slice
-    ) -> typing.MutableSequence[T]: ...  # pragma: no cover
+    def __getitem__(self, i: slice) -> typing.MutableSequence[T]:
+        ...  # pragma: no cover
 
     def __getitem__(
         self, i: typing.Union[int, slice]
@@ -67,14 +68,12 @@ class ListWrapper(typing.MutableSequence[T]):
         return self._data[i]
 
     @typing.overload
-    def __setitem__(
-        self, i: typing_extensions.SupportsIndex, v: T
-    ) -> None: ...  # pragma: no cover
+    def __setitem__(self, i: typing_extensions.SupportsIndex, v: T) -> None:
+        ...  # pragma: no cover
 
     @typing.overload
-    def __setitem__(
-        self, i: slice, v: typing.Iterable[T]
-    ) -> None: ...  # pragma: no cover
+    def __setitem__(self, i: slice, v: typing.Iterable[T]) -> None:
+        ...  # pragma: no cover
 
     def __setitem__(
         self,
@@ -100,10 +99,12 @@ class ListWrapper(typing.MutableSequence[T]):
             self._data[i] = values[0]
 
     @typing.overload
-    def __delitem__(self, i: int) -> None: ...  # pragma: no cover
+    def __delitem__(self, i: int) -> None:
+        ...  # pragma: no cover
 
     @typing.overload
-    def __delitem__(self, i: slice) -> None: ...  # pragma: no cover
+    def __delitem__(self, i: slice) -> None:
+        ...  # pragma: no cover
 
     def __delitem__(self, i: typing.Union[int, slice]) -> None:
         if isinstance(i, slice):
@@ -271,11 +272,11 @@ AttributeT = typing.TypeVar("AttributeT")
 class IndexedContainer(typing_extensions.Protocol[T_contra]):
     """Container wth an index that can be updated."""
 
-    def _index_discard(
-        self, instance: T_contra
-    ) -> None: ...  # pragma: no cover
+    def _index_discard(self, instance: T_contra) -> None:
+        ...  # pragma: no cover
 
-    def _index_add(self, instance: T_contra) -> None: ...  # pragma: no cover
+    def _index_add(self, instance: T_contra) -> None:
+        ...  # pragma: no cover
 
 
 class ParentGetter(typing_extensions.Protocol[T_contra]):
@@ -283,7 +284,8 @@ class ParentGetter(typing_extensions.Protocol[T_contra]):
 
     def __call__(
         self, instance: T_contra
-    ) -> typing.Optional[IndexedContainer[T_contra]]: ...  # pragma: no cover
+    ) -> typing.Optional[IndexedContainer[T_contra]]:
+        ...  # pragma: no cover
 
 
 class _IndexedAttribute(typing.Generic[AttributeT]):
@@ -361,10 +363,12 @@ class AddrRange(typing_extensions.Protocol):
     # will match Optional[int] properties, but not Optional[int] fields.
 
     @property
-    def address(self) -> typing.Optional[int]: ...  # pragma: no cover
+    def address(self) -> typing.Optional[int]:
+        ...  # pragma: no cover
 
     @property
-    def size(self) -> typing.Optional[int]: ...  # pragma: no cover
+    def size(self) -> typing.Optional[int]:
+        ...  # pragma: no cover
 
 
 # Need a TypeVar bounded by the protocol so that nodes_on callers will get
@@ -423,10 +427,12 @@ class OffsetRange(typing_extensions.Protocol):
     """An object spanning a range of offsets."""
 
     @property
-    def offset(self) -> int: ...  # pragma: no cover
+    def offset(self) -> int:
+        ...  # pragma: no cover
 
     @property
-    def size(self) -> int: ...  # pragma: no cover
+    def size(self) -> int:
+        ...  # pragma: no cover
 
 
 OffsetRangeT = typing.TypeVar("OffsetRangeT", bound=OffsetRange)

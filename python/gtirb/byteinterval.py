@@ -249,9 +249,9 @@ class ByteInterval(Node):
         # we do not decode symbolic expressions yet, because symbols have
         # not yet been decoded at this point.
         result = cls(
-            address=(
-                proto_interval.address if proto_interval.has_address else None
-            ),
+            address=proto_interval.address
+            if proto_interval.has_address
+            else None,
             size=proto_interval.size,
             contents=proto_interval.contents,
             uuid=uuid,
