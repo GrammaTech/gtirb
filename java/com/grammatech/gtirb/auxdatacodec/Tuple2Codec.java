@@ -25,9 +25,7 @@ public class Tuple2Codec<T extends Tuple2<A, B>, A, B> implements Codec<T> {
 
     private Tuple2Maker<T, A, B> maker;
 
-    public interface Tuple2Maker<T, A, B> {
-        public T make(A a, B b);
-    }
+    public interface Tuple2Maker<T, A, B> { public T make(A a, B b); }
 
     public Tuple2Codec(Codec<A> ac, Codec<B> bc, Tuple2Maker<T, A, B> maker) {
         this.aCodec = ac;

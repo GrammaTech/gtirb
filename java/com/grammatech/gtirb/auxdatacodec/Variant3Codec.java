@@ -18,9 +18,7 @@ public class Variant3Codec<T extends Variant3<A, B, C>, A, B, C>
     private Variant3Maker<T, B> bMaker;
     private Variant3Maker<T, C> cMaker;
 
-    public interface Variant3Maker<T, X> {
-        public T make(X a);
-    }
+    public interface Variant3Maker<T, X> { public T make(X a); }
 
     /**
      * Construct a codec for 3-element variants.

@@ -35,9 +35,7 @@ public class Variant11Codec<
     private Variant11Maker<T, J> jMaker;
     private Variant11Maker<T, K> kMaker;
 
-    public interface Variant11Maker<T, X> {
-        public T make(X x);
-    }
+    public interface Variant11Maker<T, X> { public T make(X x); }
 
     /**
      * Construct a codec for 3-element variants.
