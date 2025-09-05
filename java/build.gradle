@@ -20,7 +20,7 @@ sourceSets {
 }
 
 dependencies {
-    implementation 'com.google.protobuf:protobuf-java:4.25.0'
+    implementation 'com.google.protobuf:protobuf-java:4.0.0-rc-2'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-params:5.10.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
