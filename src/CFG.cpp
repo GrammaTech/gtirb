@@ -16,9 +16,9 @@
 #include "Serialization.hpp"
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/proto/CFG.pb.h>
+#include <iostream>
 #include <map>
 #include <tuple>
-#include <iostream>
 
 namespace gtirb {
 GTIRB_EXPORT_API std::ostream& operator<<(std::ostream& OS,
