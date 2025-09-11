@@ -126,7 +126,7 @@ build-docs:
     # Re-configure to pick up python dependencies
     - cmake ..
     - make doc
-    - mv doc/html ..
+    #- mv doc/html ..
 
 .build-template: &build
   stage: build
