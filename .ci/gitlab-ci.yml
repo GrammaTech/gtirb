@@ -42,6 +42,7 @@ default:
       -f "$CI_PROJECT_DIR/$DOCKERFILE_PATH"
       --cache-from "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME/cache"
       --cache-to "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME/cache"
+      --layers
       --tag "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME:$IMAGE_TAG"
       "$CI_PROJECT_DIR"
     # Push to our internal registry
