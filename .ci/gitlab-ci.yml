@@ -31,31 +31,26 @@ default:
 .build-ci-image: &build-ci-image
   stage: build-images
   image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
+    name: quay.io/buildah/stable
   script:
     # Configure authentication credentials for GitLab
+    - buildah login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+    - buildah login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD" https://index.docker.io/v1/
+    # Build our image (using a cache if available)
     - >-
-      echo "{\"auths\":{
-        \"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"},
-        \"https://index.docker.io/v1/\":{\"username\":\"$DOCKERHUB_USERNAME\",\"password\":\"$DOCKERHUB_PASSWORD\"}
-      }}" > /kaniko/.docker/config.json
-    # Run the kaniko executor, which will build our image (using a cache if available)
+      buildah build "$CI_PROJECT_DIR"
+      -f "$CI_PROJECT_DIR/$DOCKERFILE_PATH"
+      --cache-from "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME/cache"
+      --cache-to "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME/cache"
+      --tag "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME:$IMAGE_TAG"
     # Push to our internal registry
+    - buildah push "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME:$IMAGE_TAG"
     # If we're on the master branch, also push the latest tag.
     - >-
       if [ "$CI_COMMIT_BRANCH" = "$CI_DEFAULT_BRANCH" ]; then
-        export EXTRA_DEST="--destination=${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/${IMAGE_NAME}:latest"
+        buildah push "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME:$IMAGE_TAG" \
+            "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME:latest"
       fi
-    - >-
-      /kaniko/executor
-      --snapshotMode=redo
-      --cache=true
-      --cache-repo=${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/${IMAGE_NAME}/cache
-      --context=$CI_PROJECT_DIR
-      --dockerfile=$CI_PROJECT_DIR/$DOCKERFILE_PATH
-      --destination=${DOCKER_REGISTRY}/${CI_PROJECT_PATH}/${IMAGE_NAME}:$IMAGE_TAG
-      $EXTRA_DEST
 
 build-ci-image-ubuntu20:
   <<: *build-ci-image
