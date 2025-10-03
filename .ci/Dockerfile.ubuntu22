@@ -1,7 +1,5 @@
 FROM ubuntu:22.04
 
-SHELL ["/bin/bash", "-c"]
-
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN apt-get -y update && \
