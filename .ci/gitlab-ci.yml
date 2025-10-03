@@ -38,11 +38,12 @@ default:
     - buildah login -u "$DOCKERHUB_USERNAME" -p "$DOCKERHUB_PASSWORD" https://index.docker.io/v1/
     # Build our image (using a cache if available)
     - >-
-      buildah build "$CI_PROJECT_DIR"
+      buildah build
       -f "$CI_PROJECT_DIR/$DOCKERFILE_PATH"
       --cache-from "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME/cache"
       --cache-to "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME/cache"
       --tag "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME:$IMAGE_TAG"
+      "$CI_PROJECT_DIR"
     # Push to our internal registry
     - buildah push "$DOCKER_REGISTRY/$CI_PROJECT_PATH/$IMAGE_NAME:$IMAGE_TAG"
     # If we're on the master branch, also push the latest tag.
