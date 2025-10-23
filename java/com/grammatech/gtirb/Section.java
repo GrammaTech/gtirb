@@ -113,7 +113,7 @@ public class Section extends Node implements TreeListItem {
     /**
      * Set the Module this Section belongs to.
      *
-     * @param  An Optional that contains the Module this
+     * @param  module An Optional that contains the Module this
      * section belongs to, or empty if it does not belong to a Module.
      */
     public void setModule(Optional<Module> module) { this.module = module; }
