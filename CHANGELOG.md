@@ -1,5 +1,8 @@
 # 2.3.1 (Unreleased)
 
+* Fix auxdata table `elfSectionProperties` to `sectionProperties` in the java api
+  to match the cpp and python api
+
 # 2.3.0
 
 * Fixed a compatibility problem in the Python API that prevented using recent
