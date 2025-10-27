@@ -16,7 +16,6 @@
 #include "Serialization.hpp"
 #include <gtirb/CodeBlock.hpp>
 #include <gtirb/proto/CFG.pb.h>
-#include <iostream>
 #include <map>
 #include <tuple>
 
@@ -230,16 +229,12 @@ bool fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
     UUID Id;
     if (!uuidFromBytes(M, Id))
       return false;
-    // std::cout << "Node type: " << typeid(Node::getByUUID(C, Id)).name();
     auto* N = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, Id));
+    // Need to skip rather than error out on null N
     // assert(N && "CFG message contains vertex that is not a CfgNode!");
-    if (N == NULL) {
-      std::cout << "Skipping bad node\n";
+    if (!N) {
       continue;
     }
-    // if (!N)
-    //   return false;
-    // std::cout << "Valid vertex :)\n";
     addVertex(N, Result);
   }
   for (const auto& M : Message.edges()) {
