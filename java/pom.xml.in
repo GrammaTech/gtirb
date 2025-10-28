@@ -89,9 +89,6 @@
         <configuration>
           <detectJavaApiLink>false</detectJavaApiLink>
           <excludePackageNames>com.grammatech.gtirb.proto</excludePackageNames>
-          <additionalOptions>
-            <additionalOption>-Xdoclint:none</additionalOption>
-          </additionalOptions>
         </configuration>
         <executions>
           <execution>
