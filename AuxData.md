@@ -260,7 +260,6 @@ The following are the provisional AuxData table schemata.
 |-------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------|
 | [`"binaryType"`](#binarytype)                               | ```std::vector<std::string>```                                                                               |
 | [`"cfiDirectives"`](#cfidirectives)                         | ```std::map<gtirb::Offset, std::vector<std::tuple<std::string, std::vector<int64_t>, gtirb::UUID>>>```       |
-| [`"sectionProperties"`](#sectionProperties)           | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```                                                |
 | [`"elfSymbolInfo"`](#elfsymbolinfo)                         | ```std::map<gtirb::UUID, std::tuple<uint64_t, std::string, std::string, std::string, uint64_t>>```           |
 | [`"elfSymbolVersions"`](#elfsymbolversions)                 | ```std::tuple<std::map<uint16_t, std::tuple<std::vector<std::string>, uint16_t>>, std::map<std::string, std::map<uint16_t, std::string>>, std::map<gtirb::UUID, std::tuple<uint16_t, bool>>>```           |
 | [`"encodings"`](#encodings)                                 | ```std::map<gtirb::UUID, std::string>```                                                                     |
@@ -277,6 +276,7 @@ The following are the provisional AuxData table schemata.
 | [`"profile"`](#profile)                                     | ```std::map<gtirb::UUID, uint64_t>```                                                                        |
 | [`"prototypeTable"`](#prototypetable)                       | ```std::map<gtirb::UUID, gtirb::UUID>```                                                                     |
 | [`"sccs"`](#sccs)                                           | ```std::map<gtirb::UUID, int64_t>```                                                                         |
+| [`"sectionProperties"`](#sectionproperties)           | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```                                                |
 | [`"symbolicExpressionSizes"`](#symbolicexpressionsizes)     | ```std::map<gtirb::Offset, uint64_t>```                                                                      |
 | [`"typeTable"`](#typetable)                                 | ```std::map<gtirb::UUID, std::variant<uint64_t, std::tuple<uint8_t>, std::tuple<int8_t, uint64_t>, uint64_t, uint64_t, std::tuple<gtirb::UUID, std::vector<gtirb::UUID>>, gtirb::UUID, std::tuple<gtirb::UUID, uint64_t>, tuple<uint64_t, std::vector<tuple<uint64_t, gtirb::UUID>>>, std::tuple<uint8_t>, gtirb::UUID>>``` |
 
@@ -291,18 +291,6 @@ The following are the provisional AuxData table schemata.
 | Value    | The encoding of the data object.           |
 | AttachedTo | gtirb::Module |
 | Note     | Map from (typed) data objects to the encoding of the data,  expressed as a std::string containing an assembler encoding specifier: "string", "uleb128" or "sleb128". |
-
-
-### sectionProperties
-
-| <!-- --> | <!-- -->                                       |
-|----------|------------------------------------------------|
-| Label    | ```"sectionProperties"```                                |
-| Type     | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```        |
-| Key      | The gtirb::UUID of a section. |
-| Value    | The tuple with the ELF section types and flag.           |
-| AttachedTo | gtirb::Module |
-| Note     | Map from section UUIDs to tuples with the ELF section types and flags. |
 
 
 ### elfSymbolVersions
@@ -497,6 +485,19 @@ The following are the provisional AuxData table schemata.
 | Value      | Version string for the included library.                                                                              |
 | AttachedTo | gtirb::Module                                                                                                         |
 | Notes      | Versions of libraries that are included in an executable (i.e., their code is intermingled with the executable code). |
+
+
+### sectionProperties
+
+| <!-- --> | <!-- -->                                       |
+|----------|------------------------------------------------|
+| Label    | ```"sectionProperties"```                                |
+| Type     | ```std::map<gtirb::UUID, std::tuple<uint64_t, uint64_t>>>>```        |
+| Key      | The gtirb::UUID of a section. |
+| Value    | The tuple with the ELF section types and flag.           |
+| AttachedTo | gtirb::Module |
+| Note     | Map from section UUIDs to tuples with the ELF section types and flags. |
+
 
 ### typeTable
 
