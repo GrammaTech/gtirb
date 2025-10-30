@@ -231,10 +231,10 @@ bool fromProtobuf(Context& C, CFG& Result, const proto::CFG& Message) {
       return false;
     auto* N = dyn_cast_or_null<CfgNode>(Node::getByUUID(C, Id));
     // Need to skip rather than error out on null N
-    // assert(N && "CFG message contains vertex that is not a CfgNode!");
-    if (!N) {
-      continue;
-    }
+    assert(N && "CFG message contains vertex that is not a CfgNode!");
+    // if (!N) {
+    //   continue;
+    // }
     addVertex(N, Result);
   }
   for (const auto& M : Message.edges()) {
