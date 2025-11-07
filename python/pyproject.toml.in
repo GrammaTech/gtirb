@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools >= 64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gtirb"
+dynamic = ["version"]
+description = "GrammaTech Intermediate Representation for Binaries"
+readme = "README"
+authors = [
+    {name = "GrammaTech", email="gtirb@grammatech.com"},
+]
+license = {text = "MIT"}
+
+requires-python = ">= 3.8"
+
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
+
+dependencies = [
+    "intervaltree ~= 3.0",
+    "networkx >= 2.3",
+    "@GTIRB_PROTOBUF_CONSTRAINT@",
+    "sortedcontainers ~= 2.0",
+    "typing-extensions >= 3.7.4.3",
+]
+
+[project.urls]
+Homepage = "https://github.com/grammatech/gtirb"
+Documentation = "https://grammatech.github.io/gtirb/python/index.html"
+Repository = "https://github.com/grammatech/gtirb.git"
+Issues = "https://github.com/GrammaTech/gtirb/issues"
+
+[tool.setuptools]
+packages = ["gtirb", "gtirb.proto"]
+
+[tool.setuptools.dynamic]
+version = {attr = "gtirb.version.API_VERSION"}
+
+[tool.coverage.run]
+source_pkgs = ["gtirb"]
+omit = ["*/gtirb/proto/*"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 75
+show_missing = true
+
+[tool.coverage.paths]
+source = [
+    ".",
+    "*/site-packages",
+]

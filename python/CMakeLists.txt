@@ -26,14 +26,16 @@ file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/gtirb/py.typed "")
 
 if("${Protobuf_VERSION}" VERSION_LESS "3.19.0")
   # Older protobuf compilers generate code incompatible with newer runtimes.
-  set(GTIRB_PROTOBUF_CONSTRAINT "protobuf~=3.0")
+  set(GTIRB_PROTOBUF_CONSTRAINT "protobuf ~= 3.0, >= ${Protobuf_VERSION}")
 else()
-  set(GTIRB_PROTOBUF_CONSTRAINT "protobuf>=4.0")
+  set(GTIRB_PROTOBUF_CONSTRAINT "protobuf >= 4.0")
 endif()
 
-configure_file(setup.py.in setup.py @ONLY)
-configure_file(.coveragerc .coveragerc COPYONLY)
+configure_file(pyproject.toml.in pyproject.toml @ONLY)
 configure_file(README.md README COPYONLY)
+configure_file(requirements-dev.txt requirements-dev.txt COPYONLY)
+configure_file(requirements-mypy.txt requirements-mypy.txt COPYONLY)
+configure_file(tox.ini tox.ini COPYONLY)
 # Copy the license from the top-level of the source repo.
 configure_file(${CMAKE_SOURCE_DIR}/LICENSE.txt LICENSE COPYONLY)
 
@@ -99,27 +101,33 @@ configure_file(
 )
 
 if(GTIRB_ENABLE_TESTS)
-  if(ENABLE_MYPY)
-    add_test(
-      NAME mypy
-      COMMAND mypy gtirb
-      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
-    )
-  endif()
+  find_program(TOX tox)
+  if(TOX)
+    if(ENABLE_MYPY)
+      # Only run mypy if we actually generated stubs for the protobuf
+      # definitions.
+      add_test(
+        NAME mypy
+        COMMAND tox run -e mypy
+        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
+      )
+    endif()
 
-  if(ENABLE_CODE_COVERAGE)
-    add_test(
-      NAME testgtirbpy
-      COMMAND
-        coverage run --source=gtirb -m unittest discover tests
-      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
+    execute_process(
+      COMMAND ${TOX} -l
+      WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      OUTPUT_VARIABLE TOX_ENVIRONMENTS
     )
+    string(REGEX MATCHALL "py3[0-9a-z-]*" TOX_ENVIRONMENTS ${TOX_ENVIRONMENTS})
+    foreach(TOX_ENVIRONMENT ${TOX_ENVIRONMENTS})
+      add_test(
+        NAME ${TOX_ENVIRONMENT}
+        COMMAND ${TOX} run -e ${TOX_ENVIRONMENT} --
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+      )
+    endforeach()
   else()
-    add_test(
-      NAME testgtirbpy
-      COMMAND ${PYTHON} -m unittest discover tests
-      WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/"
-    )
+    message(SEND_ERROR "Python tests require tox to be installed")
   endif()
 endif()
 
@@ -127,5 +135,5 @@ endif()
 add_custom_target(
   python-wheel
   DEPENDS pygtirb
-  COMMAND "${PYTHON}" setup.py sdist bdist_wheel
+  COMMAND "${PYTHON}" -m pip wheel --no-deps "${CMAKE_CURRENT_BINARY_DIR}"
 )

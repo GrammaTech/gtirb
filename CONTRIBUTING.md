@@ -22,14 +22,8 @@ Please read the [GTIRB Code of Conduct](CODE_OF_CONDUCT.md).
   project, and a pass through this tool is included as part of our
   `pre-commit` configuration (see below for details).
 
-- The GTIRB version saved in `version.txt` in the base of the GTIRB
-  repository is like [semantic versioning](https://semver.org) but
-  offset by one (because we're still early enough as a project to have
-  many backwards in-compatible changes and we don't want to be at
-  version 50.x in 5 years).  So with a version of `X.Y.Z` the first
-  `X` is incremented very rarely and only for major updates, the
-  second `Y` is incremented for every backwards incompatible change,
-  and the third `Z` is incremented when new features are added.
+- The GTIRB version saved in `version.txt` uses
+  [semantic versioning](https://semver.org)
 
 - We also track a Protobuf version number in `version.txt` (as
   `VERSION_PROTOBUF`).  This number is incremented whenever our
@@ -177,14 +171,8 @@ semi-colons.
 - All code must be formatted with [Black](https://pypi.org/project/black/)
   (set to line lengths of 79, for PEP8 compliance).
   A pass through this tool is included as part of our `pre-commit` configuration.
-  - Please note that `black` only works on Python version 3.6 and newer.
-    This is newer than what is available on some OSes by default (for example, Ubuntu 16),
-    so you may have to install Python 3.6 or newer to run `black`.
-    If installing Python 3.6+ on your system is not possible, there exists
-    [an online interface to Black](https://black.now.sh/?version=stable&state=_Td6WFoAAATm1rRGAgAhARYAAAB0L-Wj4AA-ACxdAD2IimZxl1N_W1ktIvcnCRyzdeeGA586U8RMKbisP9D6xUd8v4usX-jR3lIAACNC8ndFJAQXAAFIPxtdQK4ftvN9AQAAAAAEWVo=)
-    you can manually enter files into.
 
-- The Python API should be made to run on all version of Python 3.
+- The Python API should be made to run on all versions of Python 3.
 
 - Use `UpperCamelCase` for type names, `UPPER_CASE` for constant names,
   and `snake_case` for other identifier names.
@@ -194,6 +182,9 @@ semi-colons.
 - All code you care about should be tested.
 - Any code you don't care about should be removed.
 - Code testing is done via the built-in `unittest` framework.
+- Code testing uses [`tox`](https://tox.wiki/en/stable/) and
+  [`pytest`](https://docs.pytest.org/en/stable/) to simplify testing supported
+  configurations.
 - No unit test should take more than 0.5 seconds.
 
 ## Documentation

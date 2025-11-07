@@ -1,4 +1,7 @@
-mypy==0.961
-mypy-protobuf==3.3.0
-pre-commit
-types-protobuf==3.20.4
+pre-commit>=3.0
+pytest>=7.4
+pytest-cov>=4.0
+sphinx >= 7.0
+sphinx-autodoc-typehints >= 2.0
+tox>=4.0
+tox-uv~=1.0

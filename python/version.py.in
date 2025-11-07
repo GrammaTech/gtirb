@@ -1,5 +1,4 @@
-# Get the version from the package's version, so the version can be defined in
-# setup.py alone.
+# Build with CMake to ensure consistent versions across all supported languages.
 API_VERSION = (
     "@PROJECT_VERSION_MAJOR@."
     "@PROJECT_VERSION_MINOR@."

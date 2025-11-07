@@ -317,7 +317,7 @@ yourself you can try our implementation available at
 
 - Python
   ```bash
-  python setup.py install
+  pip install gtirb
   python -m gtirb_stack_stamp /tmp/ls.gtirb --outfile /tmp/ls-ss.gtirb --rebuild /tmp/ls-ss
   ```
 
