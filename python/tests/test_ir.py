@@ -4,6 +4,8 @@ import pathlib
 import tempfile
 import unittest
 
+from google.protobuf.message import DecodeError
+
 import gtirb
 
 IR_FILE = tempfile.mktemp(suffix=".gtirb")
@@ -121,10 +123,8 @@ class BadProtobufTest(unittest.TestCase):
         bytes += gtirb.version.PROTOBUF_VERSION.to_bytes(1, byteorder="little")
         bytes += b"JUNK"
         file_content = io.BytesIO(bytes)
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(DecodeError) as context:
             gtirb.IR.load_protobuf_file(file_content)
-
-        self.assertTrue("Error parsing message" in str(context.exception))
 
 
 class IRMethodTests(unittest.TestCase):
