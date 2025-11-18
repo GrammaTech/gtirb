@@ -113,6 +113,11 @@ if(GTIRB_ENABLE_TESTS)
       )
     endif()
 
+    if(ENABLE_CODE_COVERAGE)
+      set(GTIRB_TOX_FLAGS)
+    else()
+      set(GTIRB_TOX_FLAGS "--")
+    endif()
     execute_process(
       COMMAND ${TOX} -l
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -122,7 +127,7 @@ if(GTIRB_ENABLE_TESTS)
     foreach(TOX_ENVIRONMENT ${TOX_ENVIRONMENTS})
       add_test(
         NAME ${TOX_ENVIRONMENT}
-        COMMAND ${TOX} run -e ${TOX_ENVIRONMENT} --
+        COMMAND ${TOX} run -e ${TOX_ENVIRONMENT} ${GTIRB_TOX_FLAGS}
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
       )
     endforeach()

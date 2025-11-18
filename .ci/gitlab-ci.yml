@@ -115,7 +115,7 @@ build-docs:
     paths:
       - html
   script:
-    - pip install -r python/requirements-dev.txt
+    - pip install -r python/requirements-dev.txt -r python/requirements-mypy.txt
     - cmake -Bbuild . -DGTIRB_ENABLE_TESTS=OFF
     - cd build
     - pip install ./python/
@@ -149,7 +149,6 @@ build-docs:
       -DGTIRB_JAVA_API=${GTIRB_JAVA_API:-OFF}
       -DGTIRB_PY_API=${GTIRB_PY_API:-OFF}
     - make -j${MAKE_JOBS}
-    - 'if [ ${GTIRB_PY_API:-OFF} = ON ]; then pip3 install -e ./python; fi'
     - ctest --output-on-failure
 
 build-ubuntu20-gcc:
@@ -280,11 +279,10 @@ report-coverage-py:
         coverage_format: cobertura
         path: build/python/coverage.xml
   script:
-    - pip install coverage
+    - pip install -r requirements-dev.txt
     - cd build/python
-    - coverage xml
+    - tox run -e report
     - ../../.ci/adjust-coverage-paths.py --in-place coverage.xml --build-dir ..
-    - coverage report
 
 
 # The build artifact timestamps may be out-of-date relative to the newly cloned
