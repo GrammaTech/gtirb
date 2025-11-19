@@ -2,6 +2,7 @@
 
 * Fix auxdata table `elfSectionProperties` to `sectionProperties` in the java api
   to match the cpp and python api
+* Switched to use tox for testing the python API.
 
 # 2.3.0
 
