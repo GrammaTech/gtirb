@@ -279,7 +279,7 @@ report-coverage-py:
         coverage_format: cobertura
         path: build/python/coverage.xml
   script:
-    - pip install -r requirements-dev.txt
+    - pip install -r python/requirements-dev.txt
     - cd build/python
     - tox run -e report
     - ../../.ci/adjust-coverage-paths.py --in-place coverage.xml --build-dir ..
