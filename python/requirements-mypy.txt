@@ -1,3 +1,6 @@
+# Type stubs have a separate requirements file so they can be excluded from the
+# prerelease environments in tox.ini. In particular, mypy-protobuf depends on a
+# much newer version of protobuf than we actually require at runtime.
 mypy==0.961
 mypy-protobuf==3.3.0
 types-protobuf==3.20.4
