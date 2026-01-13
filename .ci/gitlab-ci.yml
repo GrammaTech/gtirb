@@ -251,7 +251,7 @@ generate-coverage:
       - build/**/*.cc
       - build/**/*.cpp
   before_script:
-    - pip install gcovr coverage
+    - pip install "gcovr>=8.5" coverage
   <<: *build
 
 # > If there is more than one matched line in the job output, the last line is used
@@ -264,9 +264,9 @@ report-coverage-cpp:
   image: $DOCKER_REGISTRY/rewriting/gtirb/ubuntu24:$IMAGE_TAG
   coverage: '/^TOTAL.*\s+(\d+\%)$/'
   script:
-    - pip install gcovr
+    - pip install "gcovr>=8.5"
     - cd build
-    - gcovr --exclude=googletest-src --exclude=doc --exclude=..*/proto --exclude=..*/test --root ..
+    - gcovr --exclude=googletest-src --exclude=doc --exclude=..*/proto --exclude=..*/test --merge-mode-functions=merge-use-line-0 --root ..
 
 report-coverage-py:
   stage: build
