@@ -19,6 +19,7 @@ option java_package = "com.grammatech.gtirb.proto";
 enum DecodeMode {
   All_Default = 0;
   ARM_Thumb = 1;
+  RISCV_Compressed = 2;
 };
 
 message CodeBlock {

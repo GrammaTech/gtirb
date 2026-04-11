@@ -26,6 +26,8 @@ namespace gtirb {
 enum class DecodeMode : uint8_t {
   Default = proto::All_Default, ///< Default decode mode for all ISAs
   Thumb = proto::ARM_Thumb,     ///< Thumb decode mode for ARM32
+  RISCV_Compressed = proto::RISCV_Compressed, ///< Compressed decode mode for
+                                              ///< RISC-V
 };
 
 } // namespace gtirb

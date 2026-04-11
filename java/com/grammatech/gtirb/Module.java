@@ -62,7 +62,9 @@ public class Module extends AuxDataContainer {
         PPC64,
         ARM64,
         MIPS32,
-        MIPS64
+        MIPS64,
+        RISCV32,
+        RISCV64
     }
 
     /**

@@ -29,6 +29,7 @@ public class CodeBlock extends ByteBlock {
     public enum DecodeMode {
         Default,
         Thumb,
+        RISCV_Compressed,
     }
 
     private DecodeMode decodeMode;

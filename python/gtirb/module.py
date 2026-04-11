@@ -127,6 +127,12 @@ class Module(AuxDataContainer):
         MIPS64 = Module_pb2.ISA.Value("MIPS64")
         """Microprocessor without Interlocked Pipelined Stages, 64-bit."""
 
+        RISCV32 = Module_pb2.ISA.Value("RISCV32")
+        """Reduced Instruction Set Computer V, 32-bit."""
+
+        RISCV64 = Module_pb2.ISA.Value("RISCV64")
+        """Reduced Instruction Set Computer V, 64-bit."""
+
         X64 = Module_pb2.ISA.Value("X64")
         """The 64-bit Intel Architecture. Also known as x86_64."""
 

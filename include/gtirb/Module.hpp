@@ -84,14 +84,16 @@ enum class ISA : uint8_t {
   ARM = proto::ARM,     ///< Advanced RISC Machine, also known as Acorn RISC
                         ///< Machine, 32-bit.
   ValidButUnsupported = proto::ValidButUnsupported,
-  PPC64 = proto::PPC64,   ///< Performance Optimization With Enhanced RISC –
-                          ///< Performance Computing, 64-bit.
-  ARM64 = proto::ARM64,   ///< Advanced RISC Machine, also known as Acorn RISC
-                          ///< Machine, 64-bit.
-  MIPS32 = proto::MIPS32, ///< Microprocessor without Interlocked Pipelined
-                          ///< Stages, 32-bit.
-  MIPS64 = proto::MIPS64  ///< Microprocessor without Interlocked Pipelined
-                          ///< Stages, 64-bit.
+  PPC64 = proto::PPC64,     ///< Performance Optimization With Enhanced RISC –
+                            ///< Performance Computing, 64-bit.
+  ARM64 = proto::ARM64,     ///< Advanced RISC Machine, also known as Acorn RISC
+                            ///< Machine, 64-bit.
+  MIPS32 = proto::MIPS32,   ///< Microprocessor without Interlocked Pipelined
+                            ///< Stages, 32-bit.
+  MIPS64 = proto::MIPS64,   ///< Microprocessor without Interlocked Pipelined
+                            ///< Stages, 64-bit.
+  RISCV32 = proto::RISCV32, ///< Reduced Instruction Set Computer V, 32-bit.
+  RISCV64 = proto::RISCV64  ///< Reduced Instruction Set Computer V, 64-bit.
 };
 
 enum class ByteOrder : uint8_t {

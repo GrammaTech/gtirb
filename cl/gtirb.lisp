@@ -521,7 +521,9 @@ the graph.")
       (#.proto:+isa-ppc64+ . :ppc64)
       (#.proto:+isa-arm64+ . :arm64)
       (#.proto:+isa-mips32+ . :mips32)
-      (#.proto:+isa-mips64+ . :mips64))
+      (#.proto:+isa-mips64+ . :mips64)
+      (#.proto:+isa-riscv32+ . :riscv32)
+      (#.proto:+isa-riscv64+ . :riscv64))
   :test #'equal)
 
 (define-constant +module-file-format-map+

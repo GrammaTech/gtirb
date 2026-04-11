@@ -44,6 +44,8 @@ enum ISA {
   ARM64 = 7;
   MIPS32 = 8;
   MIPS64 = 9;
+  RISCV32 = 10;
+  RISCV64 = 11;
 };
 
 enum ByteOrder {
