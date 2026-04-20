@@ -1,5 +1,9 @@
 # 2.3.2 (Unreleased)
 
+* Added `RISCV32` and `RISCV64` values to the `Module::ISA` enum.
+* Added a `Compressed` value to the `CodeBlock::DecodeMode` enum (backed by
+  the `RISCV_Compressed` proto value) for RISC-V compressed-instruction blocks.
+
 # 2.3.1
 
 * Fix auxdata table `elfSectionProperties` to `sectionProperties` in the java api

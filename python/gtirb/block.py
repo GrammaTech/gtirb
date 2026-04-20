@@ -258,7 +258,7 @@ class CodeBlock(ByteBlock, CfgNode):
         Thumb = CodeBlock_pb2.DecodeMode.Value("ARM_Thumb")
         """Thumb decode mode for ARM32"""
 
-        RISCV_Compressed = CodeBlock_pb2.DecodeMode.Value("RISCV_Compressed")
+        Compressed = CodeBlock_pb2.DecodeMode.Value("RISCV_Compressed")
         """Compressed decode mode for RISC-V"""
 
     def __init__(
