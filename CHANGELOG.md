@@ -1,4 +1,4 @@
-# 2.3.2 (Unreleased)
+# 2.3.2
 
 * Added `RISCV32` and `RISCV64` values to the `Module::ISA` enum.
 * Added a `Compressed` value to the `CodeBlock::DecodeMode` enum (backed by
